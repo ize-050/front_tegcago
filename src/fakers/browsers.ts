@@ -5,9 +5,7 @@ export interface Browser {
   name: string;
 }
 
-const imageAssets = import.meta.glob<{
-  default: string;
-}>("/src/assets/images/browsers/*.{jpg,jpeg,png,svg}", { eager: true });
+const imageAssets :any = '';
 
 const fakers = {
   fakeBrowsers() {

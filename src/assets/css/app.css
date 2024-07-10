@@ -27,6 +27,8 @@
 @import "./components/_typing-dots.css";
 @import "./components/_zoom-in.css";
 
+
+
 /*
  |--------------------------------------------------------------------------
  | TailwindCSS Directives
@@ -42,3 +44,4 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+

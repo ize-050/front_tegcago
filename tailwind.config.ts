@@ -1,9 +1,9 @@
 const plugin = require("tailwindcss/plugin");
 const colors = require("tailwindcss/colors");
 const { parseColor } = require("tailwindcss/lib/util/color");
-
+const { fontFamily } = require('tailwindcss/defaultTheme');
 /** Converts HEX color to RGB */
-const toRGB = (value) => {
+const toRGB = (value:any) => {
   return parseColor(value).color.join(" ");
 };
 
@@ -14,12 +14,24 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: "class",
   theme: {
+    fontFamily: {
+      sans: ['var(--font-athiti)', ...fontFamily.sans],
+    },
     container: {
-      screens: {
-        "2xl": "1320px",
+      padding: {
+        DEFAULT: '1rem',
+        sm: '2rem',
+        lg: '4rem',
+        xl: '5rem',
+        '2xl': '6rem',
       },
     },
+  
     extend: {
+      
+      fontFamily: {
+        sans: ['var(--font-athiti)', ...fontFamily.sans],
+      },
       screens: {
         "3xl": "1600px",
       },
@@ -50,10 +62,7 @@ module.exports = {
           900: "rgb(var(--color-darkmode-900) / <alpha-value>)",
         },
       },
-      fontFamily: {
-        "public-sans": ["Public Sans"],
-        "dm-sans": ["DM Sans"],
-      },
+ 
       backgroundImage: {
         "texture-black":
           "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2346.899' height='1200.894' viewBox='0 0 2346.899 1200.894'%3E%3Cg id='Group_369' data-name='Group 369' transform='translate(-33.74 508.575)'%3E%3Cg id='Group_366' data-name='Group 366' transform='translate(33.74 -458.541)'%3E%3Crect id='Rectangle_492' data-name='Rectangle 492' width='745.289' height='650.113' transform='matrix(0.978, 0.208, -0.208, 0.978, 296.729, 261.648)' fill='rgba(30,41,59,0.01)'/%3E%3Crect id='Rectangle_491' data-name='Rectangle 491' width='1335.276' height='650.113' transform='translate(0 543.106) rotate(-24)' fill='rgba(30,41,59,0.01)'/%3E%3C/g%3E%3Cg id='Group_367' data-name='Group 367' transform='translate(1647.456 1026.688) rotate(-128)'%3E%3Crect id='Rectangle_492-2' data-name='Rectangle 492' width='745.289' height='650.113' transform='matrix(0.978, 0.208, -0.208, 0.978, 296.729, 261.648)' fill='rgba(30,41,59,0.01)'/%3E%3Crect id='Rectangle_491-2' data-name='Rectangle 491' width='1335.276' height='650.113' transform='translate(0 543.106) rotate(-24)' fill='rgba(30,41,59,0.01)'/%3E%3C/g%3E%3Cg id='Group_368' data-name='Group 368' transform='matrix(-0.656, -0.755, 0.755, -0.656, 1017.824, 1042.94)'%3E%3Crect id='Rectangle_492-3' data-name='Rectangle 492' width='745.289' height='650.113' transform='matrix(0.978, 0.208, -0.208, 0.978, 296.729, 261.648)' fill='rgba(30,41,59,0.01)'/%3E%3Crect id='Rectangle_491-3' data-name='Rectangle 491' width='1335.276' height='650.113' transform='translate(0 543.106) rotate(-24)' fill='rgba(30,41,59,0.01)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A\")",
@@ -64,14 +73,16 @@ module.exports = {
         "chevron-black":
           "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300000095' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")",
       },
-      container: {
-        center: true,
-      },
+      // container: {
+      //   center: true,
+      // },
     },
   },
   plugins: [
     require("@tailwindcss/forms"),
-    plugin(function ({ addBase, matchUtilities }) {
+    require('tailwind-hamburgers'),
+    plugin(function ({ addBase, matchUtilities }:any) {
+      
       addBase({
         // Default colors
         ":root": {

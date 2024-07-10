@@ -51,9 +51,13 @@ function Tab({
           >
             {typeof children === "function"
               ? children({
-                  selected: selected,
-                  disabled: disabled,
-                })
+                selected: selected,
+                disabled: disabled,
+                hover: false,
+                focus: false,
+                active: false,
+                autofocus: false
+              })
               : children}
           </tabContext.Provider>
         </li>
@@ -199,8 +203,9 @@ Tab.Panel = ({
           <>
             {typeof children === "function"
               ? children({
-                  selected: selected,
-                })
+                selected: selected,
+                focus: false
+              })
               : children}
           </>
         </Transition>

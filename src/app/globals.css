@@ -16,7 +16,33 @@
   }
 }
 
+@font-face {
+  font-family: "Athiti";
+  src: 
+    url('/public/fonts/Athiti/Athiti-Regular.ttf') format('ttf'),  /* Modern browsers */
+    url('/public/fonts/Athiti/Athiti-Regular.ttf') format('ttf');    /* Older browsers */
+}
+
+
+
+.tooltip {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Position below the cell */
+  left: 0;
+  width: 100%; /* Adjust width as needed */
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+@keyframes slideOut {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
 body {
+ 
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -25,6 +51,8 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+
 
 @layer utilities {
   .text-balance {

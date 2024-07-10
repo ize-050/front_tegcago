@@ -63,9 +63,7 @@ function Main() {
     localStorage.setItem("theme", theme);
   };
 
-  const imageAssets = import.meta.glob<{
-    default: string;
-  }>("/src/assets/images/themes/*.{jpg,jpeg,png,svg}", { eager: true });
+  const imageAssets:any ='';
 
   useEffect(() => {
     if (queryParams.get("theme")) {

@@ -8,9 +8,7 @@ export interface ProjectDetail {
   image: string;
 }
 
-const imageAssets = import.meta.glob<{
-  default: string;
-}>("/src/assets/images/projects/*.{jpg,jpeg,png,svg}", { eager: true });
+const imageAssets :any = '';
 
 function generateRandomLink() {
   const randomChars =

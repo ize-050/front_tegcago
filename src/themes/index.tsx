@@ -1,7 +1,7 @@
 import { selectTheme, getTheme } from "@/stores/themeSlice";
 import { selectPageLoader } from "@/stores/pageLoaderSlice";
 import { useAppSelector } from "@/stores/hooks";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 import { Transition } from "@headlessui/react";
 
 function Main() {

@@ -9,6 +9,35 @@
   unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F,
     U+FE2E-FE2F;
 }
+
+
+@font-face {
+  font-family: 'Athiti';
+  src: url('/public/fonts/Athiti/Athiti-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: "Kanit";
+  src: url('/public/fonts/Kanit/Kanit-Regular.ttf') format('woff2');
+  
+       /* url('/public/fonts/Kanit/Kanit-Regular.ttf') format('woff'),
+       url('/public/fonts/Kanit/Kanit-Bold.ttf') format('woff'); */
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Kanit";
+  src: url('/public/fonts/Kanit/Kanit-Light.ttf') format('woff2');
+  
+       /* url('/public/fonts/Kanit/Kanit-Regular.ttf') format('woff'),
+       url('/public/fonts/Kanit/Kanit-Bold.ttf') format('woff'); */
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+
 /* cyrillic */
 @font-face {
   font-family: "Montserrat";

@@ -3,6 +3,7 @@ import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 import { Transition } from "react-transition-group";
 import Breadcrumb from "..//Base/Breadcrumb";
+import {usePathname} from 'next/navigation'
 import { useState, useEffect, createRef } from "react";
 import { selectSideMenu } from "../../stores/sideMenuSlice";
 import {
@@ -46,8 +47,9 @@ function Slider() {
   const [formattedMenu, setFormattedMenu] = useState<
     Array<FormattedMenu | string>
   >([]);
+  const pathname = usePathname()
   const sideMenuStore = useAppSelector(selectSideMenu);
-  const sideMenu = () => nestedMenu(sideMenuStore, router.asPath);
+  const sideMenu = () => nestedMenu(sideMenuStore,pathname);
   const scrollableRef = createRef<HTMLDivElement>();
 
   const toggleCompactMenu = (event: React.MouseEvent) => {
@@ -79,12 +81,12 @@ function Slider() {
     window.onresize = () => {
       compactLayout();
     };
-  }, [sideMenuStore, router.asPath]);
+  }, [sideMenuStore, pathname]);
     return (
        <>
           <div
           className={clsx([
-            "fixed ml-[275px] w-10 h-10 items-center justify-center xl:hidden z-50",
+            // "fixed ml-[275px] w-10 h-10 items-center justify-center xl:hidden z-50",
             { flex: activeMobileMenu },
             { hidden: !activeMobileMenu },
           ])}
@@ -171,7 +173,7 @@ function Slider() {
                       onClick={(event: React.MouseEvent) => {
                         event.preventDefault();
 
-                        setFormattedMenu([...formattedMenu]);
+                    
                       }}
                     >
                      <div className="flex">

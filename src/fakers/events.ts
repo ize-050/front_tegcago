@@ -19,10 +19,7 @@ export interface Event {
   image: string;
 }
 
-const imageAssets = import.meta.glob<{
-  default: string;
-}>("/src/assets/images/projects/*.{jpg,jpeg,png,svg}", { eager: true });
-
+const imageAssets :any = '';
 const fakers = {
   fakeEvents() {
     const events: Array<Event> = [
@@ -149,7 +146,7 @@ const fakers = {
           .unix(_.random(1586584776897, 1672333200000) / 1000)
           .format("DD MMMM YYYY"),
         time: "07:30 PM",
-        icon: "ArrowLeftSquare",
+        icon: "Home",
         organizer: "Networking Pro",
         attendees: users.fakeUsers(),
         availableSeats: _.random(1, 4),

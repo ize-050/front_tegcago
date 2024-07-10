@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import RootState from "./store";
 
 interface DarkModeState {
   value: boolean;
@@ -21,7 +21,7 @@ export const darkModeSlice = createSlice({
 
 export const { setDarkMode } = darkModeSlice.actions;
 
-export const selectDarkMode = (state: RootState) => {
+export const selectDarkMode = (state:any) => {
   if (localStorage.getItem("darkMode") === null) {
     localStorage.setItem("darkMode", "false");
   }

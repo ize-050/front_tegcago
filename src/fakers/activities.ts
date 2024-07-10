@@ -16,9 +16,7 @@ export interface Activity {
   images?: string[];
 }
 
-const imageAssets = import.meta.glob<{
-  default: string;
-}>("/src/assets/images/projects/*.{jpg,jpeg,png,svg}", { eager: true });
+const imageAssets :any = '';
 
 const filteredImages = Object.keys(imageAssets).filter(
   (file) => file.search("400x400") !== -1

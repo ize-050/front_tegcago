@@ -17,9 +17,7 @@ export interface File {
     | "DOCX";
 }
 
-const imageAssets = import.meta.glob<{
-  default: string;
-}>("/src/assets/images/products/*.{jpg,jpeg,png,svg}", { eager: true });
+const imageAssets :any = '';
 
 const filteredImages = Object.keys(imageAssets).filter(
   (file) => file.search("100x100") !== -1

@@ -15,7 +15,7 @@ export interface FormattedMenu extends Menu {
 }
 
 // Setup side menu
-const findActiveMenu = (subMenu: Menu[], location: Location): boolean => {
+const findActiveMenu = (subMenu: Menu[], location: Location | any): boolean => {
   let match = false;
   subMenu.forEach((item) => {
     if (

@@ -16,7 +16,7 @@ const fakers = {
       { name: "Delivered", textColor: "text-success", icon: "PackageCheck" },
       { name: "Cancelled", textColor: "text-primary", icon: "PackageX" },
       { name: "Refunded", textColor: "text-primary", icon: "Wallet" },
-      { name: "Returned", textColor: "text-primary", icon: "ArrowLeftSquare" },
+      { name: "Returned", textColor: "text-primary", icon: "Home" },
       { name: "Failed", textColor: "text-primary", icon: "FileX2" },
       { name: "On Hold", textColor: "text-success", icon: "PackageSearch" },
       { name: "Completed", textColor: "text-success", icon: "Package" },

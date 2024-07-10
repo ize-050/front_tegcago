@@ -4,8 +4,30 @@ html {
         font-size: theme("fontSize.sm");
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-family: theme("fontFamily.public-sans");
+        /* font-family: theme("fontFamily.public-sans"); */
         color: theme("colors.slate.600");
         line-height: theme("lineHeight.5");
     }
+
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('/public/fonts/Kanit/Kanit-Light.ttf') format('woff2'),
+         url('/public/fonts/Kanit/Kanit-Regular.ttf') format('woff'),
+         url('/public/fonts/Kanit/Kanit-Bold.ttf') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+
+
+
 }
+
+
+@font-face {
+    font-family: 'Athiti';
+    src: url('/public/fonts/Athiti/Athiti-Regular.ttf') format('truetype');
+  }
+
+

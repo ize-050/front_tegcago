@@ -15,14 +15,15 @@ export interface User {
   isActive: boolean;
 }
 
-const imageAssets = "";
+const imageAssets :any = '';
+
 const fakers = {
   fakeUsers() {
     const users: Array<User> = [
       {
         name: "Tom Hanks",
         position: "Sales Manager",
-        photo: "",
+        photo: imageAssets["/src/assets/images/users/user1-50x50.jpg"].default,
         email: "tom.hanks@left4code.com",
         phone: "+1 (123) 456-7890",
         department: "Sales Department",
@@ -36,7 +37,7 @@ const fakers = {
       {
         name: "Meryl Streep",
         position: "Marketing Coordinator",
-        photo: "",
+        photo: imageAssets["/src/assets/images/users/user2-50x50.jpg"].default,
         email: "meryl.streep@left4code.com",
         phone: "+1 (234) 567-8901",
         department: "Marketing Department",
@@ -50,7 +51,7 @@ const fakers = {
       {
         name: "Leonardo DiCaprio",
         position: "Support Specialist",
-        photo: "",
+        photo: imageAssets["/src/assets/images/users/user3-50x50.jpg"].default,
         email: "leonardo.dicaprio@left4code.com",
         phone: "+1 (345) 678-9012",
         department: "Support Team",
@@ -64,7 +65,7 @@ const fakers = {
       {
         name: "Angelina Jolie",
         position: "Account Executive",
-        photo: "",
+        photo: imageAssets["/src/assets/images/users/user4-50x50.jpg"].default,
         email: "angelina.jolie@left4code.com",
         phone: "+1 (456) 789-0123",
         department: "Account Management",
@@ -78,7 +79,7 @@ const fakers = {
       {
         name: "Brad Pitt",
         position: "Data Analyst",
-        photo: "",
+        photo: imageAssets["/src/assets/images/users/user5-50x50.jpg"].default,
         email: "brad.pitt@left4code.com",
         phone: "+1 (567) 890-1234",
         department: "Data Analytics",
@@ -89,7 +90,76 @@ const fakers = {
         addressLine2: "Unit 501",
         isActive: true,
       },
-      
+      {
+        name: "Jennifer Lawrence",
+        position: "CRM Administrator",
+        photo: imageAssets["/src/assets/images/users/user6-50x50.jpg"].default,
+        email: "jennifer.lawrence@left4code.com",
+        phone: "+1 (678) 901-2345",
+        department: "CRM Team",
+        location: "Miami, USA",
+        joinedDate: "February 18, 2019",
+        manager: "David Miller",
+        addressLine1: "234 Birch Street",
+        addressLine2: "Apt 301",
+        isActive: false,
+      },
+      {
+        name: "Johnny Depp",
+        position: "Product Manager",
+        photo: imageAssets["/src/assets/images/users/user7-50x50.jpg"].default,
+        email: "johnny.depp@left4code.com",
+        phone: "+1 (789) 012-3456",
+        department: "Product Management",
+        location: "Denver, USA",
+        joinedDate: "October 7, 2013",
+        manager: "Linda White",
+        addressLine1: "345 Willow Avenue",
+        addressLine2: "Suite 401",
+        isActive: true,
+      },
+      {
+        name: "Cate Blanchett",
+        position: "Project Manager",
+        photo: imageAssets["/src/assets/images/users/user8-50x50.jpg"].default,
+        email: "cate.blanchett@left4code.com",
+        phone: "+1 (890) 123-4567",
+        department: "Project Management",
+        location: "Houston, USA",
+        joinedDate: "June 12, 2017",
+        manager: "Robert Green",
+        addressLine1: "678 Maple Road",
+        addressLine2: "Floor 2A",
+        isActive: false,
+      },
+      {
+        name: "Denzel Washington",
+        position: "HR Director",
+        photo: imageAssets["/src/assets/images/users/user9-50x50.jpg"].default,
+        email: "denzel.washington@left4code.com",
+        phone: "+1 (901) 234-5678",
+        department: "Human Resources",
+        location: "Atlanta, USA",
+        joinedDate: "April 25, 2011",
+        manager: "Susan Taylor",
+        addressLine1: "901 Pine Street",
+        addressLine2: "Floor 4C",
+        isActive: true,
+      },
+      {
+        name: "Julia Roberts",
+        position: "Software Engineer",
+        photo: imageAssets["/src/assets/images/users/user10-50x50.jpg"].default,
+        email: "julia.roberts@left4code.com",
+        phone: "+1 (234) 567-8901",
+        department: "Engineering",
+        location: "Austin, USA",
+        joinedDate: "August 9, 2014",
+        manager: "Michael Scott",
+        addressLine1: "123 Oak Avenue",
+        addressLine2: "Suite 601",
+        isActive: false,
+      },
     ];
 
     return _.shuffle(users);

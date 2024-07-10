@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import {RootState} from "./store";
 import Hurricane from "../themes/Hurricane";
 import Ravage from "../themes/Ravage";
 import Echo from "../themes/Echo";
@@ -51,7 +51,7 @@ export const themeSlice = createSlice({
 
 export const { setTheme } = themeSlice.actions;
 
-export const selectTheme = (state: RootState) => {
+export const selectTheme = (state: any) => {
   if (localStorage.getItem("theme") === null) {
     localStorage.setItem("theme", "echo");
   }
