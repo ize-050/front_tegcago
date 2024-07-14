@@ -16,6 +16,7 @@ export interface Menu {
 
 export interface internalCustomer {
   customer: [];
+  customer_detail:Partial<any>
   ModalCreate: boolean;
   formAddcustomer :boolean
   totalData :number
@@ -23,6 +24,7 @@ export interface internalCustomer {
 
 const initialState: internalCustomer = {
   customer: [],
+  customer_detail:{},
   ModalCreate: false,
   formAddcustomer :false,
   totalData:0
@@ -96,12 +98,15 @@ export const customer = createSlice({
     },
     resetFormAddcustomer:(state,action) =>{
       state.formAddcustomer = action.payload;
+    },
+    setCustomerDetail:(state, action) => {
+      state.customer_detail = action.payload;
     }
   },
 });
 
 export const customerData = (state: RootState) => state.customerRedurer;
 
-export const { setCustomerData, setFormAddCustomer ,resetFormAddcustomer } = customer.actions;
+export const { setCustomerData, setFormAddCustomer ,resetFormAddcustomer , setCustomerDetail } = customer.actions;
 
 export default customer.reducer;

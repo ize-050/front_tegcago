@@ -31,6 +31,25 @@ export const getCustomer = async(currentPage:number,status:string,tag:string) =>
     })
 }
 
+export const getCustomerDetail  = async(id:string) =>{
+    return new Promise(async (resolve, reject) =>{
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getCustomerDetail/${id}`;
+
+         await axios.get(url,
+            {
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res=>{
+            if(res.status ===200){
+                resolve(res.data.customer_detail)
+            }
+        }).catch(err=>{
+            reject(err)
+        })
+    })
+}
+
 
 export const submitAddcustomer = async (data:Partial<any>) =>{ //บันทึกcustomer เบื้องต้น
     return  new Promise(async(resolve,reject) =>{

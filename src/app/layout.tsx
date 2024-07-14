@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { useSession } from 'next-auth/react';
 import { SessionProvider } from 'next-auth/react';
 import  NextAuthProvider from "./session"
+import ProgressBar from "./ProgressBar";
 const myFont = localFont({
   src: [
     {
@@ -45,6 +46,7 @@ export default function RootLayout({
       <Provider store={store}>
 
         <body className={"theme-16"}>
+        <ProgressBar />
           {!isLoginPage && (
             <>
               <Layout >
