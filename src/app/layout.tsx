@@ -6,11 +6,13 @@ import store from '../stores/store';
 import { Provider } from 'react-redux';
 
 import Layout from '../components/Layouts/Layout'
-
-import  ToastCompoent from "@/components/Layouts/toastComponents"
-
+import { usePathname,redirect,useRouter } from 'next/navigation';
+import ToastCompoent from "@/components/Layouts/toastComponents"
 import localFont from 'next/font/local';
-
+import { useEffect } from "react";
+import { useSession } from 'next-auth/react';
+import { SessionProvider } from 'next-auth/react';
+import  NextAuthProvider from "./session"
 const myFont = localFont({
   src: [
     {
@@ -23,28 +25,43 @@ const myFont = localFont({
 });
 
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const router = useRouter()
+
+
+ 
+  const isLoginPage = pathname === '/login';
   return (
+    <NextAuthProvider>
     <html lang="en" className={`${myFont.variable}`}>
       <Provider store={store}>
-   
+
         <body className={"theme-16"}>
-      
-          
-          <Layout >
-
-            {children}
-          </Layout>
-          <ToastCompoent/>  
-
-
+          {!isLoginPage && (
+            <>
+              <Layout >
+                {children}
+              </Layout>
+            </>
+          )}
+          {isLoginPage &&(
+            <>
+              {children}
+            </>
+          )}
+         
+          <ToastCompoent />
         </body>
       </Provider>
-
     </html>
+    </NextAuthProvider>
   );
 }

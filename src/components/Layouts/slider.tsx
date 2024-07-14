@@ -176,12 +176,12 @@ function Slider() {
                     
                       }}
                     >
-                     <div className="flex">
+                     <div className="flex text-white hover:text-gray-200">
                       <Lucide
                         icon={menu.icon}
                         className="side-menu__link__icon mt-3"
                       />
-                      <div className="side-menu__link__title p-3">{menu.title}</div>
+                      <div className="side-menu__link__title p-3 ">{menu.title}</div>
                       {/* {menu.badge && (
                         <div className="side-menu__link__badge">
                           {menu.badge}

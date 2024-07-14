@@ -12,13 +12,16 @@ export interface Menu {
 }
 
 export interface toast {
-    toastData: boolean;
+    toastData: Partial<any>;
     data:Partial<any>
 }
 
 const initialState : toast= {
-   toastData:false,
-  data :{}
+   toastData:{
+    type :'',
+    message :'',
+   },
+   data :{}
 };
 
 
@@ -27,7 +30,6 @@ export const utilStore = createSlice({
   initialState,
   reducers: {
     setOpenToast: (state, action) => {
-        console.log('acasd',action.payload);
       state.toastData = action.payload
     },
    

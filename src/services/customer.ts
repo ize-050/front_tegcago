@@ -1,17 +1,25 @@
-import axios from 'axios';
+import axios from '../../axios';
 
 
 
 
-export const getCustomer = async() =>{
+export const getCustomer = async(currentPage:number,status:string,tag:string) =>{
     return  new Promise(async(resolve,reject) =>{
 
+        
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getCustomer`;
 
-        const data =  await axios.get(url,{
+        const data =  await axios.get(url,
+            {
             headers: {
                 Accept: 'application/json',
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMjZhZGNiMS01MmI2LTRjMjYtYTQ0YS03ODBkMWM0YzIyZGQiLCJpYXQiOjE3MjA2Mjg5MTMsImV4cCI6MTcyMDcxNTMxM30.0iczWCxwa34LqANuyDrEPTiXjL5V5s-KlzJRPLDRDRg'
+               
+            },
+            params:{
+                page :currentPage,
+                status:status,
+                tag:tag,
+                limit :10
             }
         }).then(res=>{
             if(res.status ===200){
@@ -24,6 +32,28 @@ export const getCustomer = async() =>{
 }
 
 
+export const submitAddcustomer = async (data:Partial<any>) =>{ //บันทึกcustomer เบื้องต้น
+    return  new Promise(async(resolve,reject) =>{
+        console.log('dataCustomer',data)
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/createCustomer`;
+        axios.post(url,{
+            ...data
+        },{
+            headers: {
+                ContentType: 'application/json',
+                Accept: 'application/json',
+            },
+            
+        }).then(res=>{
+            if(res.status ===200){
+                resolve(res)
+            }
+        }).catch(err=>{
+            reject(err)
+        })
+    }) 
+}
+
 export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับสถานะลูกค้า
    
     return  new Promise(async(resolve,reject) =>{
@@ -35,7 +65,7 @@ export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับส�
         },{
             headers: {
                 Accept: 'application/json',
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMjZhZGNiMS01MmI2LTRjMjYtYTQ0YS03ODBkMWM0YzIyZGQiLCJpYXQiOjE3MjA2Mjg5MTMsImV4cCI6MTcyMDcxNTMxM30.0iczWCxwa34LqANuyDrEPTiXjL5V5s-KlzJRPLDRDRg'
+              
             },
             
         }).then(res=>{
@@ -47,5 +77,6 @@ export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับส�
         })
     })
 }
+
 
 

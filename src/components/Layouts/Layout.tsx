@@ -12,7 +12,7 @@ import {
 } from "../../stores/compactMenuSlice";
 import classNames from 'classnames';
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, redirect } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 import {
     FormattedMenu,
@@ -21,7 +21,7 @@ import {
 
 import clsx from "clsx";
 import SimpleBar from "simplebar";
-
+import { getSession, signIn, signOut } from "next-auth/react";
 
 
 //Slider 
@@ -87,6 +87,18 @@ function Layout({ children }:any) {
         };
     }, [pathname]);
 
+    useEffect(()=>{
+
+    const sessions =async()=>{
+        const session = await getSession()
+        console.log('session',session)
+        if(session === null) {
+           router.push('/login')
+        }
+    }
+     sessions()
+     },[])
+
     return (
 //xl:ml-0 shadow-xl transition-[margin] duration-300 xl:shadow-none  top-0 left-0 z-50 side-menu group
 
@@ -135,28 +147,7 @@ function Layout({ children }:any) {
 
                 <hr></hr>
 
-                <nav aria-label="Breadcrumb" className="p-5">
-                    <ol className="flex items-center space-x-2">
-                        <li className="flex items-center">
-                            <a href="#" className="inline-flex items-center text-purple-500 hover:text-purple-700">
-                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-                                <span className="ml-1">Home</span>
-                            </a>
-                        </li>
-                        <li>
-                            <div className="flex items-center">
-                                <span className="text-gray-500">/</span>
-                                <a href="#" className="ml-1 text-gray-500 hover:text-gray-700">Projects</a>
-                            </div>
-                        </li>
-                        <li aria-current="page">
-                            <div className="flex items-center">
-                                <span className="text-gray-500">/</span>
-                                <span className="ml-1 text-gray-700">Marketing</span>
-                            </div>
-                        </li>
-                    </ol>
-                </nav>
+                
                                             
                 {children}
             </div>
