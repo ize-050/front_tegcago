@@ -6,7 +6,7 @@ import 'nprogress/nprogress.css'; // Import NProgress styles
 const Loader = () => {
 
   let pathname = usePathname()
-  let searchParams = useSearchParams()
+//   let searchParams = useSearchParams()
 
   useEffect(() => {
     const handleStart = () => NProgress.start()
@@ -16,12 +16,12 @@ const Loader = () => {
     return () => {
       handleStart()
     }
-  }, [pathname, searchParams])
+  }, [pathname])
   return (
     <div className="fixed top-0 z-50">
-      <div id="nprogress">
-        <div className="bar" role="bar" />
-      </div>
+      {/* <div id="nprogress">
+        <div className="" role="bar" />
+      </div> */}
     </div>
   );
 };

@@ -24,10 +24,8 @@ import Lucide from "../Base/Lucide";
 import clsx from "clsx";
 import SimpleBar from "simplebar";
 import { Menu } from "../Base/Headless";
-import QuickSearch from "../QuickSearch";
-import SwitchAccount from "../SwitchAccount";
-import NotificationsPanel from "../NotificationsPanel";
-import ActivitiesPanel from "../ActivitiesPanel";
+
+import Image from 'next/image'
 
 function Slider() {
   const dispatch = useAppDispatch();
@@ -48,8 +46,10 @@ function Slider() {
     Array<FormattedMenu | string>
   >([]);
   const pathname = usePathname()
+
+
   const sideMenuStore = useAppSelector(selectSideMenu);
-  const sideMenu = () => nestedMenu(sideMenuStore,pathname);
+  const sideMenu = () => nestedMenu(sideMenuStore, pathname);
   const scrollableRef = createRef<HTMLDivElement>();
 
   const toggleCompactMenu = (event: React.MouseEvent) => {
@@ -130,7 +130,7 @@ function Slider() {
               style={{margin:"auto"}}
               className="transition-transform ease-in-out group-[.side-menu--collapsed.side-menu--on-hover]:xl:-rotate-180">
                 
-                  <img src ="logo.png" width="150"></img>
+                  <Image  alt="ttt" src ="/logo.png" width="150" height="150"></Image>
                 
               </div>
               <div className="ml-3.5 b group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0 transition-opacity font-medium text-white">
@@ -158,35 +158,30 @@ function Slider() {
             <ul className="scrollable mt-5">
               {/* BEGIN: First Child */}
               {formattedMenu.map((menu:any, menuKey) =>
-             
                   <li key={menuKey}>
                     <a
                       href=""
                       className={clsx([
-                        "side-menu__link ",
-                        { "side-menu__link--active": menu.active },
-                        {
-                          "side-menu__link--active-dropdown":
-                            menu.activeDropdown,
-                        },
+                        // "side-menu__link",
+                        // { "side-menu__link--active": menu.active },
+                        // { "side-menu__link--active-dropdown": menu.activeDropdown },
+                        "bg-white text-white hover:text-gray-900", 
+
                       ])}
                       onClick={(event: React.MouseEvent) => {
                         event.preventDefault();
-
-                    
+                        router.push(menu.pathname);
                       }}
                     >
-                     <div className="flex text-white hover:text-gray-200">
+                     <div className={`
+                     flex text-white  hover:text-gray-200
+                     ${pathname === `${menu.pathname}` || pathname.startsWith(`${menu.pathname}/`)  ? "bg-[#D2D6E14D] rounded-md pl-5" : 'pl-5' }`}
+                     >
                       <Lucide
                         icon={menu.icon}
                         className="side-menu__link__icon mt-3"
                       />
                       <div className="side-menu__link__title p-3 ">{menu.title}</div>
-                      {/* {menu.badge && (
-                        <div className="side-menu__link__badge">
-                          {menu.badge}
-                        </div>
-                      )} */}
                       {menu.subMenu && (
                         <Lucide
                           icon="ChevronDown"
@@ -210,7 +205,7 @@ function Slider() {
                             { hidden: !menu.activeDropdown },
                           ])}
                         >
-                          {menu.subMenu.map((subMenu, subMenuKey) => (
+                          {menu.subMenu.map((subMenu:any, subMenuKey:any) => (
                             <li key={subMenuKey}>
                               <a
                                 href=""
@@ -265,7 +260,7 @@ function Slider() {
                                     ])}
                                   >
                                     {subMenu.subMenu.map(
-                                      (lastSubMenu, lastSubMenuKey) => (
+                                      (lastSubMenu:any, lastSubMenuKey:any) => (
                                         <li key={lastSubMenuKey}>
                                           <a
                                             href=""

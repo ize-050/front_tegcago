@@ -9,7 +9,7 @@ export const getCustomer = async(currentPage:number,status:string,tag:string) =>
         
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getCustomer`;
 
-        const data =  await axios.get(url,
+       await axios.get(url,
             {
             headers: {
                 Accept: 'application/json',
@@ -43,6 +43,28 @@ export const getCustomerDetail  = async(id:string) =>{
         }).then(res=>{
             if(res.status ===200){
                 resolve(res.data.customer_detail)
+            }
+        }).catch(err=>{
+            reject(err)
+        })
+    })
+}
+
+
+export const ChangeUpdateCustomer = async(data:Partial<any>) =>{
+    return new Promise(async (resolve, reject) =>{
+        
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/editCustomer/${data.id}`;
+        delete data.id
+        await axios.put(url,{
+            ...data
+        },{
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res=>{
+            if(res.status ===200){
+                resolve(res)
             }
         }).catch(err=>{
             reject(err)
@@ -96,30 +118,6 @@ export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับส�
         })
     })
 }
-
-export const ChangeUpdateCustomer = async(data:Partial<any>) =>{
-    return  new Promise(async(resolve,reject) =>{
-        
-
-
-        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/editCustomer/${data.customer_id}`;
-        axios.put(url,{
-            ...data.data
-        },{
-            headers: {
-                ContentType: 'application/json',
-                Accept: 'application/json',
-            },
-            
-        }).then(res=>{
-            if(res.status ===200){
-                resolve(res)
-            }
-        }).catch(err=>{
-            reject(err)
-        })
-    }) 
-} //แก้ไขข้อมูลลูกค้า
 
 
 

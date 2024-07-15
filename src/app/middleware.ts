@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 const protectedPaths = ['/profile', '/dashboard']; // Add your protected paths here
 
 export function middleware(request: NextRequest) {
-  const { pathname, cookies } = request.nextUrl;
+  const { pathname, cookies }:any = request.nextUrl;
 
   // Check if the path is protected and the user is not authenticated
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));

@@ -33,7 +33,7 @@ const findActiveMenu = (subMenu: Menu[], location: Location | any): boolean => {
   return match;
 };
 
-const nestedMenu = (menu: Array<Menu | string>, location: Location) => {
+const nestedMenu = (menu: Array<Menu | string>, location: any) => {
   const formattedMenu: Array<FormattedMenu | string> = [];
   menu.forEach((item) => {
     if (typeof item !== "string") {

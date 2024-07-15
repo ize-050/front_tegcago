@@ -19,7 +19,7 @@ const initialState: SideMenuState = {
   menu: [
     {
       icon: "Home",
-      pathname: "/customer",
+      pathname: "/",
       title: "Dashboard",
     },
     {
@@ -29,17 +29,17 @@ const initialState: SideMenuState = {
     },
     {
       icon: "User",
-      pathname: "/customer",
+      pathname: "/users",
       title: "ข้อมูลลูกค้าที่ดูแล",
     },
     {
       icon: "Boxes",
-      pathname: "/customer",
+      pathname: "/customers",
       title: "ลูกค้าในระบบ",
     },
     {
       icon: "Proportions",
-      pathname: "/customer",
+      pathname: "/report",
       title: "รายงาน",
     },
   ],

@@ -1,9 +1,10 @@
 "use client";
 import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
-import { Transition } from "react-transition-group";
-import Breadcrumb from "..//Base/Breadcrumb";
+
 import { useState, useEffect, createRef } from "react";
+import { LogOut } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { selectSideMenu } from "../../stores/sideMenuSlice";
 import {
     selectCompactMenu,
@@ -11,6 +12,7 @@ import {
 
 } from "../../stores/compactMenuSlice";
 import classNames from 'classnames';
+
 
 import { useRouter, usePathname, redirect } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
@@ -30,8 +32,10 @@ import Sliders from "./slider";
 //ToastComponent
 
 import ToastComponent from "./toastComponents";
+import { set } from "lodash";
+import Lucide from "../Base/Lucide";
 
-function Layout({ children }:any) {
+function Layout({ children }: any) {
     const dispatch = useAppDispatch();
     const pathname = usePathname();
     const compactMenu = useAppSelector(selectCompactMenu);
@@ -46,6 +50,11 @@ function Layout({ children }:any) {
     const [activitiesPanel, setActivitiesPanel] = useState(false);
     const [compactMenuOnHover, setCompactMenuOnHover] = useState(false);
     const [activeMobileMenu, setActiveMobileMenu] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setIsOpen(!isOpen);
+    };
 
 
     const router = useRouter();
@@ -87,20 +96,20 @@ function Layout({ children }:any) {
         };
     }, [pathname]);
 
-    useEffect(()=>{
+    useEffect(() => {
 
-    const sessions =async()=>{
-        const session = await getSession()
-        console.log('session',session)
-        if(session === null) {
-           router.push('/login')
+        const sessions = async () => {
+            const session = await getSession()
+            console.log('session', session)
+            if (session === null) {
+                router.push('/login')
+            }
         }
-    }
-     sessions()
-     },[])
+        sessions()
+    }, [])
 
     return (
-//xl:ml-0 shadow-xl transition-[margin] duration-300 xl:shadow-none  top-0 left-0 z-50 side-menu group
+        //xl:ml-0 shadow-xl transition-[margin] duration-300 xl:shadow-none  top-0 left-0 z-50 side-menu group
 
 
         <div
@@ -113,19 +122,19 @@ function Layout({ children }:any) {
                 // { "-ml-[275px] after:hidden": !activeMobileMenu },
             ])}
         >
-            
+
             <div className={`transition-transform duration-500 ease-in-out  ${!opened ? "translate-x-0 w-275 " : "-translate-x-full   hidden"
                 }`}>
                 <Sliders />
             </div>
-            
+
             <div className={`flex-grow overflow-y-auto transition-all duration-300 ease-in-out ${!opened ? "" : "w-full"
                 }`}
                 style={{
-                    background:"#FAFAFA"
+                    background: "#FAFAFA"
                 }}
-                >
-               
+            >
+
                 <header className="bg-white">
                     <nav className="mx-auto   items-center  p-5 lg:px-8" aria-label="Global">
                         <ul className="flex items-end  text-blue-200"> {/* Add justify-between to the parent ul */}
@@ -138,8 +147,57 @@ function Layout({ children }:any) {
                                     </div>
                                 </div>
                             </li>
+
                             <li className="ml-auto flex-col-reverse text-blue-400"> {/* No need for flex-1 */}
-                                Test2
+
+                                <div className="flex">
+                                    <Bell className="mr-5 pt-1 border-gray-800 border-1 text-gray-600 w-5" />
+                                    <button
+                                        onClick={toggleDropdown}
+                                        type="button"
+                                        className="text-black bg-white   focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm  text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        id="dropdownDefaultButton"
+                                    >
+                                        Users
+                                        <svg
+                                            className="w-2.5 h-2.5 ms-3" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"
+                                        >
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+
+                                    {isOpen && ( // Conditionally render the dropdown
+                                        <div
+                                            className="origin-top-right absolute right-0 mt-11 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none dark:bg-gray-700"
+                                            role="menu"
+                                            aria-orientation="vertical"
+                                            aria-labelledby="dropdownDefaultButton"
+                                        >
+                                            <ul className="py-1  text-sm text-gray-700 dark:text-gray-200">
+                                                <li>
+
+                                                    <a href="#" className="block px-4 py-2 flex hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                        <Lucide icon="User"></Lucide>
+                                                        ข้อมูลส่วนตัว</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#"
+                                                        onClick={async () => {
+                                                            await signOut({ redirect: false, callbackUrl: '/' })
+                                                            router.push('/login')
+                                                        }}
+                                                        className="block px-4 py-2 hover:bg-gray-100 flex dark:hover:bg-gray-600 dark:hover:text-white">
+                                                        <LogOut className="block w-5 mr-1 " />
+                                                        ออกจากระบบ
+
+                                                    </a>
+                                                </li>
+                                                {/* ... other menu items ... */}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                             </li>
                         </ul>
                     </nav>
@@ -147,8 +205,8 @@ function Layout({ children }:any) {
 
                 <hr></hr>
 
-                
-                                            
+
+
                 {children}
             </div>
         </div>

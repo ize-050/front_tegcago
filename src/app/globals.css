@@ -24,6 +24,37 @@
 }
 
 
+.Toastify__toast-container {
+  font-family: "Athiti", sans-serif !important;
+  z-index: 9999 !important; /* Ensure toasts are on top */
+  width: 320px !important;  /* Set width as desired */
+}
+
+.Toastify__toast {
+  background: #fff !important;
+  color: #333 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.Toastify__toast--success {
+  font-family: "Athiti" !important;
+  background: #D7F9F6 !important;
+  border: 1px solid #10B981 !important;
+  color: #063E39 !important;
+
+}
+
+
+
+.Toastify__toast--error {
+  background: #f44336;
+  color: #fff;
+}
+
+.Toastify__progress-bar {
+  background: #ddd; 
+}
 
 .tooltip {
   display: none; /* Hidden by default */

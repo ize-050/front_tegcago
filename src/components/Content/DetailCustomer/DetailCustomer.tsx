@@ -1,11 +1,12 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller, SubmitHandler ,FormProvider} from "react-hook-form"
 import SocialMedia from './SocialMedia';
 import CompanyComponent from './Company';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch ,useAppSelector } from '@/stores/hooks';
 
-import {customerData 
+import {ChangeFormEdit, customerData 
     ,submitChangeUpdateCustomer
 } from '@/stores/customer'
 
@@ -13,8 +14,9 @@ import {customerData
 
 const DetailCustomer = () => {
     const dispatch = useAppDispatch();
-    const { customer_detail } =  useAppSelector(customerData)
+    const { customer_detail ,formEditcustomer} =  useAppSelector(customerData)
     const  methods = useForm()
+    const router = useRouter();
 
     const {
         handleSubmit,
@@ -32,7 +34,13 @@ const DetailCustomer = () => {
 
 
     const onSubmit = (data: any) => {
-        dispatch(submitChangeUpdateCustomer(data , customer_detail.id))
+        const Request = {
+            ...data,
+            cus_age:parseInt(data.cus_age),
+            cd_num:parseInt(data.cd_num),
+            id:customer_detail.id
+        }
+        dispatch(submitChangeUpdateCustomer(Request))
     }
     
     useEffect(()=>{
@@ -43,6 +51,11 @@ const DetailCustomer = () => {
            
         
     },[customer_detail])
+
+    const changeEdit = useCallback((data:boolean) => {
+
+        dispatch(ChangeFormEdit(data))
+    }, [formEditcustomer])
 
     return (
         <>
@@ -251,7 +264,7 @@ const DetailCustomer = () => {
                             }}
                             className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                             type="button"
-
+                            onClick={() => changeEdit(!formEditcustomer)}
                         >
                             ยกเลิก
                         </button>

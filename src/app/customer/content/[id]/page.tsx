@@ -3,8 +3,8 @@ import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 
 import { useState, useEffect, useCallback, createRef, useMemo } from "react";
-import { CirclePlus, ArrowUpFromLine } from 'lucide-react';
-import { useRouter,useParams } from "next/navigation";
+import { CirclePlus, ArrowUpFromLine, View } from 'lucide-react';
+import { useRouter, useParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
 import Lucide from "@/components/Base/Lucide";
@@ -19,7 +19,7 @@ import { getCustomer } from "@/services/customer";
 //store
 
 import {
-    setCustomerDetail ,
+    setCustomerDetail,
 
 } from "@/stores/customer";
 
@@ -28,38 +28,47 @@ import Button from "@/components/Base/Button";
 import Table from "@/components/Base/Table";
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
-import {customerData} from '@/stores/customer'
+import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
+import { customerData } from '@/stores/customer'
 
 
 //service
 
-import {getCustomerDetail} from  '@/services/customer' 
+import { getCustomerDetail } from '@/services/customer'
+import PrePurchase from "@/components/Content/Prepurchase/prepurchase";
 
 function Content() {
 
 
     const [tooltipOpen, setTooltipOpen] = useState(null);
+
+    const [activeTab, setActiveTab] = useState('customerDetail');
+    const handleTabClick = useCallback((tabName: any) => {
+        setActiveTab(tabName);
+    }, [activeTab])
+
+
     const router = useRouter()
     const dispatch = useAppDispatch();
-    const { customer_detail } =  useAppSelector(customerData)
-    const {id} :{
-        id:string
+    const { customer_detail, formEditcustomer } = useAppSelector(customerData)
+    const { id }: {
+        id: string
     } = useParams();
 
 
-    const getCustomerDetailByid = async(id: string ) =>{
-        const customer_detail =  await getCustomerDetail(id)
+    const getCustomerDetailByid = async (id: string) => {
+        const customer_detail = await getCustomerDetail(id)
         dispatch(setCustomerDetail(customer_detail))
     }
-    
-    useEffect(()=>{
-      getCustomerDetailByid(id)
-    },[id])
+
+    useEffect(() => {
+        getCustomerDetailByid(id)
+    }, [id])
 
 
-    useEffect(()=>{
+    useEffect(() => {
 
-    },[customer_detail])
+    }, [customer_detail])
 
 
     return (
@@ -78,7 +87,7 @@ function Content() {
                             <a href="#"
                                 onClick={() => {
                                     router.replace('/customer')
-                                 
+
                                 }}
                                 className="ml-1 text-gray-500 hover:text-gray-700">ข้อมูลลูกค้า</a>
                         </div>
@@ -136,30 +145,70 @@ function Content() {
                         border: "1px solid #D2D6E1",
                     }}
                 >
-                    <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+                    <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
                         <ul className="flex flex-wrap -mb-px">
                             <li className="me-2">
-                                <a href="#" className="inline-block p-4 border-b-2   rounded-t-lg text-blue-600 border-blue-600 rounded-t-lg active hover:text-gray-600 hover:border-gray-300">ข้อมูลลูกค้า</a>
+                                <a
+                                    onClick={() => handleTabClick('customerDetail')}
+                                    href="#"
+                                    className={`
+                                    inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                    ${activeTab === 'customerDetail' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                    hover:text-gray-600 hover:border-gray-300
+                                  `}
+                                >ข้อมูลลูกค้า</a>
                             </li>
                             <li className="me-2">
-                                <a href="#" className="inline-block p-4 text-blue-600 border-b-2 rounded-t-lg" >ตีราคา</a>
+                                <a
+                                    onClick={() => handleTabClick('Prepurchase')}
+                                    href="#"
+                                    className={`
+                                 inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 ${activeTab === 'Prepurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                 hover:text-gray-600 hover:border-gray-300
+                               `}
+                                >ตีราคา</a>
                             </li>
                             <li className="me-2">
-                                <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">ใบเสนอราคา</a>
+                                <a href="#"
+                                    className={`
+                                 inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 ${activeTab === 'purchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                 hover:text-gray-600 hover:border-gray-300
+                               `}
+                                >ใบเสนอราคา</a>
                             </li>
                             <li className="me-2">
-                                <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">อนุมัติราคา</a>
+                                <a href="#"
+                                    className={`
+                                 inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 ${activeTab === 'ActivePurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                 hover:text-gray-600 hover:border-gray-300
+                               `}
+                                >อนุมัติราคา</a>
                             </li>
                             <li>
-                                <a className="inline-block p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">อัพเดดสถานะ</a>
+                                <a
+                                    className={`
+                                 inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 ${activeTab === 'ข้อมูลลูกค้า' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                 hover:text-gray-600 hover:border-gray-300
+                               `}
+                                >อัพเดดสถานะ</a>
                             </li>
                         </ul>
                     </div>
 
-              {customer_detail.updated_at ==null ?
-                <DetailCustomer></DetailCustomer> :''
-              }
-              
+                    {activeTab === "customerDetail" ?
+
+                    formEditcustomer === false ? <DetailCustomer/> : <ViewCustomer></ViewCustomer>
+                      
+                    :
+                    activeTab === "Prepurchase" ? 
+                     <PrePurchase></PrePurchase>
+                    : null
+                    }
+                    
 
 
                 </div></div>

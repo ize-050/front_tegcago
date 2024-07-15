@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 
 import Lucide from "../../components/Base/Lucide";
 
-import clsx from "clsx";
+
 
 import Pagination from "@/components/Base/Pagination";
 import { FormCheck, FormInput, FormSelect } from "@/components/Base/Form";
@@ -77,7 +77,7 @@ function Main() {
   const [currentData, setCurrentData] = useState([])
 
   const { customer, formAddcustomer, totalData } = useAppSelector(customerData);
-  const handleButtonClick = (key: number) => {
+  const handleButtonClick = (key: any) => {
     setTooltipOpen(tooltipOpen === key ? null : key);
   };
   const dispatch = useAppDispatch();
@@ -421,7 +421,7 @@ function Main() {
                                     <p
                                       className={`badge  ${data?.color}  w-20 text-white  p-1 rounded-md`}
                                     >
-                                      {data?.cus_etc}
+                                      {data.cus_etc}
                                     </p>
                                   </Table.Td>
                                   <Table.Td className="text-center border-slate-200/60  text-gray-900">
@@ -434,7 +434,7 @@ function Main() {
                                     <div className="flex">
                                       <button
                                         onClick={()=>{
-                                          router.push(`content/${data?.id}`)
+                                          router.push(`customer/content/${data?.id}`)
                                         }}
                                         style={{
                                           background: "#C8D9E3"
