@@ -4,7 +4,12 @@ import { useForm, Controller, SubmitHandler ,FormProvider} from "react-hook-form
 import SocialMedia from './SocialMedia';
 import CompanyComponent from './Company';
 import { useAppDispatch ,useAppSelector } from '@/stores/hooks';
-import {customerData} from '@/stores/customer'
+
+import {customerData 
+    ,submitChangeUpdateCustomer
+} from '@/stores/customer'
+
+
 
 const DetailCustomer = () => {
     const dispatch = useAppDispatch();
@@ -27,7 +32,7 @@ const DetailCustomer = () => {
 
 
     const onSubmit = (data: any) => {
-        console.log('data',data)
+        dispatch(submitChangeUpdateCustomer(data , customer_detail.id))
     }
     
     useEffect(()=>{

@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState, AppDispatch } from "./store";
 import { icons } from "@/components/Base/Lucide";
-import { changeStatusToid, submitAddcustomer } from "@/services/customer";
+import { changeStatusToid,
+   submitAddcustomer,
+   ChangeUpdateCustomer
+  } from "@/services/customer";
 import { setOpenToast } from "@/stores/util";
 import { useAppDispatch } from "./hooks";
 export interface Menu {
@@ -34,16 +37,43 @@ export const updateCustomerStatus = createAsyncThunk(
   "customer/setStatus", // A unique identifier for this thunk
   async (action: any, { dispatch, getState }) => {
     try {
-      console.log("action", action);
+     
       const response: any = await changeStatusToid(action);
       if (response.status === 200) {
         await dispatch(setOpenToast(true));
         await dispatch(setOpenToast(false));
       } else {
       }
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 );
+
+
+export const submitChangeUpdateCustomer = createAsyncThunk(
+  "customer/submitChangeUpdateCustomer", // A unique identifier for this thunk
+  async(action:any,{dispatch,getState}) => {
+    try{
+      const request :Partial<any> = {
+        data:action,
+        customer_id:action.id,
+     }
+      const response  :any = await  ChangeUpdateCustomer(action);
+      if(response.status === 200){
+        await dispatch(
+          setOpenToast({
+            type: "success",
+            message: "บันทึกข้อมูลสำเร็จ",
+          })
+        );
+      }
+  }
+    catch(error){
+      throw error;
+    }
+
+  })
 
 export const submitFormAddcustomer = createAsyncThunk(
   "customer/submitFormAddcustomer", // A unique identifier for this thunk
