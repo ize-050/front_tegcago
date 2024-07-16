@@ -171,6 +171,7 @@ function Slider() {
                       onClick={(event: React.MouseEvent) => {
                         event.preventDefault();
                         router.push(menu.pathname);
+                        router.refresh()
                       }}
                     >
                      <div className={`

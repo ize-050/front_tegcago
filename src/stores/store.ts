@@ -8,6 +8,8 @@ import compactMenuReducer from "./compactMenuSlice";
 import pageLoaderReducer from "./pageLoaderSlice";
 import customerReducer from './customer';
 import utilReducer from './util';
+import purchaseRedurer from './purchase'
+
  const store = configureStore({
   reducer: {
     // darkMode: darkModeReducer,
@@ -17,6 +19,7 @@ import utilReducer from './util';
     sideMenu: sideMenuReducer,
     compactMenu: compactMenuReducer,
     pageLoader: pageLoaderReducer,
+    purchaseRedurer:purchaseRedurer
   },
 });
 

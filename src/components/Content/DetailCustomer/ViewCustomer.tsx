@@ -33,13 +33,10 @@ const ViewCustomer = () => {
         watch,
     } = methods;
 
-    const changeEdit = useCallback(
-        (data: boolean) => {
+    const changeEdit =  (data: boolean) => {
             dispatch(ChangeFormEdit(data));
-        },
-        [formEditcustomer]
-    );
-
+        };
+       
     useEffect(() => {
         Object.keys(customer_detail).forEach((field) => {
             setValue(field, customer_detail[field]);

@@ -8,6 +8,7 @@ import {
 } from "@/services/customer";
 import { setOpenToast } from "@/stores/util";
 import { useAppDispatch } from "./hooks";
+import {useRouter} from "next/navigation";
 export interface Menu {
   icon: keyof typeof icons;
   title: string;
@@ -32,7 +33,7 @@ const initialState: internalCustomer = {
   customer_detail: {},
   ModalCreate: false,
   formAddcustomer: false,
-  formEditcustomer:false,
+  formEditcustomer: false,
   totalData: 0,
 };
 
@@ -68,10 +69,13 @@ export const submitChangeUpdateCustomer = createAsyncThunk(
             message: "บันทึกข้อมูลลูกค้าสำเร็จ",
           })
         );
+        
       }
+     
     } catch (error) {
       throw error;
     }
+   
   }
 );
 
@@ -135,6 +139,15 @@ export const customer = createSlice({
     ChangeFormEdit:(state,action)=>{
       console.log('action',action)
       state.formEditcustomer = action.payload
+    },
+    resetStore: (state) => {
+
+      state.customer = [];
+      state.customer_detail = {};
+      state.ModalCreate = false;
+      state.formAddcustomer = false;
+      state.formEditcustomer = false;
+      state.totalData = 0;
     }
   },
 });
@@ -146,7 +159,8 @@ export const {
   setFormAddCustomer,
   resetFormAddcustomer,
   setCustomerDetail,
-  ChangeFormEdit
+  ChangeFormEdit,
+  resetStore
 } = customer.actions;
 
 export default customer.reducer;

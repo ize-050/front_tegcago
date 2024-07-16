@@ -3,11 +3,11 @@ import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 
 import { useState, useEffect, useCallback, createRef, useMemo } from "react";
-import { CirclePlus, ArrowUpFromLine, View } from 'lucide-react';
-import { useRouter, useParams } from "next/navigation";
+import { Clock, CircleUserRound, CircleCheck } from 'lucide-react';
+import { useRouter, useParams, redirect } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
-import Lucide from "@/components/Base/Lucide";
+
 
 import clsx from "clsx";
 
@@ -20,7 +20,7 @@ import { getCustomer } from "@/services/customer";
 
 import {
     setCustomerDetail,
-
+    resetStore,
 } from "@/stores/customer";
 
 //component
@@ -29,28 +29,37 @@ import Table from "@/components/Base/Table";
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
 import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
-import { customerData } from '@/stores/customer'
+
+
+//store
+import { customerData, ChangeFormEdit } from '@/stores/customer'
+
 
 
 //service
 
 import { getCustomerDetail } from '@/services/customer'
 import PrePurchase from "@/components/Content/Prepurchase/prepurchase";
+import { purchaseData,setPurchaseData } from "@/stores/purchase";
+import {  getPurchaseById } from "@/services/purchase";
+import Lucide from "@/components/Base/Lucide";
 
 function Content() {
 
 
-    const [tooltipOpen, setTooltipOpen] = useState(null);
-
     const [activeTab, setActiveTab] = useState('customerDetail');
+
     const handleTabClick = useCallback((tabName: any) => {
         setActiveTab(tabName);
     }, [activeTab])
 
-
     const router = useRouter()
+
     const dispatch = useAppDispatch();
+
     const { customer_detail, formEditcustomer } = useAppSelector(customerData)
+    const { purchase } = useAppSelector(purchaseData)
+
     const { id }: {
         id: string
     } = useParams();
@@ -58,17 +67,32 @@ function Content() {
 
     const getCustomerDetailByid = async (id: string) => {
         const customer_detail = await getCustomerDetail(id)
+
         dispatch(setCustomerDetail(customer_detail))
     }
 
     useEffect(() => {
-        getCustomerDetailByid(id)
-    }, [id])
+        const fetchCustomerDetail = async () => {
+            await getCustomerDetailByid(id);
+        };
+        const getPurchase = async () => {
+            const purchase = await getPurchaseById(id)
+            dispatch(setPurchaseData(purchase))
+        }
+        dispatch(resetStore());
+        fetchCustomerDetail()
+        getPurchase()
+    }, [])
 
 
     useEffect(() => {
-
+        if (customer_detail.status_update == true) {
+            dispatch(ChangeFormEdit(true));
+        }
     }, [customer_detail])
+
+
+ 
 
 
     return (
@@ -87,6 +111,7 @@ function Content() {
                             <a href="#"
                                 onClick={() => {
                                     router.replace('/customer')
+                                    router.refresh()
 
                                 }}
                                 className="ml-1 text-gray-500 hover:text-gray-700">ข้อมูลลูกค้า</a>
@@ -107,32 +132,33 @@ function Content() {
                     </p>
                 </div>
                 <div className="justify-end p-5">
-                    <Button className="border-blue-500 mr-5"
+                    <Button className="border-[#417CA0] bg-[#C8D9E3] mr-5"
                         style={{
                             color: "#305D79"
                         }}
                     >
-                        <ArrowUpFromLine
-                            color="#305D79"
-
-                            className="inset-y-0 bg-secondary-400  mr-1  justify-center m-auto   w-5 h-5  text-slate-500"
-                        ></ArrowUpFromLine>
-                        Upload file
+                        <CircleUserRound
+                            color="#273A6F"
+                          
+                            className="inset-y-0 bg-secondary-400  mr-2  justify-center m-auto   w-5 h-5  text-slate-500"
+                        ></CircleUserRound>
+                         ส่งมอบงาน :
                     </Button>
-                    <Button className="text-white  border-blue-800"
+                    <Button className="text-[#417CA0]  border-[#417CA0] bg-[#FFFFFF] 
+                    
+                    hover:bg-blue-200 hover:text-white"
 
 
                         style={{
-                            background: "#273A6F"
+                            background: "#fffff"
                         }}
                     >
-                        <CirclePlus
-                            color="#ffffff"
-
+                        <Clock
+                            color="#417CA0"
                             className="inset-y-0 bg-secondary-400  mr-1  justify-center m-auto   w-5 h-5  text-slate-500"
-                        ></CirclePlus>
+                        ></Clock>
 
-                        สร้างข้อมูลลูกค้า
+                        Activity Log
                     </Button>
                 </div>
             </div>
@@ -151,23 +177,34 @@ function Content() {
                                 <a
                                     onClick={() => handleTabClick('customerDetail')}
                                     href="#"
-                                    className={`
+                                    className={`flex
                                     inline-block p-4 border-b-2 text-black rounded-t-lg 
                                     ${activeTab === 'customerDetail' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
                                     hover:text-gray-600 hover:border-gray-300
                                   `}
-                                >ข้อมูลลูกค้า</a>
+                                >ข้อมูลลูกค้า
+                                    {formEditcustomer ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14.0606 9.06055L14.0606 9.06061L14.0666 9.05436C14.3399 8.77145 14.4911 8.39255 14.4877 7.99925C14.4842 7.60596 14.3265 7.22974 14.0484 6.95163C13.7703 6.67352 13.394 6.51576 13.0007 6.51234C12.6074 6.50893 12.2285 6.66012 11.9456 6.93336L11.9456 6.9333L11.9394 6.93945L9 9.87889L8.06055 8.93945L8.06061 8.93939L8.05436 8.93336C7.77145 8.66012 7.39255 8.50893 6.99925 8.51235C6.60596 8.51576 6.22974 8.67352 5.95163 8.95163C5.67352 9.22974 5.51576 9.60596 5.51234 9.99925C5.50893 10.3926 5.66012 10.7715 5.93336 11.0544L5.9333 11.0544L5.93945 11.0606L7.93945 13.0606L7.9395 13.0606C8.22079 13.3418 8.60225 13.4998 9 13.4998C9.39775 13.4998 9.77921 13.3418 10.0605 13.0606L10.0606 13.0606L14.0606 9.06055ZM15.3033 15.3033C13.8968 16.7098 11.9891 17.5 10 17.5C8.01088 17.5 6.10322 16.7098 4.6967 15.3033C3.29018 13.8968 2.5 11.9891 2.5 10C2.5 8.01088 3.29018 6.10322 4.6967 4.6967C6.10322 3.29018 8.01088 2.5 10 2.5C11.9891 2.5 13.8968 3.29018 15.3033 4.6967C16.7098 6.10322 17.5 8.01088 17.5 10C17.5 11.9891 16.7098 13.8968 15.3033 15.3033Z" fill="#10A697" stroke="#10A697" />
+                                    </svg>
+                                        : ''}
+                                </a>
+
                             </li>
                             <li className="me-2">
                                 <a
                                     onClick={() => handleTabClick('Prepurchase')}
                                     href="#"
                                     className={`
-                                 inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 flex inline-block p-4 border-b-2 text-black rounded-t-lg 
                                  ${activeTab === 'Prepurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
                                  hover:text-gray-600 hover:border-gray-300
                                `}
-                                >ตีราคา</a>
+                                >ตีราคา
+                                 {purchase?.d_status ==="Prepurchase" ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14.0606 9.06055L14.0606 9.06061L14.0666 9.05436C14.3399 8.77145 14.4911 8.39255 14.4877 7.99925C14.4842 7.60596 14.3265 7.22974 14.0484 6.95163C13.7703 6.67352 13.394 6.51576 13.0007 6.51234C12.6074 6.50893 12.2285 6.66012 11.9456 6.93336L11.9456 6.9333L11.9394 6.93945L9 9.87889L8.06055 8.93945L8.06061 8.93939L8.05436 8.93336C7.77145 8.66012 7.39255 8.50893 6.99925 8.51235C6.60596 8.51576 6.22974 8.67352 5.95163 8.95163C5.67352 9.22974 5.51576 9.60596 5.51234 9.99925C5.50893 10.3926 5.66012 10.7715 5.93336 11.0544L5.9333 11.0544L5.93945 11.0606L7.93945 13.0606L7.9395 13.0606C8.22079 13.3418 8.60225 13.4998 9 13.4998C9.39775 13.4998 9.77921 13.3418 10.0605 13.0606L10.0606 13.0606L14.0606 9.06055ZM15.3033 15.3033C13.8968 16.7098 11.9891 17.5 10 17.5C8.01088 17.5 6.10322 16.7098 4.6967 15.3033C3.29018 13.8968 2.5 11.9891 2.5 10C2.5 8.01088 3.29018 6.10322 4.6967 4.6967C6.10322 3.29018 8.01088 2.5 10 2.5C11.9891 2.5 13.8968 3.29018 15.3033 4.6967C16.7098 6.10322 17.5 8.01088 17.5 10C17.5 11.9891 16.7098 13.8968 15.3033 15.3033Z" fill="#10A697" stroke="#10A697" />
+                                    </svg>
+                                        : ''}
+                                </a>
                             </li>
                             <li className="me-2">
                                 <a href="#"
@@ -201,14 +238,13 @@ function Content() {
 
                     {activeTab === "customerDetail" ?
 
-                    formEditcustomer === false ? <DetailCustomer/> : <ViewCustomer></ViewCustomer>
-                      
-                    :
-                    activeTab === "Prepurchase" ? 
-                     <PrePurchase></PrePurchase>
-                    : null
+                        formEditcustomer == true ? <ViewCustomer /> : <DetailCustomer />
+                        :
+                        activeTab === "Prepurchase" ?
+                            <PrePurchase></PrePurchase>
+                            : null
                     }
-                    
+
 
 
                 </div></div>
