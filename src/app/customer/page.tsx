@@ -360,8 +360,8 @@ function Main() {
                                   <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                     {key + 1}
                                   </Table.Td>
-                                  <Table.Td className="text-center    border-slate-200/60  text-gray-900">
-                                    {data.createdAt}
+                                  <Table.Td className="text-center truncate    border-slate-200/60  text-gray-900">
+                                    {data.createdAt} น.
                                   </Table.Td>
                                   <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                     {data.details?.cd_company}

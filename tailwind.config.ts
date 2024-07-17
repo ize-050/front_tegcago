@@ -404,4 +404,9 @@ module.exports = {
       });
     }),
   ],
+  safelist: [
+    'bg-amber-700',
+    'bg-emerald-700',
+    'bg-purple-500',
+  ],
 };
