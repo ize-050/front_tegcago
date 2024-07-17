@@ -41,6 +41,9 @@ const PrePurchase = () => {
 
 
 
+    useEffect(()=>{
+        console.log('purchase',purchase)
+    },[purchase])
 
 
 

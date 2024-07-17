@@ -2,7 +2,7 @@
 import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 
-import { useState, useEffect, createRef } from "react";
+import { useState, useEffect, createRef, Suspense } from "react";
 import { LogOut } from 'lucide-react';
 import { Bell } from 'lucide-react';
 import { selectSideMenu } from "../../stores/sideMenuSlice";
@@ -34,6 +34,7 @@ import Sliders from "./slider";
 import ToastComponent from "./toastComponents";
 import { set } from "lodash";
 import Lucide from "../Base/Lucide";
+import Loading from "@/app/loading";
 
 function Layout({ children }: any) {
     const dispatch = useAppDispatch();
@@ -134,7 +135,6 @@ function Layout({ children }: any) {
                     background: "#FAFAFA"
                 }}
             >
-
                 <header className="bg-white">
                     <nav className="mx-auto   items-center  p-5 lg:px-8" aria-label="Global">
                         <ul className="flex items-end  text-blue-200"> {/* Add justify-between to the parent ul */}
@@ -206,8 +206,9 @@ function Layout({ children }: any) {
                 <hr></hr>
 
 
-
+               
                 {children}
+            
             </div>
         </div>
 

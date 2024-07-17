@@ -30,6 +30,7 @@ import {
   setFormAddCustomer,
   updateCustomerStatus,
   customerData,
+  resetStore
 
 } from "@/stores/customer";
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
@@ -105,11 +106,14 @@ function Main() {
   const Getcustomer = useCallback(async () => {
     const customer = await getCustomer(currentPage, status, tag);
     dispatch(setCustomer(customer));
+   
   }, [currentPage, status, tag]);
 
+  useEffect(() => {
+    dispatch(resetStore())
+  },[])
 
   useEffect(() => {
-    console.log('currentPage', currentPage)
     Getcustomer();
   }, [currentPage]);
 
@@ -117,18 +121,17 @@ function Main() {
   useEffect(() => {
     const totalPages = Math.ceil(totalData / 10);
 
-    // Calculate startIndex based on available data and currentPage
     const startIndex = Math.min((currentPage - 1) * 10, customer.length);
     const endIndex = Math.min(startIndex + 10, customer.length);
 
     const currentData = customer;
+
+   
+
     setCurrentData(currentData);
     setTotalPage(totalPages);
   }, [customer]);
 
-  useEffect(() => {
-    console.log('currentData', currentData)
-  }, [currentData])
 
   useEffect(() => {
     if (formAddcustomer) {
@@ -170,9 +173,9 @@ function Main() {
         </div>
         <div className="justify-end p-5">
           <Button className="border-blue-500 mr-5"
-          style={{
-            color:"#305D79"
-          }}
+            style={{
+              color: "#305D79"
+            }}
           >
             <ArrowUpFromLine
               color="#305D79"
@@ -287,7 +290,7 @@ function Main() {
                           }}
                           className="text-sm font-bold"
                         >
-                          <Table.Td className="py- font-medium text-center   border-t 0 border-slate-200/60 text-black">
+                          <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
                             No
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
@@ -296,10 +299,10 @@ function Main() {
                           <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                             ชื่อบริษัท/ร้านค้า/เพจ
                           </Table.Td>
-                          <Table.Td className="py-4 font-medium text-center  border-t  border-slate-200/60 text-black">
+                          <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                             ชื่อลูกค้า
                           </Table.Td>
-                          <Table.Td className="py-4 font-medium text-center  border-t  border-slate-200/60 text-black">
+                          <Table.Td className="py-4 font-medium text-center   truncate    border-t  border-slate-200/60 text-black">
                             Status
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
@@ -317,7 +320,7 @@ function Main() {
                           <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
                             Website
                           </Table.Td>
-                          <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
+                          <Table.Td className="py-4 font-medium truncate text-center border-t   border-slate-200/60 text-black">
                             ส่งมอบงาน
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
@@ -363,11 +366,16 @@ function Main() {
                                   <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                     {data.details?.cd_company}
                                   </Table.Td>
-                                  <Table.Td className="text-center  border-slate-200/60  text-gray-900">
+                                  <Table.Td className="text-center  truncate border-slate-200/60  text-gray-900">
                                     {data?.cus_fullname}
                                   </Table.Td>
-                                  <Table.Td className="text-center  border-slate-200/60  text-gray-900">
-                                    -
+                                  <Table.Td className="relative text-center  truncate  border-slate-200/60  ">
+                                  <button
+                                      className={`badge ${data?.d_status[0].color}   w-25 text-white   p-1 rounded-md`}
+                                    >
+                                   
+                                      {data?.d_status[0].status_name}
+                                    </button>
                                   </Table.Td>
                                   <Table.Td className=" relative text-center  border-slate-200/60  text-gray-900">
                                     <button
@@ -375,10 +383,12 @@ function Main() {
                                       onClick={() => {
                                         handleButtonClick(key);
                                       }}
-                                    >
-                                      {data?.customer_status[0].cus_status}
-                                    </button>
-
+                                      >
+                                           {data?.customer_status[0].cus_status}
+                                      </button>
+                                 
+                                   
+                                   
                                     {tooltipOpen === key && (
                                       <div
                                         role="tooltip"
@@ -433,8 +443,8 @@ function Main() {
                                   <Table.Td className="text-center   border-slate-200/60  text-gray-900">
                                     <div className="flex">
                                       <button
-                                        onClick={()=>{
-                                          router.push(`customer/content/${data?.id}`)
+                                        onClick={() => {
+                                          router.replace(`customer/content/${data?.id}`)
                                         }}
                                         style={{
                                           background: "#C8D9E3"

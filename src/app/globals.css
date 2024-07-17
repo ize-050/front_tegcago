@@ -45,11 +45,18 @@
 
 }
 
+.Toastify__toast--info {
+  font-family: "Athiti" !important;
+  background: #f1c40f !important;
+  border: 1px solid #bdca04 !important;
+  color: #fff !important;
 
+}
 
 .Toastify__toast--error {
-  background: #f44336;
-  color: #fff;
+  font-family: "Athiti" !important;
+  background: #f44336 !important;
+  color: #fff  !important;
 }
 
 .Toastify__progress-bar {
@@ -84,6 +91,17 @@ body {
 }
 
 
+.dropzone {
+  @apply flex flex-col items-center justify-center w-full h-24 p-4 bg-[#FAFAFA]  border-dashed border-2 border-[#C8D9E3] rounded-lg; 
+}
+
+.dropzone.active {
+  @apply border-dashed; 
+}
+
+.btn {
+  @apply bg-[#FFFFFF] hover:bg-blue-300 text-[#68759A] border-2 border-[#8994B0]  font-bold py-2 px-4 rounded;
+}
 
 @layer utilities {
   .text-balance {

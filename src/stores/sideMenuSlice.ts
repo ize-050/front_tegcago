@@ -29,12 +29,12 @@ const initialState: SideMenuState = {
     },
     {
       icon: "User",
-      pathname: "/users",
+      pathname: "/in_customer",
       title: "ข้อมูลลูกค้าที่ดูแล",
     },
     {
       icon: "Boxes",
-      pathname: "/customers",
+      pathname: "/allcustomer",
       title: "ลูกค้าในระบบ",
     },
     {

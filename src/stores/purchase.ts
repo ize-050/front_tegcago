@@ -8,22 +8,16 @@ import { setOpenToast } from "@/stores/util";
 import { useAppDispatch } from "./hooks";
 import {useRouter} from "next/navigation";
 
-export interface Menu {
-  icon: keyof typeof icons;
-  title: string;
-  badge?: number;
-  pathname?: string;
-  subMenu?: Menu[];
-  totalData: number;
-  ignore?: boolean;
-}
+
 
 export interface internalCustomer {
     purchase: Partial<any>;
+    modalImage :boolean;
 }
 
 const initialState: internalCustomer = {
     purchase:{},
+    modalImage:false
 };
 
 export const submitPrePurchase = createAsyncThunk(
@@ -62,7 +56,10 @@ export const purchase = createSlice({
     },
     resetStore: (state) => {
 
-    }
+    },
+    setModalImage: (state, action) => {
+        state.modalImage = action.payload
+    },
   },
 });
 
@@ -70,6 +67,7 @@ export const purchaseData = (state: RootState) => state.purchaseRedurer;
 
 export const {
   setPurchaseData,
+  setModalImage
   } = purchase.actions;
 
 export default purchase.reducer;

@@ -144,7 +144,8 @@ const DetailCustomer = () => {
                                             <select
                                                 onChange={onChange}
                                                 value={value}
-                                                id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                id="countries" className={
+                                                `${errors.cus_international ? 'border-red-500' : 'border-gray-200'} border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}>
                                                 <option selected>เลือก</option>
                                                 <option value="ไทย">ไทย</option>
                                                 <option value="อังกฤษ">อังกฤษ</option>
@@ -167,13 +168,16 @@ const DetailCustomer = () => {
                                             <select
                                                 onChange={onChange}
                                                 value={value}
-                                                id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                id="countries"
+                                             
+                                                className={`${errors.cus_sex ? 'border-red-500' : 'border-gray-200'} border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}>
                                                 <option selected>เลือก</option>
                                                 <option value="ชาย">ชาย</option>
                                                 <option value="หญิง">หญิง</option>
 
 
                                             </select>
+                                          
                                         )}
 
                                     />
@@ -189,7 +193,8 @@ const DetailCustomer = () => {
                                     control={control}
                                     rules={{ required: true }}
                                     render={({ field: { onChange, onBlur, value } }) => (
-                                        <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                        <input type="text" onChange={onChange} value={value} placeholder="กรอก" 
+                                        className={`${errors.cus_age ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                     )}
 
                                 />

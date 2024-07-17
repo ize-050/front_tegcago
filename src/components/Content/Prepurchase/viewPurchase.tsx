@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { setOpenToast } from '@/stores/util';
+
+
 import { useForm, Controller, SubmitHandler, FormProvider } from "react-hook-form"
-import { signIn } from 'next-auth/react';
 
-import { getPurchaseById } from '@/services/purchase'
 
+import Image from 'next/image'
 import { customerData } from '@/stores/customer'
 
 
 import {
     setPurchaseData,
     submitPrePurchase,
-    purchaseData
+    purchaseData,
+    setModalImage
+    
 } from '@/stores/purchase'
 
 //interface
@@ -25,10 +26,13 @@ import {
     TransportData,
 } from './prepurchase.interface'
 import { Route } from 'react-router-dom';
+import Lucide from '@/components/Base/Lucide';
+import ModalPreviewImageView from './ModelviewImage';
 
 const ViewPrePurchase = ({ purchase }: any) => {
 
     const { customer_detail } = useAppSelector(customerData)
+    const { modalImage } = useAppSelector(purchaseData)
     const dispatch = useAppDispatch()
     const [data, setData] = useState<Partial<any>>({})
     const methods = useForm()
@@ -62,7 +66,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
 
             <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
                 <div className="w-full md:w-1/3 flex flex-col">
-                    <label className="block mb-2  text-gray-500  text-sm">รหัสลูกค้า</label>
+                    <label className="block mb-2  text-gray-500  text-sm">invoice & Packinglist No.</label>
                     <p>{data?.customer_number}</p>
                 </div>
             </div>
@@ -91,12 +95,41 @@ const ViewPrePurchase = ({ purchase }: any) => {
             <h1 className="mb-5  text-2xl">ข้อมูลสินค้า</h1>
             <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                 <div className="w-full md:w-1/2 flex flex-col">
-                    <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold"> </label>
+                    <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ชื่อสินค้า</label>
                     <p>{data?.d_product?.d_product_name}</p>
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col">
-                    <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">เพิ่มรูปภาพ</label>
-                    <p>{customer_detail.cus_line}</p>
+                    <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">รูปภาพ</label>
+                    <div className="flex flex-row">
+                    {data?.d_product?.d_product_image.map((image:Partial<any>, index:number) => (
+                       
+                        <div key={index} className="relative rounded-lg w-32 h-32 m-2 ">
+                            <Image
+                                src={image.url}
+                                alt="preview"
+                                fill // Fill the container
+                                className="object-cover rounded"
+                            />
+                         
+                            <div className="absolute bottom-1 right-0 flex gap-2">
+                          
+                                <button
+                                    onClick={() => {
+                                         dispatch(setModalImage(true))
+                                    }}
+                                    type="button"
+                                    className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1">
+                                    <Lucide
+                                        color="#6C9AB5"
+                                        icon="Eye"
+                                        className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                                    ></Lucide>
+                                </button>
+                            </div>
+                        </div>
+                        
+                    ))}
+                    </div>
                 </div>
             </div>
 
@@ -160,7 +193,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
                     </div>
 
                  
-
+                    <ModalPreviewImageView isOpen={modalImage} onClose={() => dispatch(setModalImage(false))} images={data?.d_product?.d_product_image} />      
         </>
 
     )

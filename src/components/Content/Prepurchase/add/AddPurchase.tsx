@@ -24,7 +24,11 @@ import {
     TermData,
     TransportData,
 } from '../prepurchase.interface'
-import { Route } from 'react-router-dom';
+
+
+//component
+
+import UploadImageComponent from '@/components/Content/Prepurchase/upload/UpdateImageComponent'
 
 const  AddPurchase = ({purchase}:any) => {
     const { customer_detail } = useAppSelector(customerData)
@@ -49,6 +53,8 @@ const  AddPurchase = ({purchase}:any) => {
         try{
           request.customer_id = customer_detail.customer_id;
           request.book_number = data.book_number;
+
+          console.log('request',request.files)
           dispatch(submitPrePurchase(request));
         }
         catch(err) {
@@ -79,7 +85,11 @@ const  AddPurchase = ({purchase}:any) => {
                         </div>
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ชื่อเซลล์</label>
-                            <p>{customer_detail.customer_emp[0].user.fullname}</p>
+                          
+                          {customer_detail?.customer_emp?.length >0 && 
+                           <p>{customer_detail.customer_emp[0].user?.fullname}</p>
+                          }
+                        
                         </div>
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">วันที่/เวลา</label>
@@ -89,16 +99,16 @@ const  AddPurchase = ({purchase}:any) => {
 
                     <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
                         <div className="w-full md:w-1/3 flex flex-col">
-                            <label className="block mb-2  text-gray-700  text-sm">รหัสลูกค้า</label>
+                            <label className="block mb-2  text-gray-700  text-sm">invoice & Packinglist No.</label>
                             <Controller
                                 name="customer_number"
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก"  className={`${errors.customer_number ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                 )}
                             />
-                            {errors.customer_number && <p className="text-red-500">กรุณากรอกรหัสลูกค้า (ถ้ามี).</p>}
+                            {errors.customer_number && <p className="text-red-500">กรุณากรอกinvoice & Packinglist No. (ถ้ามี).</p>}
                         </div>
                     </div>
 
@@ -116,7 +126,9 @@ const  AddPurchase = ({purchase}:any) => {
                                     <select
                                         onChange={onChange}
                                         value={value}
-                                        id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        id="countries" 
+                                        className={`${errors.d_route ? 'border-red-500' : 'border-gray-200'} border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+                                        >
 
                                         <option selected>เลือก</option>
                                         {RouteData.map((item, index) => {
@@ -143,7 +155,9 @@ const  AddPurchase = ({purchase}:any) => {
                                     <select
                                         onChange={onChange}
                                         value={value}
-                                        id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        id="countries" 
+                                        className={`${errors.d_transport ? 'border-red-500' : 'border-gray-200'} border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
+                                         dark:focus:border-blue-500`}>
 
                                         <option selected>เลือก</option>
                                         {TransportData.map((item, index) => {
@@ -170,7 +184,10 @@ const  AddPurchase = ({purchase}:any) => {
                                     <select
                                         onChange={onChange}
                                         value={value}
-                                        id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        id="countries" className={`${errors.d_term ? 'border-red-500' : 'border-gray-200'} border border-gray-200 text-gray-900 text-sm rounded-lg 
+                                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                                         dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                                          dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}>
 
                                         <option selected>เลือก</option>
                                         {TermData.map((item, index) => {
@@ -208,7 +225,7 @@ const  AddPurchase = ({purchase}:any) => {
                         </div>
                         <div className="w-full md:w-1/2 flex flex-col">
                             <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ</label>
-                            <p>{customer_detail.cus_line}</p>
+                            <UploadImageComponent setValue={setValue} control={control} ></UploadImageComponent>
                         </div>
                     </div>
 
@@ -223,7 +240,8 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" 
+                                    className={`${errors.d_origin ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                 )}
                             />
                                 {errors.d_origin && <p className="text-red-500">กรุณากรอกข้อมูลต้นทาง.</p>}
@@ -233,9 +251,10 @@ const  AddPurchase = ({purchase}:any) => {
                             <Controller
                                 name="d_destination"
                                 control={control}
-                                rules={{ required: false }}
+                                rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" 
+                                    className={`${errors.d_destination ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}  />
                                 )}
                             />
                                 {errors.d_destination && <p className="text-red-500">กรุณากรอกข้อมูลปลายทาง.</p>}
@@ -252,7 +271,8 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก"
+                                    className={`${errors.d_size_cabinet ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}  />
                                 )}
                             />
                                 {errors.d_size_cabinet && <p className="text-red-500">กรุณากรอกรหัสตู้.</p>}
@@ -264,7 +284,7 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className={`${errors.d_weight ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}/>
                                 )}
                             />
                                 {errors.d_weight && <p className="text-red-500">น้ำหนัก.</p>}
@@ -278,7 +298,7 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className={`${errors.d_truck ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                 )}
                             />
                                 {errors.d_truck && <p className="text-red-500">บริการหัวรถลาก.</p>}
@@ -294,19 +314,19 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <textarea  onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <textarea  onChange={onChange} value={value} placeholder="กรอก" className={`${errors.d_address_origin ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                 )}
                             />
-                                {errors.d_weight && <p className="text-red-500">กรุณากรอกที่อยู่ต้นทาง.</p>}
+                                {errors.d_address_origin && <p className="text-red-500">กรุณากรอกที่อยู่ต้นทาง.</p>}
                         </div>
                         <div className="w-full md:w-1/2 flex flex-col">
                             <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ที่อยู่ปลายทาง </label>
                             <Controller
-                                name="d_address_destination"
+                                name="d_weight"
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <textarea  onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <textarea  onChange={onChange} value={value} placeholder="กรอก" className={`${errors.d_weight ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                                 )}
                             />
                                 {errors.d_weight && <p className="text-red-500">กรุณากรอกที่อยู่ปลายทาง.</p>}
@@ -322,7 +342,9 @@ const  AddPurchase = ({purchase}:any) => {
                                 control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
-                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                                    <input type="text" onChange={onChange} value={value} placeholder="กรอก" 
+                                    className={`${errors.d_refund_tag ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                                    />
                                 )}
                             />
                                 {errors.d_weight && <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>}
