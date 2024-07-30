@@ -35,7 +35,7 @@ const findActiveMenu = (subMenu: Menu[], location: Location | any): boolean => {
 
 const nestedMenu = (menu: Array<Menu | string>, location: any) => {
   const formattedMenu: Array<FormattedMenu | string> = [];
-  menu.forEach((item) => {
+  menu?.forEach((item) => {
     if (typeof item !== "string") {
       const menuItem: FormattedMenu = {
         icon: item.icon,

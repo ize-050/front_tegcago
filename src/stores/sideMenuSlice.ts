@@ -12,11 +12,12 @@ export interface Menu {
 }
 
 export interface SideMenuState {
-  menu: Array<Menu | string>;
+  menuSale: Array<Menu | string>;
+  menuCs: Array<Menu | string>;
 }
 
 const initialState: SideMenuState = {
-  menu: [
+  menuSale: [
     {
       icon: "Home",
       pathname: "/",
@@ -26,6 +27,11 @@ const initialState: SideMenuState = {
       icon: "Users",
       pathname: "/customer",
       title: "ข้อมูลลูกค้าทั้งหมด",
+    },
+    {
+      icon: "Book",
+      pathname: "/purchase",
+      title: "ข้อมูลรายการจอง",
     },
     {
       icon: "User",
@@ -43,6 +49,33 @@ const initialState: SideMenuState = {
       title: "รายงาน",
     },
   ],
+  menuCs: [
+    {
+      icon: "Home",
+      pathname: "/",
+      title: "Dashboard",
+    },
+    {
+      icon: "Book",
+      pathname: "/cs/purchase",
+      title: "รายการจาก Sale",
+    },
+    {
+      icon: "Book",
+      pathname: "/AllCs",
+      title: "รายการสถานะการขนส่ง",
+    },
+    {
+      icon: "Boxes",
+      pathname: "/allcustomer",
+      title: "ข้อมูลลูกค้า",
+    },
+    {
+      icon: "Proportions",
+      pathname: "/report",
+      title: "การจัดการทั่วไป",
+    },
+  ],
 };
 
 export const sideMenuSlice = createSlice({
@@ -51,6 +84,6 @@ export const sideMenuSlice = createSlice({
   reducers: {},
 });
 
-export const selectSideMenu = (state: RootState) => state.sideMenu.menu;
+export const selectSideMenu = (state: RootState) => state.sideMenu;
 
 export default sideMenuSlice.reducer;

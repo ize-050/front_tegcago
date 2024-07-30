@@ -28,6 +28,7 @@ import {
 import { Route } from 'react-router-dom';
 import Lucide from '@/components/Base/Lucide';
 import ModalPreviewImageView from './ModelviewImage';
+import ModalPreviewImage from "@/components/Content/Prepurchase/upload/ModalPreview";
 
 const ViewPrePurchase = ({ purchase }: any) => {
 
@@ -38,13 +39,11 @@ const ViewPrePurchase = ({ purchase }: any) => {
     const methods = useForm()
     const router = useRouter();
 
-
-
+    const [selectIndex, setSelectedImageIndex] = useState<number>(0);
 
     useEffect(() => {
         setData(purchase)
     }, [purchase])
-
 
     return (
         <>
@@ -55,11 +54,11 @@ const ViewPrePurchase = ({ purchase }: any) => {
                 </div>
                 <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ชื่อเซลล์</label>
-                    <p>{customer_detail.customer_emp[0].user.fullname}</p>
+                    {/*<p>{customer_detail.customer_emp[0].user.fullname}</p>*/}
                 </div>
                 <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">วันที่/เวลา</label>
-                    <p>{customer_detail.cus_sex}</p>
+                    {/*<p>{customer_detail.cus_sex}</p>*/}
                 </div>
             </div>
 
@@ -93,7 +92,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
 
             <hr className="mb-5 mt-5"></hr>
             <h1 className="mb-5  text-2xl">ข้อมูลสินค้า</h1>
-            <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+            <div className="flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                 <div className="w-full md:w-1/2 flex flex-col">
                     <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ชื่อสินค้า</label>
                     <p>{data?.d_product?.d_product_name}</p>
@@ -101,34 +100,160 @@ const ViewPrePurchase = ({ purchase }: any) => {
                 <div className="w-full md:w-1/2 flex flex-col">
                     <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">รูปภาพ</label>
                     <div className="flex flex-row">
-                    {data?.d_product?.d_product_image.map((image:Partial<any>, index:number) => (
-                       
-                        <div key={index} className="relative rounded-lg w-32 h-32 m-2 ">
-                            <Image
-                                src={image.url}
-                                alt="preview"
-                                fill // Fill the container
-                                className="object-cover rounded"
-                            />
-                         
-                            <div className="absolute bottom-1 right-0 flex gap-2">
-                          
-                                <button
-                                    onClick={() => {
-                                         dispatch(setModalImage(true))
-                                    }}
-                                    type="button"
-                                    className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1">
-                                    <Lucide
+                    {/*{data?.d_product?.d_product_image.map((image:Partial<any>, index:number) => (*/}
+                    {/*   */}
+                    {/*    <div key={index} className="relative rounded-lg w-32 h-32 m-2 ">*/}
+                    {/*        <Image*/}
+                    {/*            src={image.url}*/}
+                    {/*            alt="preview"*/}
+                    {/*            fill // Fill the container*/}
+                    {/*            className="object-cover rounded"*/}
+                    {/*        />*/}
+                    {/*     */}
+                    {/*        <div className="absolute bottom-1 right-0 flex gap-2">*/}
+                    {/*      */}
+                    {/*            <button*/}
+                    {/*                onClick={() => {*/}
+                    {/*                     dispatch(setModalImage(true))*/}
+                    {/*                }}*/}
+                    {/*                type="button"*/}
+                    {/*                className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1">*/}
+                    {/*                <Lucide*/}
+                    {/*                    color="#6C9AB5"*/}
+                    {/*                    icon="Eye"*/}
+                    {/*                    className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"*/}
+                    {/*                ></Lucide>*/}
+                    {/*            </button>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*    */}
+                    {/*))}*/}
+
+                      {data?.d_product?.d_product_image.map(async (images:any, index:number) => {
+
+                        const isExcel = images.name?.endsWith('.xlsx') || images.name?.endsWith('.xls') || images.name?.endsWith('.csv');
+                        const isPdf = images.name?.endsWith('.pdf');
+                        const isImage = images.name?.endsWith('.jpg') || images.name?.endsWith('.png');
+                        const url = images.url;
+                        return (
+                          <div key={index} className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden">
+                            {isPdf && (
+                              <>
+                                <div className="relative w-full h-full   overflow-hidden">
+                                  <object data={url} type="application/pdf"  height={"100%"} width={"100%"}>
+                                    <div className="flex items-center justify-center h-full">
+                                      <p className="text-gray-500">PDF Viewer not available</p>
+                                    </div>
+
+                                  </object>
+                                  <div
+                                    className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <span className="text-white text-lg font-medium">PDF</span>
+                                  </div>
+
+                                  <div className="absolute bottom-1 right-0 flex gap-2">
+
+                                    <button
+                                      onClick={() => {
+                                        window.open(images.url);
+                                      }}
+                                      type="button"
+                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                                    >
+                                      <Lucide
                                         color="#6C9AB5"
                                         icon="Eye"
-                                        className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                    ></Lucide>
-                                </button>
-                            </div>
-                        </div>
-                        
-                    ))}
+                                        className="w-5 h-5 m-auto"
+                                      />
+                                    </button>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+
+                            {isImage && (
+                              <>
+                                <div className="relative w-full h-full   overflow-hidden">
+                                  <Image
+                                    src={url}
+                                    alt={`Preview ${index}`}
+                                    fill
+                                    className="w-full h-full object-cover rounded"
+                                    onError={(e) => {
+                                      // Placeholder or error message on image load failure
+                                      e.currentTarget.src = '/images/placeholder.jpg';
+                                    }}
+                                  />
+                                  <div
+                                    className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <span className="text-white text-lg font-medium">image</span>
+                                  </div>
+                                  <div className="absolute bottom-1 right-0 flex gap-2">
+
+                                    <button
+                                      onClick={() => {
+                                        dispatch(setModalImage(true))
+                                        setSelectedImageIndex(index);
+                                      }} // Consider passing the  image (url, index, etc.)
+                                      type="button"
+                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                                    >
+                                      <Lucide
+                                        color="#6C9AB5"
+                                        icon="Eye"
+                                        className="w-5 h-5 m-auto"
+                                      />
+                                    </button>
+                                  </div>
+                                  {/* Pass data or URL to the ModalPreviewImage component */}
+                                  {/* <ModalPreviewImage ... /> */}
+
+                                </div>
+                                {modalImage && selectIndex === index && (
+                                  <ModalPreviewImage isOpen={modalImage}
+                                                     onClose={() => dispatch(setModalImage(false))}
+                                                     startIndex={index}
+                                                     images={data?.d_product?.d_product_image}/>
+                                )}
+                              </>
+                            )}
+
+                            {isExcel && (
+                              <div>
+                                <div className="relative w-full h-32  border-2   overflow-hidden">
+                                  <Lucide icon="Sheet" className="absolute top-10 left-6 w-8 h-8 mx-auto text-green-500" />
+                                  <h3 className="text-sm font-semibold mb-2">{images.name}</h3>
+                                  <div
+                                    className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <span className="text-white text-lg font-medium">Excel</span>
+                                  </div>
+                                  <div className="absolute bottom-1 right-0 flex gap-2">
+
+                                    <button
+                                      onClick={() => {
+                                        window.open(images.url);
+                                      }}
+                                      type="button"
+                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                                    >
+                                      <Lucide
+                                        color="#6C9AB5"
+                                        icon="Eye"
+                                        className="w-5 h-5 m-auto"
+                                      />
+                                    </button>
+                                  </div>
+
+                                </div>
+
+
+                              </div>
+
+                            )}
+
+                          </div>
+                        );
+                      })}
                     </div>
                 </div>
             </div>
@@ -179,7 +304,6 @@ const ViewPrePurchase = ({ purchase }: any) => {
                         </div>
                     </div>
 
-
                     <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
                         <div className="w-full md:w-1/2 flex flex-col">
                             <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">Refund Tax ต้นทาง</label>
@@ -191,9 +315,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
                             <p>{data?.d_etc}</p>
                         </div>
                     </div>
-
-                 
-                    <ModalPreviewImageView isOpen={modalImage} onClose={() => dispatch(setModalImage(false))} images={data?.d_product?.d_product_image} />      
+                    {/*<ModalPreviewImageView isOpen={modalImage} onClose={() => dispatch(setModalImage(false))} images={data?.d_product?.d_product_image} />      */}
         </>
 
     )

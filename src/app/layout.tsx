@@ -38,9 +38,6 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
 
-  const router = useRouter()
-
-
  
   const isLoginPage = pathname === '/login';
   return (

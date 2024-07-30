@@ -302,9 +302,6 @@ function Main() {
                           <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                             ชื่อลูกค้า
                           </Table.Td>
-                          <Table.Td className="py-4 font-medium text-center   truncate    border-t  border-slate-200/60 text-black">
-                            Status
-                          </Table.Td>
                           <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                             Tag ติดตาม
                           </Table.Td>
@@ -369,14 +366,7 @@ function Main() {
                                   <Table.Td className="text-center  truncate border-slate-200/60  text-gray-900">
                                     {data?.cus_fullname}
                                   </Table.Td>
-                                  <Table.Td className="relative text-center  truncate  border-slate-200/60  ">
-                                  <button
-                                      className={`badge ${data?.d_status[0].color}   w-25 text-white   p-1 rounded-md`}
-                                    >
-                                   
-                                      {data?.d_status[0].status_name}
-                                    </button>
-                                  </Table.Td>
+
                                   <Table.Td className=" relative text-center  border-slate-200/60  text-gray-900">
                                     <button
                                       className={`badge  ${data?.customer_status[0].color}  w-20 text-white  p-1 rounded-md`}

@@ -39,7 +39,7 @@ function Main() {
   const [formattedMenu, setFormattedMenu] = useState<
     Array<FormattedMenu | string>
   >([]);
-  const sideMenuStore = useAppSelector(selectSideMenu);
+  const sideMenuStore:any = useAppSelector(selectSideMenu);
   const sideMenu = () => nestedMenu(sideMenuStore, location);
   const scrollableRef = createRef<HTMLDivElement>();
 

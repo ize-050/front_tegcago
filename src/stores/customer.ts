@@ -21,6 +21,7 @@ export interface Menu {
 
 export interface internalCustomer {
   customer: [];
+  customerGroup:any[];
   customer_detail: Partial<any>;
   ModalCreate: boolean;
   formAddcustomer: boolean;
@@ -30,6 +31,7 @@ export interface internalCustomer {
 
 const initialState: internalCustomer = {
   customer: [],
+  customerGroup:[],
   customer_detail: {},
   ModalCreate: false,
   formAddcustomer: false,
@@ -136,6 +138,9 @@ export const customer = createSlice({
     setCustomerDetail: (state, action) => {
       state.customer_detail = action.payload;
     },
+    setCustomerGroup: (state, action) => {
+      state.customerGroup = action.payload
+    },
     ChangeFormEdit:(state,action)=>{
       console.log('action',action)
       state.formEditcustomer = action.payload
@@ -155,6 +160,7 @@ export const customer = createSlice({
 export const customerData = (state: RootState) => state.customerRedurer;
 
 export const {
+  setCustomerGroup,
   setCustomerData,
   setFormAddCustomer,
   resetFormAddcustomer,

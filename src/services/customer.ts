@@ -31,6 +31,29 @@ export const getCustomer = async(currentPage:number,status:string,tag:string) =>
     })
 }
 
+
+export const getSelectCustomer = async() =>{
+    return  new Promise(async(resolve,reject) =>{
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getSelectCustomer`;
+
+        await axios.get(url,
+            {
+            headers: {
+                Accept: 'application/json',
+
+            },
+        }).then(res=>{
+            if(res.status ===200){
+                resolve(res.data.data)
+            }
+        }).catch(err=>{
+            reject(err)
+        })
+    })
+
+}
+
+
 export const getCustomerDetail  = async(id:string) =>{
     return new Promise(async (resolve, reject) =>{
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getCustomerDetail/${id}`;
@@ -101,7 +124,7 @@ export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับส�
         console.log('dataata',data)
         const status = data.status
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/changetagStatus/`;
-        axios.put(url + data.id,{
+        axios.post(url + data.id,{
            status
         },{
             headers: {
@@ -119,5 +142,23 @@ export const changeStatusToid = async(data:Partial<any>) =>{ //ปรับส�
     })
 }
 
+
+export const getCustomerGroup =async()=>{
+    return new Promise(async(resolve,reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/user/getCustomerGroup`;
+        axios.get(url,
+          {
+              headers: {
+                  Accept: 'application/json',
+              },
+          }).then(res => {
+            if (res.status === 200) {
+                resolve(res.data.data)
+            }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
 
 

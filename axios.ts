@@ -1,3 +1,4 @@
+"use client"
 import axioss, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession, signOut } from "next-auth/react";
 
@@ -7,7 +8,6 @@ axios.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     let session: Partial<any> | null;
     session = await getSession();
-    console.log('sessionm',session)
     if (session) {
       config.headers.Authorization = `Bearer ${session.accessToken}`;
     }
@@ -15,7 +15,6 @@ axios.interceptors.request.use(
     return config;
   },
   error => {
-    console.log("errr", error);
     return Promise.reject(error);
   }
 );

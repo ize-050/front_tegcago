@@ -95,7 +95,7 @@ const Login = () => {
                                             onChange={onChange}
                                             type="text" className={`
                                             ${errors.email ? 'border-red-500' : 'bg-indigo-50'}
-                                            bg-indigo-50 px-4 py-2 outline-none rounded-md w-full`} />
+                                            bg-indigo-50 px-4 py-2 outline-none rounded-md w-full text-black`} />
                                     )}
 
                                 />
@@ -116,7 +116,7 @@ const Login = () => {
                                             
                                             type="password" className={`
                                                 ${errors.email ? 'border-red-500' : 'bg-indigo-50'}
-                                                bg-indigo-50 px-4 py-2 outline-none rounded-md w-full`} />
+                                                bg-indigo-50 px-4 py-2 outline-none rounded-md w-full text-black`} />
                                     )}
 
                                 />

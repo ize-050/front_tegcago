@@ -30,7 +30,6 @@ export const utilStore = createSlice({
   initialState,
   reducers: {
     setOpenToast: (state, action) => {
-        console.log('action',action);
       state.toastData = action.payload
     },
    

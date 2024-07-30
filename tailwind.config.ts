@@ -405,6 +405,7 @@ module.exports = {
     }),
   ],
   safelist: [
+    'bg-blue-500',
     'bg-amber-700',
     'bg-emerald-700',
     'bg-purple-500',

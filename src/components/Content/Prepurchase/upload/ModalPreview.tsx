@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import Lucide from "@/components/Base/Lucide";
@@ -6,24 +7,26 @@ import Lucide from "@/components/Base/Lucide";
 interface PreviewModalProps {
     isOpen: boolean;
     onClose: () => void;
-    images: string[];
-    startIndex?: number; // Optional: Index of the initial image to display
+    images: any[];
+    startIndex: number; // Optional: Index of the initial image to display
 }
 
-function ModalPreviewImage({ isOpen, onClose, images, startIndex = 0 }: PreviewModalProps) {
-    const [currentIndex, setCurrentIndex] = useState(startIndex);
-
+function ModalPreviewImage({ isOpen, onClose, images, startIndex  }: PreviewModalProps) {
+    const [currentIndex, setCurrentIndex] = useState<number>(startIndex);
+    console.log('imageerwss',images)
     useEffect(() => {
         setCurrentIndex(startIndex); // Reset index when modal opens
     }, [isOpen, startIndex]);
 
-    const handlePrev = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
-    };
+    // const handlePrev = () => {
+    //     setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    // };
+    //
+    // const handleNext = () => {
+    //     setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    // };
 
-    const handleNext = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
-    };
+
 
     if (!isOpen) return null;
 
@@ -47,29 +50,32 @@ function ModalPreviewImage({ isOpen, onClose, images, startIndex = 0 }: PreviewM
                 </button>
 
                 {/* Image Display */}
-                {images.length === 0 && <p className="text-center text-gray-500">No images to display</p>}
-                <Image
-                    src={images[currentIndex]}
+                {/*{images.length === 0 && <p className="text-center text-gray-500">No images to display</p>}*/}
+
+                    <Image
+                     src={images[currentIndex].url}
                     alt={'Image'}
                     width={800}
                     height={600}
-                    className="w-full  object-contain"
-                />
+                    className="w-full  object-contain"></Image>
 
 
-                <div className="flex w-full">
-                    <div className="mt-4 flex-1 justify-start">
-                        <button  type="button" onClick={handlePrev} className="mr-4 px-4 py-2 bg-gray-200 rounded flex-grow-0"> {/* Add flex-grow-0 */}
-                            <Lucide icon="ArrowLeft" />
-                        </button>
-                    </div>
 
-                    <div className="mt-4 flex-1 justify-end">
-                        <button type="button" onClick={handleNext} className="float-right px-4 py-2 bg-gray-200 rounded flex-grow-0"> {/* Add flex-grow-0 */}
-                            <Lucide icon="ArrowRight" />
-                        </button>
-                    </div>
-                </div>
+                {/* Image Navigation */}
+                {/*<div className="flex w-full">*/}
+                {/*    <div className="mt-4 flex-1 justify-start">*/}
+                {/*        <button  type="button" onClick={handlePrev} className="mr-4 px-4 py-2 bg-gray-200 rounded flex-grow-0"> /!* Add flex-grow-0 *!/*/}
+                {/*            <Lucide icon="ArrowLeft" />*/}
+                {/*        </button>*/}
+                {/*    </div>*/}
+
+                {/*    <div className="mt-4 flex-1 justify-end">*/}
+                {/*        <button type="button" onClick={handleNext} className="float-right px-4 py-2 bg-gray-200 rounded flex-grow-0"> /!* Add flex-grow-0 *!/*/}
+                {/*            <Lucide icon="ArrowRight" />*/}
+                {/*        </button>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
+
             </div>
         </div>
     );

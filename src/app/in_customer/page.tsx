@@ -260,16 +260,16 @@ function Main() {
                                 <h5 className="mb-1 text-xl font-medium text-gray-900 text-[#417CA0]">{data.cus_fullname}</h5>
                                 <span className="text-sm text-gray-500 mb-5 dark:text-gray-400">เบอร์โทรศัพท์ : {data.cus_phone}</span>
                                 <button
-                                      className={`badge ${data?.d_status[0].color}   w-25 text-white   p-1 rounded-md`}
+                                      className={`badge ${data?.color}   w-25 text-white   p-1 rounded-md`}
                                     >
-                                   
-                                      {data?.d_status[0].status_name}
+
+                                      {data?.d_status}
                                     </button>
                               </div>
                               <div className="flex justify-center bg-gray-100  text-center pt-2 pb-2 mb-5">
                                 <button
                                   onClick={() => {
-                                    router.push(`customer/content/${data?.id}`)
+                                    router.push(`/customer/content/${data?.id}`)
                                   }}
                                   style={{
                                     background: "#C8D9E3"

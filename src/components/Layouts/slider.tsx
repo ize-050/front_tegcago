@@ -2,19 +2,20 @@
 import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 import { Transition } from "react-transition-group";
-import Breadcrumb from "..//Base/Breadcrumb";
 import {usePathname} from 'next/navigation'
+import Image from 'next/image'
 import { useState, useEffect, createRef } from "react";
 import { selectSideMenu } from "../../stores/sideMenuSlice";
 import {
   selectCompactMenu,
   setCompactMenu as setCompactMenuStore,
 } from "../../stores/compactMenuSlice";
+
+import {useSession} from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 import {
   FormattedMenu,
-  linkTo,
   nestedMenu,
   enter,
   leave,
@@ -23,11 +24,11 @@ import Lucide from "../Base/Lucide";
 
 import clsx from "clsx";
 import SimpleBar from "simplebar";
-import { Menu } from "../Base/Headless";
+import Link from "next/link";
 
-import Image from 'next/image'
 
 function Slider() {
+  const session:any  =  useSession()
   const dispatch = useAppDispatch();
   const compactMenu = useAppSelector(selectCompactMenu);
   const setCompactMenu = (val: boolean) => {
@@ -48,7 +49,10 @@ function Slider() {
   const pathname = usePathname()
 
 
-  const sideMenuStore = useAppSelector(selectSideMenu);
+  const {menuSale,menuCs} = useAppSelector(selectSideMenu);
+
+  const [sideMenuStore, setSideMenuStore] = useState<any>();
+
   const sideMenu = () => nestedMenu(sideMenuStore, pathname);
   const scrollableRef = createRef<HTMLDivElement>();
 
@@ -63,18 +67,12 @@ function Slider() {
     }
   };
 
-  const requestFullscreen = () => {
-    const el = document.documentElement;
-    if (el.requestFullscreen) {
-      el.requestFullscreen();
-    }
-  };
+
 
   useEffect(() => {
     if (scrollableRef.current) {
       new SimpleBar(scrollableRef.current);
     }
-
     setFormattedMenu(sideMenu());
     compactLayout();
 
@@ -82,6 +80,18 @@ function Slider() {
       compactLayout();
     };
   }, [sideMenuStore, pathname]);
+
+
+  useEffect(() => {
+    if(session?.data?.role =="Sales"){
+      setSideMenuStore(menuSale)
+    }
+    else{
+      setSideMenuStore(menuCs)
+    }
+
+
+  }, [session]);
     return (
        <>
           <div
@@ -208,6 +218,7 @@ function Slider() {
                         >
                           {menu.subMenu.map((subMenu:any, subMenuKey:any) => (
                             <li key={subMenuKey}>
+
                               <a
                                 href=""
                                 className={clsx([
