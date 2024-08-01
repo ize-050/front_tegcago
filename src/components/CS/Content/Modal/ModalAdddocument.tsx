@@ -51,7 +51,6 @@ const ModalAdddocument = () => {
 
   const onSubmit = (data: any) => {
    
-
     let data_send :Partial<any>= {
       d_purchase_id :purchase.id,
       d_group_work: data.d_group_work,

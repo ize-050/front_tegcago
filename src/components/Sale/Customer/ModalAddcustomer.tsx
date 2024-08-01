@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 
-import { customerData, setFormAddCustomer ,submitFormAddcustomer } from '@/stores/customer'
+import { customerData, setFormAddCustomer, submitFormAddcustomer } from '@/stores/customer'
 import { Controller, useForm } from 'react-hook-form';
 
 
@@ -9,10 +9,11 @@ import { Controller, useForm } from 'react-hook-form';
 const ModalCreateCustomer = () => {
 
     const dispatch = useAppDispatch()
-    const { ModalCreate,formAddcustomer } = useAppSelector(customerData);
+    const { ModalCreate, formAddcustomer } = useAppSelector(customerData);
 
     const { handleSubmit, control, reset, formState: { errors } } = useForm({
         defaultValues: {
+            cus_code:"",
             cus_fullname: "",
             cus_line: "",
             cus_website: "",
@@ -33,18 +34,18 @@ const ModalCreateCustomer = () => {
     }, [ModalCreate])
 
 
-    useEffect(()=>{
-        console.log('formAddcustomer',formAddcustomer)
-        if(formAddcustomer){
+    useEffect(() => {
+        console.log('formAddcustomer', formAddcustomer)
+        if (formAddcustomer) {
             reset()
         }
-    },[formAddcustomer])
+    }, [formAddcustomer])
 
 
-    const onSubmit = (data:any) => {
+    const onSubmit = (data: any) => {
         dispatch(submitFormAddcustomer(data))
 
-       
+
     }
 
     return (
@@ -52,7 +53,7 @@ const ModalCreateCustomer = () => {
             {ModalCreate ?
                 <>
                     <div
-                        className="text-black justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+                        className="text-black  justify-center items-center flex  overflow-x-auto fixed inset-0 z-50 outline-none focus:outline-none"
                     >
                         <div className="relative w-full my-6 mx-auto max-w-lg">
                             {/*content*/}
@@ -73,7 +74,32 @@ const ModalCreateCustomer = () => {
                                 </div>
                                 {/*body*/}
                                 <form onSubmit={handleSubmit(onSubmit)}>
+
                                     <div className="relative p-6 flex-auto">
+
+                                        <div className="mb-5">
+                                            <label className="block flex mb-1 text-gray-600 font-semibold">รหัสลูกค้า
+                                                <div className="text-red-500">
+                                                    *
+                                                </div></label>
+                                            <Controller
+                                                name="cus_code"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <input
+                                                        placeholder='กรุณากรอกรหัสลูกค้า'
+                                                        value={value}
+                                                        onBlur={onBlur}
+                                                        onChange={onChange}
+                                                        type="text" className={`
+                                            ${errors.cus_code ? 'border-red-500' : 'border-gray-200'}
+                                            px-4 py-2 outline-none rounded-md w-full`} />
+                                                )}
+
+                                            />
+                                            {errors.cus_code && <p className="text-red-500">กรุณากรอกชื่อบริษัท.</p>}
+                                        </div>
                                         <div className="mb-5">
                                             <label className="block flex mb-1 text-gray-600 font-semibold">ชื่อบริษัท
                                                 <div className="text-red-500">
@@ -190,10 +216,10 @@ const ModalCreateCustomer = () => {
                                                 control={control}
                                                 rules={{ required: true }}
                                                 render={({ field: { onChange, onBlur, value } }) => (
-                                                    <select 
-                                                    onChange={onChange}
-                                                    value={value}
-                                                    id="countries" className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    <select
+                                                        onChange={onChange}
+                                                        value={value}
+                                                        id="countries" className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                                         <option selected>เลือก</option>
                                                         <option value="สนใจ">สนใจ</option>
                                                         <option value="ไม่สนใจ">ไม่สนใจ</option>
@@ -214,10 +240,10 @@ const ModalCreateCustomer = () => {
                                                 control={control}
                                                 rules={{ required: true }}
                                                 render={({ field: { onChange, onBlur, value } }) => (
-                                                    <select 
-                                                    onChange={onChange}
-                                                    value={value}
-                                                    id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    <select
+                                                        onChange={onChange}
+                                                        value={value}
+                                                        id="countries" className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                                         <option selected>เลือก</option>
                                                         <option value="โทร">โทร</option>
                                                         <option value="ทัก">ทัก</option>
@@ -238,8 +264,8 @@ const ModalCreateCustomer = () => {
                                         <button
                                             style={{
                                                 border: '1px solid #417CA0',
-                                                color :"#305D79",
-                                                marginRight:'5px'
+                                                color: "#305D79",
+                                                marginRight: '5px'
                                             }}
                                             className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                                             type="button"

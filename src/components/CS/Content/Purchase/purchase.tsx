@@ -232,7 +232,6 @@ const Purchase = () => {
                             </button>
                         </div>
                     </>
-
                   )
                   : (
                     <>
