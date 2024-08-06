@@ -78,6 +78,26 @@ export const getAllPurchase = async(currentPage:number,status:string,tag:string)
 
 }
 
+export const cancelPurchase = async(id:string) =>{
+    return new Promise(async(resolve,reject) =>{
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/cancelEstimate/${id}`;
+        await axios.put(url,
+            {
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res=>{
+            if(res.status ===200){
+                resolve(res)
+            }
+        }).catch(err=>{
+            reject(err)
+        })
+    })
+
+}
+    
+
 export const getCheckBooking = ()=>{
     return new Promise(async(resolve,reject) =>{
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/getCheckBooking`;

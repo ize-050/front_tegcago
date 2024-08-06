@@ -23,7 +23,6 @@ const ModalAdddocument = () => {
 
   const { handleSubmit, control, reset, formState: { errors } } = useForm({
     defaultValues: {
-      d_group_work: "",
       d_num_date: "",
       d_end_date: "",
       document_type:[],
@@ -53,7 +52,6 @@ const ModalAdddocument = () => {
    
     let data_send :Partial<any>= {
       d_purchase_id :purchase.id,
-      d_group_work: data.d_group_work,
       d_num_date: data.d_num_date,
       d_end_date: data.d_end_date,
       document_type: document_type
@@ -124,29 +122,7 @@ const ModalAdddocument = () => {
                     </div>
                   </div>
                 </div>
-                <div className="mb-5   w-1/2 ">
-                  <label className="block flex mb-1 text-gray-600 font-semibold">เลือกประเภทงาน</label>
-                  <Controller
-                    name="d_group_work"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <select
-                        onChange={onChange}
-                        className=" text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500  ">
-                        <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
-                        <option value="งานเหมา Allin">งานเหมา Allin</option>
-                        <option value="งาน Shipping">งาน Shipping</option>
-                        <option value="งาน Green ตามจริง">งาน Green ตามจริง</option>
-                        <option value="งานเคลียร์ขาเข้าทางเรือ">งานเคลียร์ขาเข้าทางเรือ</option>
-                        <option value="งานเคลียร์ขาเข้าทางรถ">งานเคลียร์ขาเข้าทางรถ</option>
-
-                      </select>
-                    )}
-
-                  />
-                  {errors.d_group_work && <p className="text-red-500">กรุณากรอกชื่อบริษัท.</p>}
-                </div>
+           
                 <div className="flex flex-row">
                   <div className="mb-5 w-1/2">
                     <label className="block flex mb-1 text-gray-600 font-semibold">ระยะเวลายึดอายุ

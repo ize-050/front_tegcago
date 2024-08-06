@@ -35,6 +35,7 @@ import ToastComponent from "./toastComponents";
 import { set } from "lodash";
 import Lucide from "../Base/Lucide";
 import Loading from "@/app/loading";
+import NotificationComponent from "./Notification";
 
 function Layout({ children }: any) {
     const dispatch = useAppDispatch();
@@ -151,7 +152,7 @@ function Layout({ children }: any) {
                             <li className="ml-auto flex-col-reverse text-blue-400"> {/* No need for flex-1 */}
 
                                 <div className="flex">
-                                    <Bell className="mr-5 pt-1 border-gray-800 border-1 text-gray-600 w-5" />
+                                     <NotificationComponent></NotificationComponent>
                                     <button
                                         onClick={toggleDropdown}
                                         type="button"
@@ -166,38 +167,43 @@ function Layout({ children }: any) {
                                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
                                         </svg>
                                     </button>
+                                    
+                                    
 
-                                    {isOpen && ( // Conditionally render the dropdown
-                                        <div
-                                            className="origin-top-right absolute right-0 mt-11 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none dark:bg-gray-700"
-                                            role="menu"
-                                            aria-orientation="vertical"
-                                            aria-labelledby="dropdownDefaultButton"
-                                        >
-                                            <ul className="py-1  text-sm text-gray-700 dark:text-gray-200">
-                                                <li>
+                                        {isOpen && ( // Conditionally render the dropdown
+                                            <div
+                                                className="origin-top-right absolute right-0 mt-11 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none dark:bg-gray-700"
+                                                role="menu"
+                                                aria-orientation="vertical"
+                                                aria-labelledby="dropdownDefaultButton"
+                                            >
+                                                <ul className="py-1  text-sm text-gray-700 dark:text-gray-200">
+                                                    <li>
 
-                                                    <a href="#" className="block px-4 py-2 flex hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                                        <Lucide icon="User"></Lucide>
-                                                        ข้อมูลส่วนตัว</a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"
-                                                        onClick={async () => {
-                                                            await signOut({ redirect: false, callbackUrl: '/' })
-                                                            router.push('/login')
-                                                        }}
-                                                        className="block px-4 py-2 hover:bg-gray-100 flex dark:hover:bg-gray-600 dark:hover:text-white">
-                                                        <LogOut className="block w-5 mr-1 " />
-                                                        ออกจากระบบ
+                                                        <a href="#" className="block px-4 py-2 flex hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                            <Lucide icon="User"></Lucide>
+                                                            ข้อมูลส่วนตัว</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#"
+                                                            onClick={async () => {
+                                                                await signOut({ redirect: false, callbackUrl: '/' })
+                                                                router.push('/login')
+                                                            }}
+                                                            className="block px-4 py-2 hover:bg-gray-100 flex dark:hover:bg-gray-600 dark:hover:text-white">
+                                                            <LogOut className="block w-5 mr-1 " />
+                                                            ออกจากระบบ
 
-                                                    </a>
-                                                </li>
-                                                {/* ... other menu items ... */}
-                                            </ul>
-                                        </div>
-                                    )}
+                                                        </a>
+                                                    </li>
+                                                    {/* ... other menu items ... */}
+                                                </ul>
+                                            </div>
+                                        )}
+                              
+
                                 </div>
+
                             </li>
                         </ul>
                     </nav>
@@ -206,9 +212,9 @@ function Layout({ children }: any) {
                 <hr></hr>
 
 
-               
+
                 {children}
-            
+
             </div>
         </div>
 

@@ -5,6 +5,7 @@ import "@/assets/css/themes/hook.css";
 import { useState, useEffect, useCallback, createRef, useMemo } from "react";
 import moment from 'moment'
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2'
 
 
 
@@ -19,7 +20,7 @@ import Table from "../../components/Base/Table";
 import Lucide from "../../components/Base/Lucide";
 
 //services
-import { getAllPurchase } from "../../services/purchase";
+import { getAllPurchase  , cancelPurchase} from "../../services/purchase";
 
 //store
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
@@ -106,11 +107,32 @@ function Purchase() {
     setCurrentPage(newPage);
   };
 
+
+
   const GetAllpurchase = useCallback(async () => {
     const purchase = await getAllPurchase(currentPage, status, tag);
     dispatch(setAllPurchase(purchase));
 
   }, [currentPage, status, tag]);
+
+
+  const cancelOrder = async (id: string) => {
+    Swal.fire({
+      title: 'คุณต้องการยกเลิกรายการจองนี้หรือไม่',
+      showDenyButton: true,
+      icon: 'warning',
+      confirmButtonText: `ยืนยัน`,
+      denyButtonText: `ยกเลิก`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const cancel = await cancelPurchase(id);
+        const purchase = await getAllPurchase(currentPage, status, tag);
+        dispatch(setAllPurchase(purchase));
+      }
+    }).catch((err) => { 
+      console.log('cancelOrderError', err)
+    })
+  }
 
   useEffect(() => {
     dispatch(resetStore())
@@ -372,13 +394,21 @@ function Purchase() {
                                         className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                       ></Lucide>
                                     </button>
-                                    <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg">
+                                   {data.d_status !== 'ยกเลิกคำสั่งซื้อ' && data.d_status !=="ิปิดการขาย"  && 
+                                     <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
+                                     onClick={()=>{
+                                       cancelOrder(data?.id)
+                                     }}
+                                    >
                                       <Lucide
                                         color="#FF5C5C"
                                         icon="Trash"
+                                        
                                         className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                       ></Lucide>
                                     </button>
+                                   } 
+                                  
                                   </div>
                                 </Table.Td>
                               </Table.Tr>
