@@ -14,7 +14,8 @@ import moment from "moment/moment";
 import Lucide from "@/components/Base/Lucide";
 import Table from "@/components/Base/Table";
 import Button from "@/components/Base/Button";
-import UploadImageComponent from "@/components/Content/Prepurchase/upload/UpdateImageComponent";
+
+import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import {any} from "prop-types";
 import { set } from 'lodash';
 

@@ -89,7 +89,6 @@ function Layout({ children }: any) {
         if (scrollableRef.current) {
             new SimpleBar(scrollableRef.current);
         }
-
         // setFormattedMenu(sideMenu());
         compactLayout();
 

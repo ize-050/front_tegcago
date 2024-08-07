@@ -86,8 +86,8 @@ const NotificationComponent = () => {
                             >
                                 <Lucide icon="Trash" className="w-4" />
                                 Clear all
-                                
-                                </button>
+
+                            </button>
                         </p>
 
                     </div>

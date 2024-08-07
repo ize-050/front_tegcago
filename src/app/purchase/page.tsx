@@ -13,14 +13,14 @@ import Swal from 'sweetalert2'
 
 
 //component
-import {  FormInput } from "@/components/Base/Form";
+import { FormInput } from "@/components/Base/Form";
 import { CirclePlus, ArrowUpFromLine } from 'lucide-react';
 import Button from "../../components/Base/Button";
 import Table from "../../components/Base/Table";
 import Lucide from "../../components/Base/Lucide";
 
 //services
-import { getAllPurchase  , cancelPurchase} from "../../services/purchase";
+import { getAllPurchase, cancelPurchase } from "../../services/purchase";
 
 //store
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
@@ -37,7 +37,7 @@ import {
 } from "@/stores/purchase"
 
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
-import {setAllPurchase} from "@/stores/purchase";
+import { setAllPurchase } from "@/stores/purchase";
 
 
 
@@ -80,7 +80,7 @@ function Purchase() {
   const [totalPage, setTotalPage] = useState(0)
 
   const [currentData, setCurrentData] = useState([])
-  const {purchaseAll,totalData}  = useAppSelector(purchaseData)
+  const { purchaseAll, totalData } = useAppSelector(purchaseData)
 
   const handleButtonClick = (key: any) => {
     setTooltipOpen(tooltipOpen === key ? null : key);
@@ -129,14 +129,14 @@ function Purchase() {
         const purchase = await getAllPurchase(currentPage, status, tag);
         dispatch(setAllPurchase(purchase));
       }
-    }).catch((err) => { 
+    }).catch((err) => {
       console.log('cancelOrderError', err)
     })
   }
 
   useEffect(() => {
     dispatch(resetStore())
-  },[])
+  }, [])
 
   useEffect(() => {
     GetAllpurchase();
@@ -149,9 +149,9 @@ function Purchase() {
     const startIndex = Math.min((currentPage - 1) * 10, purchaseAll.length);
     const endIndex = Math.min(startIndex + 10, purchaseAll.length);
 
-    const currentData:any = purchaseAll;
+    const currentData: any = purchaseAll;
 
-    console.log('purchaseAll',purchaseAll)
+    console.log('purchaseAll', purchaseAll)
 
     setCurrentData(currentData);
     setTotalPage(totalPages);
@@ -198,12 +198,12 @@ function Purchase() {
         </div>
         <div className="justify-end p-5">
           <Button className="text-white  border-blue-800"
-                  onClick={() => {
-                    reAllpurchase()
-                  }}
-                  style={{
-                    background: "#273A6F"
-                  }}
+            onClick={() => {
+              reAllpurchase()
+            }}
+            style={{
+              background: "#273A6F"
+            }}
           >
             <CirclePlus
               color="#ffffff"
@@ -321,100 +321,100 @@ function Purchase() {
                       </Table.Thead>
                       <Table.Tbody>
                         {currentData
-                        .filter((row: any) =>
+                          .filter((row: any) =>
                             !searchedVal.length || row?.customer.cus_fullname.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
                             || row?.book_number.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
                             || row?.d_route.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
                             || row?.d_status.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
                             || row?.d_term.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
                             || row?.d_transport.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                        )
-                        .map((data: any, key: number) => {
-                          return (
-                            <>
-                              <Table.Tr className="text-sm  ">
-                                <Table.Td className="text-center    border-slate-200/60  text-gray-900">
-                                  {key + 1}
-                                </Table.Td>
-                                <Table.Td className="text-center truncate truncate    border-slate-200/60  text-gray-900">
-                                  {moment(data.createdAt).format('YYYY/MM/DD HH:mm')} น.
-                                </Table.Td>
-                                <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
-                                  {data?.customer?.cus_fullname}
-                                </Table.Td>
-                                <Table.Td className="text-center truncate  truncate border-slate-200/60  text-gray-900">
-                                  {data.book_number}
-                                </Table.Td>
+                              .toLowerCase()
+                              .includes(searchedVal.toString().toLowerCase())
+                          )
+                          .map((data: any, key: number) => {
+                            return (
+                              <>
+                                <Table.Tr className="text-sm  ">
+                                  <Table.Td className="text-center    border-slate-200/60  text-gray-900">
+                                    {key + 1}
+                                  </Table.Td>
+                                  <Table.Td className="text-center truncate truncate    border-slate-200/60  text-gray-900">
+                                    {moment(data.createdAt).format('YYYY/MM/DD HH:mm')} น.
+                                  </Table.Td>
+                                  <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
+                                    {data?.customer?.cus_fullname}
+                                  </Table.Td>
+                                  <Table.Td className="text-center truncate  truncate border-slate-200/60  text-gray-900">
+                                    {data.book_number}
+                                  </Table.Td>
 
-                                <Table.Td className=" relative text-center  border-slate-200/60  text-gray-900">
-                                  {data.d_route}
-                                </Table.Td>
-                                <Table.Td className="text-center  truncate  border-slate-200/60  text-gray-900">
-                                  {data.d_transport}
-                                </Table.Td>
-                                <Table.Td className="text-center truncate   border-slate-200/60  text-gray-900">
-                                  {data.d_term}
-                                </Table.Td>
+                                  <Table.Td className=" relative text-center  border-slate-200/60  text-gray-900">
+                                    {data.d_route}
+                                  </Table.Td>
+                                  <Table.Td className="text-center  truncate  border-slate-200/60  text-gray-900">
+                                    {data.d_transport}
+                                  </Table.Td>
+                                  <Table.Td className="text-center truncate   border-slate-200/60  text-gray-900">
+                                    {data.d_term}
+                                  </Table.Td>
 
-                                <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
-                                  <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
-                                </Table.Td>
+                                  <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
+                                    <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
+                                  </Table.Td>
 
-                                <Table.Td className="text-center  truncate border-slate-200/60  text-gray-900">
-                                  <select className="w-auto  rounded-md space-x-2">
-                                    <option>กรุณาเลือก</option>
-                                  </select>
-                                </Table.Td>
+                                  <Table.Td className="text-center  truncate border-slate-200/60  text-gray-900">
+                                    <select className="w-auto  rounded-md space-x-2">
+                                      <option>กรุณาเลือก</option>
+                                    </select>
+                                  </Table.Td>
 
-                                <Table.Td className="text-center   border-slate-200/60  text-gray-900">
-                                  <div className="flex">
-                                    <button
-                                      onClick={() => {
-                                        router.replace(`purchase/content/${data?.id}`)
-                                      }}
-                                      style={{
-                                        background: "#C8D9E3"
-                                      }}
-                                      className=" hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Pencil"
-                                        className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                      ></Lucide>
-                                    </button>
-                                   {data.d_status !== 'ยกเลิกคำสั่งซื้อ' && data.d_status !=="ิปิดการขาย"  && 
-                                     <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
-                                     onClick={()=>{
-                                       cancelOrder(data?.id)
-                                     }}
-                                    >
-                                      <Lucide
-                                        color="#FF5C5C"
-                                        icon="Trash"
-                                        
-                                        className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                      ></Lucide>
-                                    </button>
-                                   } 
-                                  
-                                  </div>
-                                </Table.Td>
-                              </Table.Tr>
-                            </>
-                          );
-                        })}
+                                  <Table.Td className="text-center   border-slate-200/60  text-gray-900">
+                                    <div className="flex">
+                                      <button
+                                        onClick={() => {
+                                          router.replace(`purchase/content/${data?.id}`)
+                                        }}
+                                        style={{
+                                          background: "#C8D9E3"
+                                        }}
+                                        className=" hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
+                                        <Lucide
+                                          color="#6C9AB5"
+                                          icon="Pencil"
+                                          className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                                        ></Lucide>
+                                      </button>
+                                      {data.d_status !== 'ยกเลิกคำสั่งซื้อ' && data.d_status !== "ิปิดการขาย" &&
+                                        <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
+                                          onClick={() => {
+                                            cancelOrder(data?.id)
+                                          }}
+                                        >
+                                          <Lucide
+                                            color="#FF5C5C"
+                                            icon="Trash"
+
+                                            className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                                          ></Lucide>
+                                        </button>
+                                      }
+
+                                    </div>
+                                  </Table.Td>
+                                </Table.Tr>
+                              </>
+                            );
+                          })}
                       </Table.Tbody>
                     </Table>
 
@@ -442,7 +442,7 @@ function Purchase() {
                             onClick={() => handlePageChange(pageNumber)}
                             disabled={currentPage === pageNumber}
                             className={`relative inline-flex items-center px-4 py-2    text-sm font-medium ${currentPage === pageNumber ? "text-primary-600 bg-gray-400 rounded-lg" : "text-gray-700"
-                            } hover:bg-gray-50 disabled:opacity-50`}
+                              } hover:bg-gray-50 disabled:opacity-50`}
                           >
                             {pageNumber}
                           </button>

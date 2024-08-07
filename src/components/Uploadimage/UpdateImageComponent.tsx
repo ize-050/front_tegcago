@@ -12,7 +12,10 @@ import { Document, Page } from 'react-pdf';
 
 import ModalPreviewImage from '@/components/Content/Prepurchase/upload/ModalPreview'
 
-const UploadImageComponent = ({setValue,control}:any) => {
+const UploadImageComponent = ({setValue,control}:{
+  setValue:any,
+  control:any
+}) => {
     const [files, setFiles] = useState<File[]>([]);
     const dispatch = useAppDispatch();
     const [selectIndex, setSelectedImageIndex] = useState<number>(0);

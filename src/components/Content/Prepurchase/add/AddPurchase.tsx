@@ -28,11 +28,12 @@ import { getSelectCustomer } from '@/services/customer'
 
 //component
 
-import UploadImageComponent from '@/components/Content/Prepurchase/upload/UpdateImageComponent'
+import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent'
 import SelectAutocomplete from '@/components/Autocomplete/SelectAutoComplete'
 import Lucide from "@/components/Base/Lucide";
 
 const AddPurchase = ({ BookingId }: any) => {
+  
   const { customer_detail } = useAppSelector(customerData)
   const dispatch = useAppDispatch()
   const methods = useForm()

@@ -12,7 +12,7 @@ import {purchaseData} from "@/stores/purchase";
 
 //store
 import {useAppSelector} from "@/stores/hooks";
-import UploadImageComponent from './upload/UpdateImageComponent';
+import UploadImageComponent from '../../Uploadimage/UpdateImageComponent';
 
 
 
