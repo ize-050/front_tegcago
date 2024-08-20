@@ -274,11 +274,11 @@ const ViewPrePurchase = ({ purchase }: any) => {
       <h2 className="mb-5  text-2xl">ข้อมูลการขนส่ง</h2>
       <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">Port ต้นทาง</label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ต้นทาง</label>
           <p>{data?.d_origin}</p>
         </div>
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">Port ปลายทาง</label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ปลายทาง</label>
           <p>{data?.d_destination}</p>
         </div>
 
@@ -287,17 +287,17 @@ const ViewPrePurchase = ({ purchase }: any) => {
       <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
         <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
           <div className="w-full md:w-2/4 flex flex-col">
-            <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ขนาดตู้</label>
-            <p>{data?.d_size}</p>
+            <label className="block mb-2  text-gray-500  text-sm font-semibold">ขนาดตู้</label>
+            <p>{data?.d_size_cabinet}</p>
           </div>
           <div className="w-full md:w-2/4  flex flex-col">
-            <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">น้ำหนัก</label>
+            <label className="block mb-2  text-gray-500  text-sm font-semibold">น้ำหนัก</label>
             <p>{data?.d_weight}</p>
           </div>
 
         </div>
         <div className="w-full md:w-1/2  flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">บริการหัวรถลาก</label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">บริการหัวรถลาก</label>
           <p>{data?.d_truck}</p>
         </div>
       </div>
@@ -305,14 +305,14 @@ const ViewPrePurchase = ({ purchase }: any) => {
 
       <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ที่อยู่ต้นทาง</label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ต้นทาง</label>
           <p>{data?.d_address_origin}</p>
         </div>
         {/* <MapProvider>
           <MapComponent />
         </MapProvider> */}
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ที่อยู่ปลายทาง </label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ปลายทาง </label>
           <p>{data?.d_address_destination}</p>
         </div>
 
@@ -321,11 +321,11 @@ const ViewPrePurchase = ({ purchase }: any) => {
 
       <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">Refund Tax ต้นทาง</label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">Refund Tax ต้นทาง</label>
           <p>{data?.d_refund_tag}</p>
         </div>
         <div className="w-full md:w-1/2 flex flex-col">
-          <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">หมายเหตุ </label>
+          <label className="block mb-2  text-gray-500  text-sm font-semibold">หมายเหตุ </label>
 
           <p>{data?.d_etc}</p>
         </div>

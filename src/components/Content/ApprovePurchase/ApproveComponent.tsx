@@ -19,15 +19,24 @@ import {
 //component 
 import PaymentComponent from './PaymentComponent';
 
+
+//router
+import {useRouter} from 'next/navigation'
+
+//service
+import { Submitpayment } from '@/services/purchase';
+import { setOpenToast } from '@/stores/util';
+import router from 'next/navigation';
+
 const ApproveComponent = () => {
 
 
     const dispatch = useAppDispatch()
-
+    const router    = useRouter()
     const { purchase } = useAppSelector(purchaseData)
 
     const [data, setData] = useState<Partial<any>>({})
-    
+
     const methods = useForm()
     const {
         handleSubmit,
@@ -35,11 +44,38 @@ const ApproveComponent = () => {
         reset,
         setValue,
         control,
-      } = methods;
+    } = methods;
 
     useEffect(() => {
         setData(purchase)
     }, [purchase])
+
+
+    const submit = async (data: any) => {
+        try {
+            let RequestData = {
+                ...data,
+                d_purchase_id: purchase.id
+            }
+
+            const submitpayment: any = await Submitpayment(RequestData)
+            if (submitpayment.status === 200) {
+                console.log("submitpayment", submitpayment)
+                dispatch(setOpenToast({
+                    type: "success",
+                    message: "บันทึกข้อมูลสำเร็จ"
+                })  
+                )
+                 //router.push('/purchase')
+            }
+            else {
+                console.log("error", submitpayment)
+            }
+        }
+        catch (e:any) {
+            throw new Error(e)
+        }
+    }
     return (
         <Fragment>
             <div className="mx-auto  text-black">
@@ -69,73 +105,98 @@ const ApproveComponent = () => {
                 </div>
 
                 <hr className="mb-5 mt-5"></hr>
-            <div className="p-5">
-                <h2 className=" mb-5  text-2xl font-semibold">ข้อมูลการขนส่ง</h2>
-                <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ต้นทาง</label>
-                        <p>{data?.d_origin}</p>
-                    </div>
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ปลายทาง</label>
-                        <p>{data?.d_destination}</p>
-                    </div>
-
-                </div>
-
-                <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
-                        <div className="w-full md:w-2/4 flex flex-col">
-                            <label className="block mb-2  text-gray-500  text-sm font-semibold">ขนาดตู้</label>
-                            <p>{data?.d_size}</p>
+                <div className="p-5">
+                    <h2 className=" mb-5  text-2xl font-semibold">ข้อมูลการขนส่ง</h2>
+                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ต้นทาง</label>
+                            <p>{data?.d_origin}</p>
                         </div>
-                        <div className="w-full md:w-2/4  flex flex-col">
-                            <label className="block mb-2  text-gray-500  text-sm font-semibold">น้ำหนัก</label>
-                            <p>{data?.d_weight}</p>
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">Port ปลายทาง</label>
+                            <p>{data?.d_destination}</p>
                         </div>
 
                     </div>
-                    <div className="w-full md:w-1/2  flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">บริการหัวรถลาก</label>
-                        <p>{data?.d_truck}</p>
+
+                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+                        <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
+                            <div className="w-full md:w-2/4 flex flex-col">
+                                <label className="block mb-2  text-gray-500  text-sm font-semibold">ขนาดตู้</label>
+                                <p>{data?.d_size_cabinet}</p>
+                            </div>
+                            <div className="w-full md:w-2/4  flex flex-col">
+                                <label className="block mb-2  text-gray-500  text-sm font-semibold">น้ำหนัก</label>
+                                <p>{data?.d_weight}</p>
+                            </div>
+
+                        </div>
+                        <div className="w-full md:w-1/2  flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">บริการหัวรถลาก</label>
+                            <p>{data?.d_truck}</p>
+                        </div>
                     </div>
+
+
+                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ต้นทาง</label>
+                            <p>{data?.d_address_origin}</p>
+                        </div>
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ปลายทาง </label>
+                            <p>{data?.d_address_destination}</p>
+                        </div>
+                    </div>
+
+
+                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">Refund Tax ต้นทาง</label>
+                            <p>{data?.d_refund_tag}</p>
+                        </div>
+                        <div className="w-full md:w-1/2 flex flex-col">
+                            <label className="block mb-2  text-gray-500  text-sm font-semibold">หมายเหตุ </label>
+
+                            <p>{data?.d_etc}</p>
+                        </div>
+                    </div>
+
                 </div>
-
-
-                <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ต้นทาง</label>
-                        <p>{data?.d_address_origin}</p>
-                    </div>
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">ที่อยู่ปลายทาง </label>
-                        <p>{data?.d_address_destination}</p>
-                    </div>
-                </div>
-
-
-                <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">Refund Tax ต้นทาง</label>
-                        <p>{data?.d_refund_tag}</p>
-                    </div>
-                    <div className="w-full md:w-1/2 flex flex-col">
-                        <label className="block mb-2  text-gray-500  text-sm font-semibold">หมายเหตุ </label>
-
-                        <p>{data?.d_etc}</p>
-                    </div>
-                </div>
-            
-            </div>
 
 
                 <hr className="mb-5 mt-5"></hr>
+                <form onSubmit={handleSubmit(submit)}>
+                    <PaymentComponent setValue={setValue} control={control}></PaymentComponent>
 
-                <PaymentComponent setValue={setValue} control={control}></PaymentComponent>
-                
-                <hr className="mb-5 mt-5"></hr>
-                
-                
+
+                    <hr className="mb-5 mt-5"></hr>
+
+
+
+                    <div className="flex items-center justify-end  rounded-b">
+                        <button
+                            style={{
+                                border: '1px solid #417CA0',
+                                color: "#305D79",
+                                marginRight: '5px'
+                            }}
+                            className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                            type="button"
+
+                        >
+                            ยกเลิก
+                        </button>
+                        <button
+                            className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                            type="submit"
+                        // onClick={() => setShowModal(false)}
+                        >
+                            บันทึก
+                        </button>
+                    </div>
+
+                </form>
 
             </div>
         </Fragment>

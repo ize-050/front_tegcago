@@ -28,7 +28,7 @@ import {getSelectCustomer} from '@/services/customer'
 
 //component
 
-import UploadImageComponent from '@/components/Content/Prepurchase/upload/UpdateImageComponent'
+import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent'
 import SelectAutocomplete from '@/components/Autocomplete/SelectAutoComplete'
 import Lucide from "@/components/Base/Lucide";
 
@@ -100,18 +100,18 @@ const  AddPurchase = ({BookingId}:any) => {
                    </div>
                    <div className=" flex  flex-col  md:flex-row  mt-5">
                        <div className="w-full md:w-1/3 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">เลขตีราคา</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">เลขตีราคา</label>
                            <p>{BookingId}</p>
                        </div>
                        <div className="w-full md:w-1/3 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ชื่อเซลล์</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">ชื่อเซลล์</label>
 
                           {session?.data?.fullname} ({session?.data?.role})
 
                        </div>
                        <div className="w-full md:w-1/3 flex flex-col">
                            <label
-                             className="block mb-2 text-lg text-gray-700  text-sm font-semibold">วันที่/เวลา</label>
+                             className="block mb-2  text-gray-700  text-sm font-semibold">วันที่/เวลา</label>
                            {Bookdate &&
                              <p>{Bookdate}</p>
                            }
@@ -131,7 +131,7 @@ const  AddPurchase = ({BookingId}:any) => {
                    <h1 className="mb-5  text-1xl">ข้อมูลขนส่ง</h1>
                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                        <div className="w-full md:w-1/3 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Route</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">Route</label>
                            <Controller
                              name="d_route"
                              control={control}
@@ -160,7 +160,7 @@ const  AddPurchase = ({BookingId}:any) => {
                            {errors.d_route && <p className="text-red-500">กรุณาเลือก.</p>}
                        </div>
                        <div className="w-full md:w-1/3 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ขนส่ง</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">ขนส่ง</label>
                            <Controller
                              name="d_transport"
                              control={control}
@@ -189,7 +189,7 @@ const  AddPurchase = ({BookingId}:any) => {
                            {errors.d_transport && <p className="text-red-500">กรุณาเลือก.</p>}
                        </div>
                        <div className="w-full md:w-1/3 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Term</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">Term</label>
                            <Controller
                              name="d_term"
                              control={control}
@@ -225,7 +225,7 @@ const  AddPurchase = ({BookingId}:any) => {
                    <h1 className="mb-5  text-1xl">ข้อมูลสินค้า</h1>
                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                        <div className="w-full md:w-1/2 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ชื่อสินค้า</label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">ชื่อสินค้า</label>
                            <Controller
                              name="d_product"
                              control={control}
@@ -239,7 +239,7 @@ const  AddPurchase = ({BookingId}:any) => {
                        </div>
                        <div className="w-full md:w-1/2 flex flex-col">
                            <label
-                             className="block mb-2 text-lg text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ / ไฟล์</label>
+                             className="block mb-2  text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ / ไฟล์</label>
                            <UploadImageComponent setValue={setValue} control={control}></UploadImageComponent>
                        </div>
                    </div>
@@ -249,7 +249,7 @@ const  AddPurchase = ({BookingId}:any) => {
                    <h1 className="mb-5  text-1xl">ข้อมูลการขนส่ง</h1>
                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                        <div className="w-full md:w-1/2 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Port
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">Port
                                ต้นทาง</label>
                            <Controller
                              name="d_origin"
@@ -263,7 +263,7 @@ const  AddPurchase = ({BookingId}:any) => {
                            {errors.d_origin && <p className="text-red-500">กรุณากรอกข้อมูลต้นทาง.</p>}
                        </div>
                        <div className="w-full md:w-1/2 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Port
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">Port
                                ปลายทาง</label>
                            <Controller
                              name="d_destination"
@@ -283,7 +283,7 @@ const  AddPurchase = ({BookingId}:any) => {
                        <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
                            <div className="w-full md:w-2/4 flex flex-col">
                                <label
-                                 className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ขนาดตู้</label>
+                                 className="block mb-2  text-gray-700  text-sm font-semibold">ขนาดตู้</label>
                                <Controller
                                  name="d_size_cabinet"
                                  control={control}
@@ -297,7 +297,7 @@ const  AddPurchase = ({BookingId}:any) => {
                            </div>
                            <div className="w-full md:w-2/4  flex flex-col">
                                <label
-                                 className="block mb-2 text-lg text-gray-700  text-sm font-semibold">น้ำหนัก</label>
+                                 className="block mb-2  text-gray-700  text-sm font-semibold">น้ำหนัก</label>
                                <Controller
                                  name="d_weight"
                                  control={control}
@@ -313,7 +313,7 @@ const  AddPurchase = ({BookingId}:any) => {
                        </div>
                        <div className="w-full md:w-1/2  flex flex-col">
                            <label
-                             className="block mb-2 text-lg text-gray-700  text-sm font-semibold">บริการหัวรถลาก</label>
+                             className="block mb-2  text-gray-700  text-sm font-semibold">บริการหัวรถลาก</label>
                            <Controller
                              name="d_truck"
                              control={control}
@@ -331,7 +331,7 @@ const  AddPurchase = ({BookingId}:any) => {
                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
                        <div className="w-full md:w-1/2 flex flex-col">
                            <label
-                             className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ที่อยู่ต้นทาง</label>
+                             className="block mb-2  text-gray-700  text-sm font-semibold">ที่อยู่ต้นทาง</label>
                            <Controller
                              name="d_address_origin"
                              control={control}
@@ -345,7 +345,7 @@ const  AddPurchase = ({BookingId}:any) => {
                        </div>
                        <div className="w-full md:w-1/2 flex flex-col">
                            <label
-                             className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ที่อยู่ปลายทาง </label>
+                             className="block mb-2  text-gray-700  text-sm font-semibold">ที่อยู่ปลายทาง </label>
                            <Controller
                              name="d_address_destination"
                              control={control}
@@ -362,7 +362,7 @@ const  AddPurchase = ({BookingId}:any) => {
 
                    <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
                        <div className="w-full md:w-1/2 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Refund Tax
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">Refund Tax
                                ต้นทาง</label>
                            <Controller
                              name="d_refund_tag"
@@ -377,7 +377,7 @@ const  AddPurchase = ({BookingId}:any) => {
                            {errors.d_weight && <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>}
                        </div>
                        <div className="w-full md:w-1/2 flex flex-col">
-                           <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">หมายเหตุ </label>
+                           <label className="block mb-2  text-gray-700  text-sm font-semibold">หมายเหตุ </label>
                            <Controller
                              name="d_etc"
                              control={control}

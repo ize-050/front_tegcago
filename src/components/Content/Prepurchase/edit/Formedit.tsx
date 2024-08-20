@@ -1,20 +1,13 @@
-import { useForm, Controller, FormProvider } from "react-hook-form"
-import React, { useEffect, useState } from 'react';
+"use client";
+
+import React, { useState, useEffect, Fragment } from 'react';
+
+//lib
+import { useForm, Controller, SubmitHandler, FormProvider } from "react-hook-form"
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-
 import moment from 'moment'
-import { customerData } from '@/stores/customer'
-
-
-import {
-  submitPrePurchase,
-
-} from '@/stores/purchase'
 
 //interface
-
 import {
   RouteData,
   TermData,
@@ -22,23 +15,25 @@ import {
 } from '../prepurchase.interface'
 
 
-//service
-
-import { getSelectCustomer } from '@/services/customer'
+//store 
+import { useAppDispatch } from '@/stores/hooks';
+import { changeFormeditPurchase, submitEditPrePurchase } from '@/stores/purchase';
 
 //component
-
-import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent'
-import SelectAutocomplete from '@/components/Autocomplete/SelectAutoComplete'
 import Lucide from "@/components/Base/Lucide";
+import EdituploadComponent from '@/components/Uploadimage/edit/EdituploadComponent';
+import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent';
 
-const AddPurchase = ({ BookingId }: any) => {
-  
-  const { customer_detail } = useAppSelector(customerData)
-  const dispatch = useAppDispatch()
+
+const FormEdit = ({ purchase }: {
+  purchase: Partial<any>
+}) => {
   const methods = useForm()
-  const [selectCustomer, SetSelectCustomer] = useState<any[]>([])
   const session: any = useSession()
+  const dispatch = useAppDispatch()
+
+  const [Bookdate, setBookdate] = useState<string>(moment(purchase.createdAt).format('YYYY-MM-DD HH:mm:ss'))
+
   const {
     handleSubmit,
     formState: { errors },
@@ -47,43 +42,35 @@ const AddPurchase = ({ BookingId }: any) => {
     control,
   } = methods;
 
-  const router = useRouter();
-  const [data, setData] = useState<Partial<any>>({})
-  const [Bookdate, SetBookingDate] = useState<string>(moment().format('DD/MM/DD HH:mm'))
-  async function onSubmit(request: any) {
-    try {
-      request.book_number = BookingId;
+  //hook
+  useEffect(() => {
+    console.log('formProduct', purchase)
+  }, [purchase])
 
-      console.log('request', request.files)
-      dispatch(submitPrePurchase(request));
+
+  const viewEdit = (value: boolean) => {
+    dispatch(changeFormeditPurchase(value))
+  }
+
+  //function 
+  const onSubmit: SubmitHandler<any> = (data) => {
+    try {
+      data.id = purchase.id
+
+      console.log("dataSubmit", data)
+      dispatch(submitEditPrePurchase(data));
     }
     catch (err) {
       console.log(err)
     }
   }
 
-  const handleSelect = (selectedOption: Partial<any>) => {
-    setValue('customer_id', selectedOption.id)
-  };
-
-
-  useEffect(() => {
-    (async () => {
-      let customer: any = await getSelectCustomer()
-      console.log('customerSelect', customer)
-      SetSelectCustomer(customer)
-    }
-    )()
-
-  }, []);
-
-
   return (
-    <div>
+    <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
 
-          <div className="h-auto flex flex-col ">
+          {/* <div className="h-auto flex flex-col ">
             <div
               className="bg-[#D2D6E1] bg-opacity-30 p-2   flex items-center">
               <Lucide
@@ -91,28 +78,28 @@ const AddPurchase = ({ BookingId }: any) => {
                 icon="Info"
                 className="inset-y-0 bg-secondary-400  pr-1  justify-center  text-slate-500"></Lucide>
 
-              <label className={"pr-5"}>เลือกรายชื่อลูกค้า </label>
+              <label className={"pr-5"}>เลือกรายชื่อลูกค้า11 </label>
 
               <div className="relative ">
-                <SelectAutocomplete options={selectCustomer} onSelect={handleSelect} />
+               
               </div>
 
             </div>
-          </div>
+          </div> */}
           <div className=" flex  flex-col  md:flex-row  mt-5">
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">เลขตีราคา</label>
-              <p>{BookingId}</p>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">เลขตีราคา</label>
+              {purchase.book_number}
             </div>
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ชื่อเซลล์</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">ชื่อเซลล์</label>
 
               {session?.data?.fullname} ({session?.data?.role})
 
             </div>
             <div className="w-full md:w-1/3 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">วันที่/เวลา</label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">วันที่/เวลา</label>
               {Bookdate &&
                 <p>{Bookdate}</p>
               }
@@ -132,11 +119,12 @@ const AddPurchase = ({ BookingId }: any) => {
           <h1 className="mb-5  text-1xl">ข้อมูลขนส่ง</h1>
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Route</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">Route</label>
               <Controller
                 name="d_route"
                 control={control}
                 rules={{ required: true }}
+                defaultValue={purchase.d_route}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <select
                     onChange={onChange}
@@ -161,11 +149,12 @@ const AddPurchase = ({ BookingId }: any) => {
               {errors.d_route && <p className="text-red-500">กรุณาเลือก.</p>}
             </div>
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ขนส่ง</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">ขนส่ง</label>
               <Controller
                 name="d_transport"
                 control={control}
                 rules={{ required: true }}
+                defaultValue={purchase.d_transport}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <select
                     onChange={onChange}
@@ -190,11 +179,12 @@ const AddPurchase = ({ BookingId }: any) => {
               {errors.d_transport && <p className="text-red-500">กรุณาเลือก.</p>}
             </div>
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Term</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">Term</label>
               <Controller
                 name="d_term"
                 control={control}
                 rules={{ required: true }}
+                defaultValue={purchase.d_term}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <select
                     onChange={onChange}
@@ -224,38 +214,41 @@ const AddPurchase = ({ BookingId }: any) => {
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
             <div className="w-full md:w-1/3 flex flex-col">
               <label className="block flex mb-1 text-gray-600 font-semibold">เลือกประเภทงาน</label>
-                  <Controller
-                    name="d_group_work"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <select
-                        onChange={onChange}
-                        className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ">
-                        <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
-                        <option value="งานเหมา Allin">งานเหมา Allin</option>
-                        <option value="งาน Shipping">งาน Shipping</option>
-                        <option value="งาน Green ตามจริง">งาน Green ตามจริง</option>
-                        <option value="งานเคลียร์ขาเข้าทางเรือ">งานเคลียร์ขาเข้าทางเรือ</option>
-                        <option value="งานเคลียร์ขาเข้าทางรถ">งานเคลียร์ขาเข้าทางรถ</option>
+              <Controller
+                name="d_group_work"
+                defaultValue={purchase.d_group_work}
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <select
+                    onChange={onChange}
+                    value={value}
+                    className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ">
+                    <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
+                    <option value="งานเหมา Allin">งานเหมา Allin</option>
+                    <option value="งาน Shipping">งาน Shipping</option>
+                    <option value="งาน Green ตามจริง">งาน Green ตามจริง</option>
+                    <option value="งานเคลียร์ขาเข้าทางเรือ">งานเคลียร์ขาเข้าทางเรือ</option>
+                    <option value="งานเคลียร์ขาเข้าทางรถ">งานเคลียร์ขาเข้าทางรถ</option>
 
-                      </select>
-                    )}
+                  </select>
+                )}
 
-                  />
-                  {errors.d_group_work && <p className="text-red-500">กรุณากรอกประเภทงาน.</p>}
+              />
+              {errors.d_group_work && <p className="text-red-500">กรุณากรอกประเภทงาน.</p>}
             </div>
-            </div>
+          </div>
 
 
           <hr className="mb-5 mt-5"></hr>
           <h1 className="mb-5  text-1xl">ข้อมูลสินค้า</h1>
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ชื่อสินค้า</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">ชื่อสินค้า</label>
               <Controller
                 name="d_product"
                 control={control}
+                defaultValue={purchase.d_product.d_product_name}
                 rules={{ required: false }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <input type="text" onChange={onChange} value={value} placeholder="กรอก"
@@ -266,8 +259,10 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ / ไฟล์</label>
-              <UploadImageComponent setValue={setValue} control={control}></UploadImageComponent>
+                className="block mb-2  text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ / ไฟล์</label>
+              <EdituploadComponent setValue={setValue} control={control}
+                image={purchase.d_product.d_product_image}
+              ></EdituploadComponent>
             </div>
           </div>
 
@@ -276,11 +271,12 @@ const AddPurchase = ({ BookingId }: any) => {
           <h1 className="mb-5  text-1xl">ข้อมูลการขนส่ง</h1>
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Port
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">Port
                 ต้นทาง</label>
               <Controller
                 name="d_origin"
                 control={control}
+                defaultValue={purchase.d_origin}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <input type="text" onChange={onChange} value={value} placeholder="กรอก"
@@ -290,10 +286,11 @@ const AddPurchase = ({ BookingId }: any) => {
               {errors.d_origin && <p className="text-red-500">กรุณากรอกข้อมูลต้นทาง.</p>}
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Port
+              <label className="block mb-2 text-gray-700  text-sm font-semibold">Port
                 ปลายทาง</label>
               <Controller
                 name="d_destination"
+                defaultValue={purchase.d_destination}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -310,9 +307,10 @@ const AddPurchase = ({ BookingId }: any) => {
             <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
               <div className="w-full md:w-2/4 flex flex-col">
                 <label
-                  className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ขนาดตู้</label>
+                  className="block mb-2  text-gray-700  text-sm font-semibold">ขนาดตู้</label>
                 <Controller
                   name="d_size_cabinet"
+                  defaultValue={purchase.d_size_cabinet}
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -324,9 +322,10 @@ const AddPurchase = ({ BookingId }: any) => {
               </div>
               <div className="w-full md:w-2/4  flex flex-col">
                 <label
-                  className="block mb-2 text-lg text-gray-700  text-sm font-semibold">น้ำหนัก</label>
+                  className="block mb-2 text-gray-700  text-sm font-semibold">น้ำหนัก</label>
                 <Controller
                   name="d_weight"
+                  defaultValue={purchase.d_weight}
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -340,9 +339,10 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
             <div className="w-full md:w-1/2  flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">บริการหัวรถลาก</label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">บริการหัวรถลาก</label>
               <Controller
                 name="d_truck"
+                defaultValue={purchase.d_truck}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -358,9 +358,10 @@ const AddPurchase = ({ BookingId }: any) => {
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ที่อยู่ต้นทาง</label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">ที่อยู่ต้นทาง</label>
               <Controller
                 name="d_address_origin"
+                defaultValue={purchase.d_address_origin}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -372,9 +373,10 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ที่อยู่ปลายทาง </label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">ที่อยู่ปลายทาง </label>
               <Controller
                 name="d_address_destination"
+                defaultValue={purchase.d_address_destination}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -387,15 +389,16 @@ const AddPurchase = ({ BookingId }: any) => {
           </div>
 
           <div className=" flex w-full flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-          <div className="w-full md:w-1/2 flex flex-col">
+            <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Latitude</label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">Latitude</label>
               <Controller
                 name="d_address_origin_la"
+                defaultValue={purchase.d_address_origin_la}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type ="text" onChange={onChange} value={value} placeholder="กรอก"
+                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
                     className={`${errors.d_address_origin_la ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                 )}
               />
@@ -403,29 +406,31 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Longitude </label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">Longitude </label>
               <Controller
                 name="d_address_origin_long"
+                defaultValue={purchase.d_address_origin_long}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type ="text" onChange={onChange} value={value} placeholder="กรอก"
+                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
                     className={`${errors.d_address_origin_long ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                 )}
               />
               {errors.d_address_origin_long && <p className="text-red-500">กรุณากรอกที่อยู่ปลายทาง.</p>}
             </div>
-              
+
 
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Latitude</label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">Latitude</label>
               <Controller
                 name="d_address_destination_la"
+                defaultValue={purchase.d_address_destination_la}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type ="text" onChange={onChange} value={value} placeholder="กรอก"
+                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
                     className={`${errors.d_address_destination_la ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                 )}
               />
@@ -433,29 +438,31 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
               <label
-                className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Longitude </label>
+                className="block mb-2  text-gray-700  text-sm font-semibold">Longitude </label>
               <Controller
                 name="d_address_destination_long"
+                defaultValue={purchase.d_address_destination_long}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type ="text" onChange={onChange} value={value} placeholder="กรอก"
+                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
                     className={`${errors.d_address_destination_long ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
                 )}
               />
               {errors.d_address_destination_long && <p className="text-red-500">กรุณากรอกที่อยู่ปลายทาง.</p>}
             </div>
-            
+
           </div>
 
 
-          
+
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">Refund Tax
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">Refund Tax
                 ต้นทาง</label>
               <Controller
                 name="d_refund_tag"
+                defaultValue={purchase.d_refund_tag}
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -467,10 +474,11 @@ const AddPurchase = ({ BookingId }: any) => {
               {errors.d_weight && <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>}
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">หมายเหตุ </label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">หมายเหตุ </label>
               <Controller
                 name="d_etc"
                 control={control}
+                defaultValue={purchase.d_etc}
                 rules={{ required: false }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <input type="text" onChange={onChange} value={value} placeholder="กรอก"
@@ -479,6 +487,11 @@ const AddPurchase = ({ BookingId }: any) => {
               />
             </div>
           </div>
+
+
+
+          <hr className="mb-5 mt-5"></hr>
+
 
           <div className="flex items-center justify-end  rounded-b mt-5">
             <button
@@ -489,7 +502,9 @@ const AddPurchase = ({ BookingId }: any) => {
               }}
               className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
               type="button"
-              onClick={() => reset()}
+              onClick={() => {
+                viewEdit(false)
+              }}
             >
               ยกเลิก
             </button>
@@ -504,8 +519,8 @@ const AddPurchase = ({ BookingId }: any) => {
 
         </form>
       </FormProvider>
-    </div>
+    </>
   )
 }
 
-export default AddPurchase
+export default FormEdit

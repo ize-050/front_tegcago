@@ -409,5 +409,10 @@ module.exports = {
     'bg-amber-700',
     'bg-emerald-700',
     'bg-purple-500',
+    'bg-[#C8D9E3]',
+    'bg-[#FFC8C8]',
+    'bg-[#FFDB7D]',
+    'bg-[#946A00]',
+    'bg-green-500',
   ],
 };

@@ -276,7 +276,7 @@ const CsViewPrePurchase = () => {
                         <div className="flex w-2/4  md:flex-row md:space-y-0 md:space-x-4">
                             <div className="w-full md:w-2/4 flex flex-col">
                                 <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">ขนาดตู้</label>
-                                <p>{data?.d_size}</p>
+                                <p>{data?.d_size_cabinet}</p>
                             </div>
                             <div className="w-full md:w-2/4  flex flex-col">
                                 <label className="block mb-2 text-lg text-gray-500  text-sm font-semibold">น้ำหนัก</label>

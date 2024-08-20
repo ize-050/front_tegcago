@@ -19,6 +19,7 @@ const ModalViewAgentCy = () => {
     const { purchase, document, modalViewAgentCy, AgentCyDetail } = useAppSelector(purchaseData);
     const [discountPrice, setDiscountPrice] = useState<number>(0)
     const [totalPrice, setTotalPrice] = useState<number>(0)
+    const [groupData, setGroupData] = useState<any>([])
     const [document_type, setDocument_type] = useState<any[]>([])
     const [data, setData] = useState<any>({})
     const { handleSubmit, control, reset, formState: { errors } } = useForm({
@@ -49,14 +50,22 @@ const ModalViewAgentCy = () => {
 
 
     useEffect(() => {
-
-
         setData(AgentCyDetail); // Update the 'data' state
 
         if (AgentCyDetail?.d_agentcy_detail?.length > 0) {
+
+            const groupedData = AgentCyDetail?.d_agentcy_detail?.reduce((acc: any, item: any) => {
+                (acc[item.d_type] = acc[item.d_type] || []).push(item);
+                return acc;
+            }, {});
+
+            setGroupData(groupedData);
+
+
+
             const totalPrice = AgentCyDetail.d_agentcy_detail.reduce(
                 (acc: number, item: any) => acc + Number(item.d_net_balance),
-                0 // Initial value for the accumulator
+                0
             );
             setTotalPrice(totalPrice);
 
@@ -72,11 +81,7 @@ const ModalViewAgentCy = () => {
         }
     }, [AgentCyDetail]);
 
-    const onSubmit = (data: any) => {
 
-
-
-    }
 
     function NumberFormat(number: number) {
         return number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
@@ -107,7 +112,7 @@ const ModalViewAgentCy = () => {
                                     </button>
                                 </div>
                                 {/*body*/}
-                                <form onSubmit={handleSubmit(onSubmit)}>
+                                <form>
                                     <div className={"p-6"}>
                                         <h2 className="font-semibold text-lg">รายละเอียด</h2>
                                         <div className="bg-gray-200 p-5 border rounded-md shadow-sm mb-5">
@@ -138,22 +143,39 @@ const ModalViewAgentCy = () => {
 
                                         </div>
                                         <div className="mb-5  ">
-                                            <label className="block flex mb-1 text-lg font-semibold">รายการทั้งหมด</label>
+                                            <label className="flex mb-1 text-lg font-semibold">รายการทั้งหมด</label>
+                                            {Object.entries(groupData).map(([type, items]:any) => (
+                                                <Fragment key={type}>
 
-                                            {data?.d_agentcy_detail?.map((item: any, index: number) => (
+                                                    <div key={type} className="p-2 rounded-md shadow-sm mb-5">
+                                                        <h2 className="text-black  font-semibold  text-lg">{type}</h2>
+                                                        {items.map((item: any, index: number) => (
+                                                            <Fragment key={index}>
+                                                                <div className="flex justify-between">
+                                                                    <p className="text-gray-600">- {item.d_type_text}</p>
+                                                                    <p className="text-gray-600">{NumberFormat(item.d_net_balance)} {item.d_currency}</p>
+                                                                </div>
+                                                            </Fragment>
+                                                        ))}
+                                                    </div>
+                                                </Fragment>
+                                            ))}
+                                            {/* {data?.d_agentcy_detail?.map((item: any, index: number) => (
+                                                
                                                 <Fragment key={index}>
                                                     <div className="flex justify-between">
                                                         <p className="text-gray-600">{item.d_type}</p>
                                                         <p className="text-gray-600">{NumberFormat(item.d_net_balance)} {item.d_currency}</p>
                                                     </div>
                                                 </Fragment>
-                                            ))}
+                                                 )}
+                                            ))} */}
                                             <div className="flex  justify-between">
                                                 <p className="mt-10 flex text-lg  font-semibold">
                                                     สรุปยอดค่าใช้จ่าย ทั้งหมด
                                                 </p>
                                                 <p className="mt-10  flex">
-                                                    ส่วนลด : {discountPrice} บาท
+                                                    ส่วนลด : {discountPrice}
                                                 </p>
                                             </div>
                                             <div className="flex flex-col items-end">

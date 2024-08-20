@@ -19,13 +19,16 @@ import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent"
 import {any} from "prop-types";
 import { set } from 'lodash';
 
+//router
+import {useRouter}  from 'next/navigation'
+
 //service
 
 
 const ModalAdddocument = () => {
 
   const dispatch = useAppDispatch()
-
+  const router = useRouter()
   const [ListPrice ,SETListPrice] = useState<any[]>([{
     List :'',
     Listname: '',
@@ -153,6 +156,7 @@ const ModalAdddocument = () => {
         purchase_id : purchase.id
       }
       dispatch(setSubmitAddAgency(RequestData))
+      router.push('/cs/purchase')
     }
     catch(err:any){
       throw err;

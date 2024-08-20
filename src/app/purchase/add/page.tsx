@@ -23,7 +23,7 @@ import Button from "@/components/Base/Button";
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
 import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
 import PurchaseComponent from "@/components/Content/Purchase/purchase"
-import PrePurchase from "@/components/Content/Prepurchase/prepurchase";
+import PrePurchase from "@/components/Content/Prepurchase/add/Addprepurchase";
 
 //store
 import { customerData, ChangeFormEdit } from '@/stores/customer'

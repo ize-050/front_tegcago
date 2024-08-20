@@ -74,6 +74,18 @@ const initialState: SideMenuState = {
       icon: "Proportions",
       pathname: "/report",
       title: "การจัดการทั่วไป",
+      subMenu:[
+        {
+          icon: "Proportions",
+          pathname: "/cs/system/dataagency",
+          title: "จัดการข้อมูลAgency",
+        },
+        {
+          icon: "Proportions",
+          pathname: "/cs/system/datadocument",
+          title: "จัดการประเภทนำเข้าเอกสาร",
+        },
+      ]
     },
   ],
 };

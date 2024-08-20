@@ -2,10 +2,12 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState, AppDispatch } from "./store";
 import { icons } from "@/components/Base/Lucide";
 import {
-    sentPrepurchase,
+  sentPrepurchase,
   sendSubmitAddAgency,
   UpdateAgencytoSale,
-  SentRequestFile
+  SentRequestFile,
+  sentEditPrepurchase,
+  Submitaddpayment
 } from "@/services/purchase";
 import { setOpenToast } from "@/stores/util";
 import { useAppDispatch } from "./hooks";
@@ -20,8 +22,11 @@ export interface internalCustomer {
     purchaseAll : any[];
     totalData: number;
     modelAdddo: boolean;
+    modalDocument:boolean;
     modalAgentcy:boolean;
+    modalUploadpurchase:boolean;
     modalViewAgentCy:boolean,
+    formEditPrepurchase:boolean;
     agentcy:any[]
     document:any[];
     AgentCyDetail:Partial<any>
@@ -31,14 +36,43 @@ const initialState: internalCustomer = {
     purchaseAll:[],
     purchase:{},
     modalImage:false,
+    modalDocument:false,
     totalData:0,
     modelAdddo: false,
+    modalUploadpurchase:false,
     modalViewAgentCy:false,
     modalAgentcy:false,
     agentcy:[],
     document:[],
+    formEditPrepurchase:false,
     AgentCyDetail:{}
 };
+
+
+export const submitAddpayment = createAsyncThunk(
+  "purchase/submitAddpayment",
+  async (action: any, { dispatch, getState }) => {
+    try {
+      const data = action;
+      console.log('dataaction',action)
+      const response: any = await Submitaddpayment(data);
+      if (response.status === 200) {
+        await dispatch(
+          setOpenToast({
+            type: "success",
+            message: "บันทึกข้อมูลสำเร็จ",
+          })
+        );
+
+      }
+
+    } catch (error) {
+      throw error;
+    }
+
+  }
+);
+
 
 
 export const sentrequestFile = createAsyncThunk(
@@ -118,6 +152,26 @@ export const setSubmitAddAgency = createAsyncThunk(
 );
 
 
+export const  submitEditPrePurchase = createAsyncThunk(
+  "purchase/submitEditPrePurchase",
+  async (action: any, { dispatch, getState }) => {
+    try {
+      const response: any = await sentEditPrepurchase(action);
+      if (response.status === 200) {
+        await dispatch(
+          setOpenToast({
+            type: "success",
+            message: "บันทึกข้อมูลสำเร็จ",
+          })
+        );
+        return response
+      }
+
+    } catch (error) {
+      throw error;
+    }
+
+  });
 
 export const submitPrePurchase = createAsyncThunk(
     "purchase/submitPrePurchase", // A unique identifier for this thunk
@@ -132,7 +186,7 @@ export const submitPrePurchase = createAsyncThunk(
           await dispatch(
             setOpenToast({
               type: "success",
-              message: "บันทึกข้อมูลลูกค้าสำเร็จ",
+              message: "บันทึกข้อมูลสำเร็จ",
             })
           );
           
@@ -157,14 +211,19 @@ export const purchase = createSlice({
     setPurchaseData: (state, action) => {
         state.purchase = action.payload
     },
+    changeFormeditPurchase: (state, action) => {
+      state.formEditPrepurchase = action.payload;
+    },
     resetStore: (state) => {
-
     },
     setModalImage: (state, action) => {
         state.modalImage = action.payload
     },
-    setModalAdddo: (state, action) => {
+    setModalAdddo: (state, action) => { //modal cs เพิ่มไฟลมา
         state.modelAdddo = action.payload
+    },
+    openModaldocument: (state, action) => { //modal sale เพิ่มไฟลมา
+        state.modalDocument = action.payload
     },
     setDocument: (state, action) => {
         state.document = action.payload
@@ -180,6 +239,9 @@ export const purchase = createSlice({
     },
     setAgentCyDetail:(state, action) => {
         state.AgentCyDetail = action.payload
+    },
+    setModalUploadPurchase:(state, action) => {
+      state.modalUploadpurchase = action.payload
     }
   },
 });
@@ -189,13 +251,16 @@ export const purchaseData = (state: RootState) => state.purchaseRedurer;
 export const {
   setAllPurchase,
   setPurchaseData,
+  changeFormeditPurchase,
   setModalImage,
   setModalAdddo,
+  openModaldocument,
   setDocument,
   setModalAgentcy,
   setModalViewAgentCy,
   setAgentcy,
-  setAgentCyDetail
+  setAgentCyDetail,
+  setModalUploadPurchase
   } = purchase.actions;
 
 export default purchase.reducer;

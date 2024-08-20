@@ -9,6 +9,8 @@ import pageLoaderReducer from "./pageLoaderSlice";
 import customerReducer from './customer';
 import utilReducer from './util';
 import purchaseRedurer from './purchase'
+import documentReducer from './document'
+import systemReducer from './system';
 
  const store = configureStore({
   reducer: {
@@ -19,7 +21,9 @@ import purchaseRedurer from './purchase'
     sideMenu: sideMenuReducer,
     compactMenu: compactMenuReducer,
     pageLoader: pageLoaderReducer,
-    purchaseRedurer:purchaseRedurer
+    purchaseRedurer:purchaseRedurer,
+    documentReducer:documentReducer,
+    systemReducer:systemReducer
   },
 });
 

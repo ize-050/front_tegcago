@@ -99,7 +99,7 @@ const NotificationComponent = () => {
                                 <li
                                     onClick={async () => {
                                         await updateNotification(item.id)
-                                        router.push(`/${item.link_to}/${item.subject_key}`)
+                                        router.push(`/${item.link_to}`)
                                         setIsDropdownOpen(false)
 
                                     }}

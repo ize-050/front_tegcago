@@ -22,14 +22,14 @@ import Button from "@/components/Base/Button";
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
 import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
 import PurchaseComponent from "@/components/Content/Purchase/purchase"
-import PrePurchase from "@/components/Content/Prepurchase/prepurchase";
+
 import ApprovePurchase from "@/components/Content/ApprovePurchase/ApproveComponent";
 //store
 import { customerData, ChangeFormEdit } from '@/stores/customer'
 import { purchaseData, setPurchaseData } from "@/stores/purchase";
 
 import { setOpenToast } from "@/stores/util"
-import Editprepurchase from "@/components/Content/Prepurchase/Editprepurchase";
+import Prepurchase from "@/components/Content/Prepurchase/prepurchase";
 import Link from "next/link";
 import App from "next/app";
 
@@ -49,8 +49,8 @@ function Addpurchase() {
   const handleTabClick = useCallback((tabName: any) => {
     if (tabName === 'purchase') {
       // if (purchase?.d_purchase_status[0].status_name == 'CS กำลังดำเนินการ') {
-        setActiveTab(tabName);
-      
+      setActiveTab(tabName);
+
       // else {
       //   dispatch(setOpenToast({
       //     type: 'info',
@@ -96,7 +96,8 @@ function Addpurchase() {
         <ol className="flex items-center space-x-2">
           <li className="flex items-center">
             <a href="#" className="inline-flex items-center text-gray-500 hover:text-gray-700">
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
               <span className="ml-1">Dashboard</span>
             </a>
           </li>
@@ -117,6 +118,8 @@ function Addpurchase() {
           </li>
         </ol>
       </nav>
+
+
       <div className="lg:flex md:flex ">
         <div className="flex-1 p-5">
           <p className="text-black text-xl font-bold">
@@ -195,7 +198,7 @@ function Addpurchase() {
               </li>
               <li className="me-2">
                 <a href="#"
-                onClick={() => handleTabClick('ApprovePurchase')}
+                  onClick={() => handleTabClick('ApprovePurchase')}
                   className={`
                                  inline-block p-4 border-b-2 text-black rounded-t-lg 
                                  ${activeTab === 'ApprovePurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
@@ -226,15 +229,15 @@ function Addpurchase() {
           </div>
 
           {activeTab === "Prepurchase" ?
-            <Editprepurchase></Editprepurchase>
+              <Prepurchase></Prepurchase>
             :
-            activeTab === "purchase"  ?
+           activeTab === "purchase" ?
               <PurchaseComponent></PurchaseComponent>
-              :  
-            activeTab ==='ApprovePurchase' ?
-             <ApprovePurchase></ApprovePurchase>
-              : null
-        }
+              :
+           activeTab === 'ApprovePurchase' ?
+              <ApprovePurchase></ApprovePurchase>
+                : null
+          }
         </div>
       </div>
 
