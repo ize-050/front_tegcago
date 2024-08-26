@@ -116,7 +116,7 @@ const EditimageComponent = ({ setValue, control, image }: {
                 }
             });
 
-
+            
 
             setPreviewUrls([...previewUrls, ...newFiles]);
             setFiles([...files, ...newFiles]); // Update files state

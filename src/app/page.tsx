@@ -5,18 +5,17 @@ import dynamic from 'next/dynamic'
 
 const DashboardComponent = dynamic(() => import('@/components/dashboard/Dashboard'), { ssr: false })
 
-const Main = ()=>{
-    
+const Main = () => {
 
-    return(
+
+    return (
         <>
-        <div className="container mx-auto p-5">
-        <div className="flex-1 w-50">
+            <div className="container mx-auto p-5">
+                <div className="flex-1 w-50">
                     <h1 className="mb-5  font-semibold text-2xl">Dashboard</h1>
                 </div>
-
-         <DashboardComponent />
-        </div>
+                <DashboardComponent />
+            </div>
         </>
     )
 }

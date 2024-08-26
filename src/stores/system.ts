@@ -8,7 +8,7 @@ export interface Internal {
     AgencyData :any[],
     CurrentPage: number,
     TotalPage:number,
-    searchedVal?:string
+    searchedVal?:any
     modal:Partial<any>,
     detail:Partial<any>
 }
@@ -19,7 +19,7 @@ const initialState : Internal= {
     AgencyData:[],
     CurrentPage:1,
     TotalPage:1,
-    searchedVal:"",
+    searchedVal:null,
     detail:{},
     modal:{
         open:false,

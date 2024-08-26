@@ -85,6 +85,11 @@ const initialState: SideMenuState = {
           pathname: "/cs/system/datadocument",
           title: "จัดการประเภทนำเข้าเอกสาร",
         },
+        {
+          icon: "Proportions",
+          pathname: "/cs/system/dataCurrency",
+          title: "จัดการสกุลเงิน",
+        },
       ]
     },
   ],

@@ -19,8 +19,6 @@ function PurchaseDetail({ params }: { params: { id: string } }) {
   // const { id }: {
   //   id: string
   // } = useParams();
-
-
   return (
     <>
       <nav aria-label="Breadcrumb" className="p-5">
@@ -47,7 +45,6 @@ function PurchaseDetail({ params }: { params: { id: string } }) {
           </li>
         </ol>
       </nav>
-
       <GroupPurchase id={id}></GroupPurchase>
     </>
   );

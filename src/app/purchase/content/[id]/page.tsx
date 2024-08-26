@@ -18,12 +18,13 @@ import {
 
 //component
 import Button from "@/components/Base/Button";
-
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
 import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
 import PurchaseComponent from "@/components/Content/Purchase/purchase"
 
 import ApprovePurchase from "@/components/Content/ApprovePurchase/ApproveComponent";
+import StatusPurchase from "@/components/Content/StatusPurchase/Statuspurchase";
+
 //store
 import { customerData, ChangeFormEdit } from '@/stores/customer'
 import { purchaseData, setPurchaseData } from "@/stores/purchase";
@@ -32,6 +33,8 @@ import { setOpenToast } from "@/stores/util"
 import Prepurchase from "@/components/Content/Prepurchase/prepurchase";
 import Link from "next/link";
 import App from "next/app";
+import purchase from '../../../../stores/purchase';
+
 
 
 
@@ -207,10 +210,11 @@ function Addpurchase() {
                 >อนุมัติราคา</a>
               </li>
               <li>
-                <a
+                <a href="#"
+                 onClick={() => handleTabClick('StatusPurchase')}
                   className={`
                                  inline-block p-4 border-b-2 text-black rounded-t-lg 
-                                 ${activeTab === 'ข้อมูลลูกค้า' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
+                                 ${activeTab === 'StatusPurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
                                  hover:text-gray-600 hover:border-gray-300
                                `}
                 >อัพเดดสถานะ</a>
@@ -236,7 +240,10 @@ function Addpurchase() {
               :
            activeTab === 'ApprovePurchase' ?
               <ApprovePurchase></ApprovePurchase>
-                : null
+                : 
+           activeTab === 'StatusPurchase' && purchase ?
+              <StatusPurchase purchase={purchase}></StatusPurchase>
+              : null
           }
         </div>
       </div>

@@ -26,6 +26,7 @@ import { StringDecoder } from "string_decoder";
 //service
 import { DeleteAgency } from "@/services/system/agency";
 import { setOpenToast } from "@/stores/util";
+import { DeleteCurrency } from "@/services/system/currency";
 
 const TableComponent = () => {
   const dispatch = useAppDispatch();
@@ -50,7 +51,7 @@ const TableComponent = () => {
     dispatch(setDetail(agentDetail));
   };
 
-  const deleteAgency = (id: string) => {
+  const deleteCurrency = (id: string) => {
     try {
       Swal.fire({
         title: "คุณต้องการลบข้อมูลหรือไม่",
@@ -67,7 +68,7 @@ const TableComponent = () => {
             const deleteAgent: {
               statusCode: number;
               message: string;
-            } = await DeleteAgency(id);
+            } = await DeleteCurrency(id);
 
             if (deleteAgent.statusCode == 200) {
               dispatch(
@@ -122,18 +123,13 @@ const TableComponent = () => {
                             No
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
-                            ชื่อ
+                            Import/Export
                           </Table.Td>
                           <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
-                            เบอร์โทรศัพท์
+                            ชนิดขนส่ง
                           </Table.Td>
-
-                          <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
-                            Email
-                          </Table.Td>
-
                           <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
-                            วันที่สร้าง
+                            Term
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black"></Table.Td>
                         </Table.Tr>
@@ -143,22 +139,18 @@ const TableComponent = () => {
                           .filter(
                             (row: any) =>
                               !searchedVal.length ||
-                              row?.agent_name
+                              row?.currency_name
                                 .toString()
                                 .toLowerCase()
                                 .includes(
                                   searchedVal.toString().toLowerCase()
                                 ) ||
-                              row?.agent_phone
+                              row?.rate_money
                                 .toString()
                                 .toLowerCase()
                                 .includes(
                                   searchedVal.toString().toLowerCase()
-                                ) ||
-                              row?.agent_email
-                                .toString()
-                                .toLowerCase()
-                                .includes(searchedVal.toString().toLowerCase())
+                                )
                           )
                           .map((data: any, key: number) => {
                             return (
@@ -171,26 +163,19 @@ const TableComponent = () => {
                                   </Table.Td>
                                   <Table.Td>
                                     <div className="flex justify-center">
-                                      {data.agent_name}
+                                      {data.type_master}
                                     </div>
                                   </Table.Td>
 
                                   <Table.Td>
                                     <div className="flex justify-center">
-                                      {data.agent_phone}
+                                      {data.documennt_type}
                                     </div>
                                   </Table.Td>
 
                                   <Table.Td>
                                     <div className="flex justify-center">
-                                      {data.agent_email}
-                                    </div>
-                                  </Table.Td>
-                                  <Table.Td>
-                                    <div className="flex justify-center">
-                                      {moment(data.createdAt).format(
-                                        "DD/MM/YYYY"
-                                      )}
+                                      {data.key}
                                     </div>
                                   </Table.Td>
 
@@ -214,7 +199,7 @@ const TableComponent = () => {
                                       <button
                                         className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
                                         onClick={() => {
-                                          deleteAgency(data.id);
+                                          deleteCurrency(data.id);
                                         }}
                                       >
                                         <Lucide
@@ -266,11 +251,10 @@ const TableComponent = () => {
                             key={pageNumber}
                             onClick={() => handlePageChange(pageNumber)}
                             disabled={CurrentPage === pageNumber}
-                            className={`relative inline-flex items-center px-4 py-2    text-sm font-medium ${
-                              CurrentPage === pageNumber
+                            className={`relative inline-flex items-center px-4 py-2    text-sm font-medium ${CurrentPage === pageNumber
                                 ? "text-primary-600 bg-gray-400 rounded-lg"
                                 : "text-gray-700"
-                            } hover:bg-gray-50 disabled:opacity-50`}
+                              } hover:bg-gray-50 disabled:opacity-50`}
                           >
                             {pageNumber}
                           </button>

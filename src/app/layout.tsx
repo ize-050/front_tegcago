@@ -29,8 +29,6 @@ const myFont = localFont({
 });
 
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,25 +43,20 @@ export default function RootLayout({
     <html lang="en" className={`${myFont.variable}`}>
       <Provider store={store}>
      
-    
-        <body className={"theme-16"}>
+        <body className={"theme-16 text-black"}>
         <ProgressBar />
           {!isLoginPage && (
-            <>
-            
+            <>           
               <Layout >
                 {children}
-              </Layout>
-
-           
+              </Layout>        
             </>
           )}
           {isLoginPage &&(
             <>
               {children}
             </>
-          )}
-         
+          )}      
           <ToastCompoent />
         </body>
      

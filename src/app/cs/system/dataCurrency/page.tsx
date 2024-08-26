@@ -1,3 +1,6 @@
+
+
+
 "use client";
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -6,18 +9,18 @@ import { useRouter } from 'next/navigation'
 //service
 
 import {
-    getDataDocument
-} from '@/services/system/document'
+    getDataCurrency
+} from '@/services/system/currency'
 
 
 //component
 
 import Lucide from '@/components/Base/Lucide'
-import ModalAgency from '@/components/CS/Agency/Modal/ModalAgentCy'
+import ModalCurrency from '@/components/CS/Currency/Modal/ModalCurrency'
 
 
-import Search from '@/components/CS/Document/Search'
-import Table from '@/components/CS/Document/Table'
+import Search from '@/components/CS/Currency/Search'
+import Table from '@/components/CS/Currency/Table'
 import { Button } from '@headlessui/react'
 import { CirclePlus } from 'lucide-react'
 
@@ -35,7 +38,8 @@ import { set } from 'lodash';
 
 //lib
 
-const DataDocument = () => {
+
+const DataCurrency = () => {
     const router = useRouter()
 
     const {
@@ -52,9 +56,8 @@ const DataDocument = () => {
             const response: {
                 data: any[],
                 TotalPage: number
-            } = await getDataDocument(CurrentPage)
+            } = await getDataCurrency(CurrentPage)
 
-            console.log("response", response)
             dispatch(setAgencyData(response.data))
             dispatch(setTotalPage(response.TotalPage))
         }
@@ -66,8 +69,6 @@ const DataDocument = () => {
     useEffect(() => {
         getdata()
     }, [])
-
-
 
     return (
         <>
@@ -88,15 +89,16 @@ const DataDocument = () => {
                     <li aria-current="page">
                         <div className="flex items-center">
                             <span className="text-gray-500">/</span>
-                            <span className="ml-1 text-gray-700">Document</span>
+                            <span className="ml-1 text-gray-700">Currency</span>
                         </div>
                     </li>
                 </ol>
             </nav>
 
+
             <div className="flex items-center justify-between p-5">
-                <h1 className="text-2xl  text-black  font-semibold">เอกสารประเภทขนส่ง</h1>
-                {/* <Button
+                <h1 className="text-2xl  text-black  font-semibold">สกุลเงิน</h1>
+                <Button
                     onClick={() => {
                         dispatch(setOpenModal({ open: true, type: "create" }))
                     }}
@@ -104,7 +106,7 @@ const DataDocument = () => {
                 >
                     <CirclePlus size={20} />
                     <span>เพิ่มข้อมูล</span>
-                </Button> */}
+                </Button>
 
             </div>
 
@@ -116,14 +118,13 @@ const DataDocument = () => {
                     <Table />
                 </div>
                 {modal?.open &&
-                    <ModalAgency></ModalAgency>
+                    <ModalCurrency></ModalCurrency>
                 }
 
             </div>
         </>
     )
 
-
 }
 
-export default DataDocument
+export default DataCurrency

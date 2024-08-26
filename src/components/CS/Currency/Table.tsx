@@ -26,6 +26,7 @@ import { StringDecoder } from "string_decoder";
 //service
 import { DeleteAgency } from "@/services/system/agency";
 import { setOpenToast } from "@/stores/util";
+import { DeleteCurrency } from "@/services/system/currency";
 
 const TableComponent = () => {
   const dispatch = useAppDispatch();
@@ -50,7 +51,7 @@ const TableComponent = () => {
     dispatch(setDetail(agentDetail));
   };
 
-  const deleteAgency = (id: string) => {
+  const deleteCurrency = (id: string) => {
     try {
       Swal.fire({
         title: "คุณต้องการลบข้อมูลหรือไม่",
@@ -67,7 +68,7 @@ const TableComponent = () => {
             const deleteAgent: {
               statusCode: number;
               message: string;
-            } = await DeleteAgency(id);
+            } = await DeleteCurrency(id);
 
             if (deleteAgent.statusCode == 200) {
               dispatch(
@@ -122,16 +123,11 @@ const TableComponent = () => {
                             No
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
-                            ชื่อ
+                            ชื่อสกุลเงิน
                           </Table.Td>
                           <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
-                            เบอร์โทรศัพท์
+                            อัตราเงินราคา
                           </Table.Td>
-
-                          <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
-                            Email
-                          </Table.Td>
-
                           <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
                             วันที่สร้าง
                           </Table.Td>
@@ -143,22 +139,18 @@ const TableComponent = () => {
                           .filter(
                             (row: any) =>
                               !searchedVal.length ||
-                              row?.agent_name
+                              row?.currency_name
                                 .toString()
                                 .toLowerCase()
                                 .includes(
                                   searchedVal.toString().toLowerCase()
                                 ) ||
-                              row?.agent_phone
+                              row?.rate_money
                                 .toString()
                                 .toLowerCase()
                                 .includes(
                                   searchedVal.toString().toLowerCase()
-                                ) ||
-                              row?.agent_email
-                                .toString()
-                                .toLowerCase()
-                                .includes(searchedVal.toString().toLowerCase())
+                                )                    
                           )
                           .map((data: any, key: number) => {
                             return (
@@ -171,21 +163,16 @@ const TableComponent = () => {
                                   </Table.Td>
                                   <Table.Td>
                                     <div className="flex justify-center">
-                                      {data.agent_name}
+                                      {data.currency_name}
                                     </div>
                                   </Table.Td>
 
                                   <Table.Td>
                                     <div className="flex justify-center">
-                                      {data.agent_phone}
+                                      {data.rate_money}
                                     </div>
                                   </Table.Td>
 
-                                  <Table.Td>
-                                    <div className="flex justify-center">
-                                      {data.agent_email}
-                                    </div>
-                                  </Table.Td>
                                   <Table.Td>
                                     <div className="flex justify-center">
                                       {moment(data.createdAt).format(
@@ -214,7 +201,7 @@ const TableComponent = () => {
                                       <button
                                         className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
                                         onClick={() => {
-                                          deleteAgency(data.id);
+                                          deleteCurrency(data.id);
                                         }}
                                       >
                                         <Lucide
