@@ -111,14 +111,43 @@ export const serviceCreateContain = async (data: any) => {
         const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createContain/${d_purchase_id}`;
         const formData = new FormData();
         
-        Object.keys(data).forEach((key) => {
-            console.log("key",data[key])
-           for (let i = 0; i < data[key].length; i++) {
-            formData.append(`${key}`, data[key][i].originalFile);
-           }
-         });
+        const datas = data;
 
-        delete data.files
+      
+        if (data?.cabinet?.length > 0) {
+            for (let i = 0; i < data.cabinet.length; i++) {
+                formData.append('cabinet', data.cabinet[i]);
+            }
+            delete data.cabinet
+        }
+
+        if (data?.product?.length > 0) {
+            for (let i = 0; i < data.product.length; i++) {
+                formData.append('purchase_file', data.product[i]);
+            }
+            delete data.product
+        }
+
+        if (data?.close_cabinet?.length > 0) {
+            for (let i = 0; i < data.close_cabinet.length; i++) {
+                formData.append('close_cabinet', data.close_cabinet[i]);
+            }
+            delete data.close_cabinet
+        }
+
+        if (data?.etc?.length > 0) {
+            for (let i = 0; i < data.close_cabinet.length; i++) {
+                formData.append('etc', data.close_cabinet[i]);
+            }
+            delete data.etc
+        }
+
+        if(data?.items?.length > 0){
+            formData.append('items', JSON.stringify(data.items));
+            delete data.items
+        }
+
+       
         for (const key in data) {
             formData.append(key, data[key]);
         }
