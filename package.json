@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3003",
+    "pm2-start": "pm2 start yarn --name front-tegcago -- start",
+    "pm2-stop": "pm2 stop front-tegcago",
+    "pm2-stop-1": "pm2 kill",
+    "pm2-monit": "pm2 monit",
     "build": "next build",
     "start": "next start -p 3003",
     "lint": "next lint"
@@ -33,6 +37,7 @@
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "nprogress": "^0.2.0",
+    "pm2": "^5.4.2",
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",

@@ -3,7 +3,7 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import darkModeReducer from "./darkModeSlice";
 import colorSchemeReducer from "./colorSchemeSlice";
 import sideMenuReducer from "./sideMenuSlice";
-import themeReducer from "./themeSlice";
+// import themeReducer from "./themeSlice";
 import compactMenuReducer from "./compactMenuSlice";
 import pageLoaderReducer from "./pageLoaderSlice";
 import customerReducer from './customer';

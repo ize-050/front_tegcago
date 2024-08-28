@@ -73,8 +73,6 @@ const SentAlreadyComponent = ({ purchase }: {
         }
     }
 
-
-
     return (
         <Fragment>
             <div>

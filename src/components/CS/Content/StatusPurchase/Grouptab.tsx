@@ -24,6 +24,7 @@ import ReleaseComponent from './Tab/Release'
 import SuccessReleaseComponent from './Tab/SuccessRelease'
 import DestinationComponent from './Tab/Destination';
 import SentAlready from './Tab/SentAlready'
+import ReturnComponent from './Tab/Return'
 
 
 // service
@@ -121,6 +122,7 @@ const GroupTab = () => {
                     {tab?.id === "8" && <SuccessReleaseComponent purchase={purchase}></SuccessReleaseComponent>}
                     {tab?.id === "9" && <DestinationComponent purchase={purchase}></DestinationComponent>}
                     {tab?.id === "10" && <SentAlready purchase={purchase}></SentAlready>}
+                    {tab?.id === "11" && <ReturnComponent purchase={purchase}></ReturnComponent>}
                 </div>
             </div>
 

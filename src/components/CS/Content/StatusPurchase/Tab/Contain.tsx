@@ -180,7 +180,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
             <Table.Th></Table.Th> {/* Empty header for the delete button */}
           </Table.Tr>
   
-          {fields.map((field, index) => (
+          {fields.map((field:any, index:number) => (
             <Table.Tr key={field.id}>
               <Table.Td>
                 <Controller
@@ -188,7 +188,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   control={control}
                   defaultValue={""}
                   rules={{ required: true }}
-                  render={({ field, fieldState }) => ( 
+                  render={({ field, fieldState  }) => ( 
                     <input
                       {...field}
                       placeholder="กรอก"
@@ -199,9 +199,9 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     />
                   )}
                 />
-                {errors.items?.[index]?.product_name && ( 
-                  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                )}
+                { Array.isArray(errors.items) && errors.items[index]?.product_name && (
+  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+)}
               </Table.Td>
               <Table.Td>
                 <Controller
@@ -220,9 +220,9 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     />
                   )}
                 />
-                {errors.items?.[index]?.product_hscode && (
-                  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                )}
+               { Array.isArray(errors.items) && errors.items[index]?.product_hscode && (
+  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+)}
               </Table.Td>
   
               <Table.Td>

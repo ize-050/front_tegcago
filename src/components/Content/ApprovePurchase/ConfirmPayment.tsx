@@ -35,7 +35,6 @@ const ConfirmPayment = ({
             console.log("purchase.d_purchase_customer_payment", purchase.d_purchase_customer_payment)
             for (let num = 0; num < purchase.d_purchase_customer_payment.length; num++) {
                 console.log("ssssdd")
-               
                 setPaymentData((prevPaymentData:any)=> [
                     ...prevPaymentData,
                     {
@@ -49,13 +48,11 @@ const ConfirmPayment = ({
                 setValue(`type[${num}].price`, purchase.d_purchase_customer_payment[num].payment_price);
                 setValue(`type[${num}].change`, false);
                 setValue(`type[${num}].image`, null);
-
                 setPreviewUrls((prevUrls:any) => ({
                     ...prevUrls,
                     [num]: process.env.NEXT_PUBLIC_URL_API + purchase.d_purchase_customer_payment[num].payment_path,
                   }));
             }
-
         }
     }, [purchase])
 
