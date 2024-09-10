@@ -22,7 +22,7 @@ import _ from "lodash";
 
 
 //services
-import { getPurchase } from "@/services/purchase";
+import { getPurchase, updateTriggleStatus } from "@/services/purchase";
 
 //store
 
@@ -39,6 +39,8 @@ import {
 
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
 import {setAllPurchase} from "@/stores/purchase";
+import Swal from "sweetalert2";
+import { setOpenToast } from "@/stores/util";
 
 
 
@@ -140,6 +142,52 @@ function Purchase() {
     setTotalPage(totalPages);
   }, [purchaseAll]);
 
+  
+  const AcceptJob = (id:string) => {
+    Swal.fire({
+      title: "ต้องการรับงานใบนี้?",
+      text: "ยืนยันข้อมูล",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const data: any = await updateTriggleStatus(id);
+          if (data.status === 200) {
+            dispatch(
+              setOpenToast({
+                type: "success",
+                message: "รับงานสำเร็จ",
+              })
+            );
+          } else {
+            dispatch(
+              setOpenToast({
+                type: "error",
+                message: "รับงานไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+              })
+            );
+          }
+          location.reload();
+        } catch (error) {
+          // Handle unexpected errors (e.g., network issues)
+          console.error("Error updating trigger status:", error);
+          dispatch(
+            setOpenToast({
+              type: "error",
+              message: "เกิดข้อผิดพลาดในการรับงาน",
+            })
+          ); // Generic error message
+        } finally {
+          location.reload();
+        }
+      }
+    });
+  };
 
 
   return (
@@ -307,13 +355,13 @@ function Purchase() {
                                 <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                   {key + 1}
                                 </Table.Td>
-                                <Table.Td className="text-center truncate truncate    border-slate-200/60  text-gray-900">
+                                <Table.Td className="text-center  truncate    border-slate-200/60  text-gray-900">
                                   {data.book_number}
                                 </Table.Td>
                                 <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
                                   {moment(data.createdAt).format('YYYY/MM/DD HH:mm')}  น.
                                 </Table.Td>
-                                <Table.Td className="text-center truncate  truncate border-slate-200/60  text-gray-900">
+                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
 
                                 </Table.Td>
 
@@ -321,7 +369,7 @@ function Purchase() {
                                   <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
                                 </Table.Td>
 
-                                <Table.Td className="text-center truncate  truncate border-slate-200/60  text-gray-900">
+                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
                                   {data.d_purchase_emp?.length >0 &&
                                       <p>{data.d_purchase_emp[0].user?.fullname}</p>
                                   }
@@ -330,6 +378,22 @@ function Purchase() {
 
                                 <Table.Td className="text-center   border-slate-200/60  text-gray-900">
                                   <div className="flex">
+                                {!data.d_emp_look &&
+                                  <button
+                                  onClick={() => {
+                                    AcceptJob(data.id)
+                                  }}
+                                
+                                  className="bg-green-300 hover:bg-green-500 w-8 h-8 rounded-lg mr-1">
+                                  <Lucide
+                                    color="#6C9AB5"
+                                    icon="Contact"
+                                    className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                                  ></Lucide>
+                                </button>
+                                }
+                                  
+
                                     <button
                                       onClick={() => {
                                         router.replace(`purchase/content/${data?.id}`)
@@ -344,6 +408,8 @@ function Purchase() {
                                         className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                       ></Lucide>
                                     </button>
+
+                                   
                                     {/*<button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg">*/}
                                     {/*  <Lucide*/}
                                     {/*    color="#FF5C5C"*/}

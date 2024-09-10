@@ -1,3 +1,4 @@
+"use client";
 import React, { Fragment, useEffect, useState } from "react"
 import { useAppSelector, useAppDispatch } from '@/stores/hooks';
 import { customerData } from '@/stores/customer'

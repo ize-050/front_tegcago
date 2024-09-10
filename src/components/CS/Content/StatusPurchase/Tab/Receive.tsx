@@ -130,8 +130,8 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
       console.log("errr", err);
     } finally {
       setTimeout(() => {
-          location.reload()
-      }, 2000)
+        location.reload();
+      }, 2000);
     }
   };
 
@@ -158,28 +158,28 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
-            {dataStatus.type !== "edit" && dataStatus.type !=="create" && (    
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            )}
+              {dataStatus.type !== "edit" && dataStatus.type !== "create" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -301,8 +301,89 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.container_no}</p>
                 )}
               </div>
-            </div>
 
+              <div className="w-1/2 p-5">
+                <div className="flex">
+                <div className="w-1/2 ">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  เบอร์โทรคนขับรถ
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="phone_no"
+                      control={control}
+                      defaultValue={data?.phone_no}
+                      rules={{ required: true }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรุณากรอกข้อมูล"
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          type="text"
+                          className={`
+                                            ${
+                                              errors.phone_no
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                    {errors.phone_no && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.phone_no}</p>
+                )}
+              </div>
+             
+
+              <div className="w-1/2">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  เลขทะเบียนรถ
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="license_plate"
+                      control={control}
+                      defaultValue={data?.phone_no}
+                      rules={{ required: true }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรุณากรอกข้อมูล"
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          type="text"
+                          className={`
+                                            ${
+                                              errors.license_plate
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                    {errors.license_plate && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.license_plate}</p>
+                )}
+              </div>
+              </div>
+              </div>
+              </div>
+           
             <div className="">
               <div className="p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
@@ -321,7 +402,7 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
                 ) : (
                   <>
                     {data?.Receive_picture?.map(
-                      async (images: any, index: number) => {
+                       (images: any, index: number) => {
                         const isExcel =
                           images.picture_name?.endsWith(".xlsx") ||
                           images.picture_name?.endsWith(".xls") ||

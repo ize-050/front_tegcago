@@ -113,7 +113,6 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
       };
       if (status.type === "create") {
         dispatch(createContain(formData)).then((response: any) => {
-          
           if (response.payload.data.statusCode == 200) {
             dispatch(setEditForm("view"));
             dispatch(
@@ -152,25 +151,20 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     }
   };
 
- 
-
   const handleAddRow = () => {
     append({ product_name: "", product_hscode: "" });
   };
 
-
-
   const TablePlus: React.FC = () => {
-  
     const { fields, append, remove } = useFieldArray({
       control,
-      name: 'items',
+      name: "items",
     });
-  
+
     const handleDeleteRow = (index: number) => {
       remove(index);
     };
-  
+
     return (
       <div className="w-full">
         <Table className="w-full">
@@ -179,8 +173,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
             <Table.Th>H.s.Code</Table.Th>
             <Table.Th></Table.Th> {/* Empty header for the delete button */}
           </Table.Tr>
-  
-          {fields.map((field:any, index:number) => (
+
+          {fields.map((field: any, index: number) => (
             <Table.Tr key={field.id}>
               <Table.Td>
                 <Controller
@@ -188,20 +182,21 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   control={control}
                   defaultValue={""}
                   rules={{ required: true }}
-                  render={({ field, fieldState  }) => ( 
+                  render={({ field, fieldState }) => (
                     <input
                       {...field}
                       placeholder="กรอก"
                       type="text"
                       className={`
-                        border-${fieldState.invalid ? 'red-500' : 'gray-200'}
+                        border-${fieldState.invalid ? "red-500" : "gray-200"}
                         px-4 py-2 outline-none rounded-md w-full`}
                     />
                   )}
                 />
-                { Array.isArray(errors.items) && errors.items[index]?.product_name && (
-  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-)}
+                {Array.isArray(errors.items) &&
+                  errors.items[index]?.product_name && (
+                    <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                  )}
               </Table.Td>
               <Table.Td>
                 <Controller
@@ -215,16 +210,17 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       placeholder="กรอก"
                       type="text"
                       className={`
-                        border-${fieldState.invalid ? 'red-500' : 'gray-200'}
+                        border-${fieldState.invalid ? "red-500" : "gray-200"}
                         px-4 py-2 outline-none rounded-md w-full`}
                     />
                   )}
                 />
-               { Array.isArray(errors.items) && errors.items[index]?.product_hscode && (
-  <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-)}
+                {Array.isArray(errors.items) &&
+                  errors.items[index]?.product_hscode && (
+                    <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                  )}
               </Table.Td>
-  
+
               <Table.Td>
                 <button
                   type="button"
@@ -483,7 +479,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 {dataStatus.type !== "view" && (
                   <div className="flex-end justify-center mt-1">
                     <Button
-                     type="button"
+                      type="button"
                       onClick={handleAddRow}
                       className="flex items-center px-4 py-2 space-x-2 bg-[#273A6F]    text-white rounded-lg hover:bg-blue-600"
                     >

@@ -76,11 +76,26 @@ const EdituploadComponent = ({ setValue, control ,image}: {
             file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'   
       
           ) {
+            
+            let status;
+            if (file.type === 'image/jpeg' || file.type === 'image/png') {
+                const originalIndex = image.findIndex((img) => img.id === file.id);
+                if (originalIndex !== -1 && !file.originalFile) {
+                  status = 'unchanged';
+                } else if (originalIndex !== -1) {
+                  status = 'edited';
+                } else {
+                  status = 'added';
+                }
+              } else {
+                status = file.id ? (file.originalFile ? 'edited' : 'unchanged') : 'added';
+              }
+              
             return {
               url: file.url,
               type: file.type,
               name: file.name,
-              status: file.id ? (file.originalFile ? 'edited' : 'unchanged') : 'added', // Add status property
+              status: status, // Add status property
             } as FileData;
           } else {
             // Handle unsupported file types (optional)
@@ -88,7 +103,7 @@ const EdituploadComponent = ({ setValue, control ,image}: {
             return null; // Or throw an error if you want to stop the process
           }
         }).filter(Boolean) as FileData[]; // Filter out null values (if any)
-      
+        console.log("urls",urls)
         setPreviewUrls(urls);
         setValue('files', files);
       }, [files]);

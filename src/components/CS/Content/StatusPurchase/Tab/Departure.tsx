@@ -115,14 +115,14 @@ const DepartureComponent = ({ purchase }: {
                         <div className="flex">
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                    วันที่ Invoice Doc
+                                 วันที่ H B/L *
                                 </label>
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_hbl"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_hbl}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -131,13 +131,13 @@ const DepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_hbl ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_hbl && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.date_hbl}</p>}
                             </div>
                             <div className="w-1/2">
                                 <div className="p-5">
@@ -146,7 +146,7 @@ const DepartureComponent = ({ purchase }: {
                                     {dataStatus.type !== "view" ?
                                         <>
                                             <UploadImageComponent 
-                                            name="invoice"
+                                            name="file_hbl"
                                             setValue={setValue} control={control}></UploadImageComponent>
                                         </>
                                         : <p>{dataStatus?.booking_date}</p>}
@@ -157,14 +157,14 @@ const DepartureComponent = ({ purchase }: {
                         <div className="flex">
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                วันที่ Packing list Doc 
+                                วันที่ Original F/E * 
                                 </label>
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_original_fe"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_original_fe}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -173,13 +173,13 @@ const DepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_original_fe ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_original_fe && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.date_original_fe}</p>}
                             </div>
                             <div className="w-1/2">
                                 <div className="p-5">
@@ -188,7 +188,7 @@ const DepartureComponent = ({ purchase }: {
                                     {dataStatus.type !== "view" ?
                                         <>
                                             <UploadImageComponent 
-                                            name="packing"
+                                            name="file_original_fe"
                                             setValue={setValue} control={control}></UploadImageComponent>
                                         </>
                                         : <p>{dataStatus?.booking_date}</p>}
@@ -201,14 +201,14 @@ const DepartureComponent = ({ purchase }: {
                         <div className="flex">
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                   วันที่ Draft F/E 
+                                    วันที่ Surrender *
                                 </label>
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_surrender"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_surrender}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -217,13 +217,13 @@ const DepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_surrender ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_surrender && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.date_surrender}</p>}
                             </div>
                             <div className="w-1/2">
                                 <div className="p-5">
@@ -232,50 +232,7 @@ const DepartureComponent = ({ purchase }: {
                                     {dataStatus.type !== "view" ?
                                         <>
                                             <UploadImageComponent 
-                                            name="F/E"
-                                            setValue={setValue} control={control}></UploadImageComponent>
-                                        </>
-                                        : <p>{dataStatus?.booking_date}</p>}
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div className="flex">
-                            <div className="w-1/2 p-5">
-                                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                วันที่ ใบอนุญาตอื่นๆ
-                                </label>
-                                {dataStatus.type !== "view" ?
-                                    <>
-                                        <Controller
-                                            name="booking_date"
-                                            control={control}
-                                            defaultValue={dataStatus?.booking_date}
-                                            rules={{ required: true }}
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <input
-                                                    placeholder='กรุณากรอกข้อมูล'
-                                                    value={value}
-                                                    onBlur={onBlur}
-                                                    onChange={onChange}
-                                                    type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
-                                            px-4 py-2 outline-none rounded-md w-full`} />
-                                            )}
-                                        />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
-                                    </>
-                                    : <p>{dataStatus?.booking_date}</p>}
-                            </div>
-                            <div className="w-1/2">
-                                <div className="p-5">
-                                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">อัพโหลดเอกสาร</label>
-
-                                    {dataStatus.type !== "view" ?
-                                        <>
-                                            <UploadImageComponent 
-                                            name="approve"
+                                            name="file_surrender"
                                             setValue={setValue} control={control}></UploadImageComponent>
                                         </>
                                         : <p>{dataStatus?.booking_date}</p>}
@@ -287,14 +244,14 @@ const DepartureComponent = ({ purchase }: {
                         <div className="flex">
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                วันที่ Draft Invoice Doc
+                                วันที่ Enter Doc
                                 </label>
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_enter_doc"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_enter_doc}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -303,13 +260,13 @@ const DepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_enter_doc ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_enter_doc && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.booking_date}</p>}
                             </div>
                             <div className="w-1/2">
                                 <div className="p-5">
@@ -318,7 +275,7 @@ const DepartureComponent = ({ purchase }: {
                                     {dataStatus.type !== "view" ?
                                         <>
                                             <UploadImageComponent 
-                                            name="Draft_invoice"
+                                            name="file_enter_doc"
                                             setValue={setValue} control={control}></UploadImageComponent>
                                         </>
                                         : <p>{dataStatus?.booking_date}</p>}
@@ -330,14 +287,57 @@ const DepartureComponent = ({ purchase }: {
                         <div className="flex">
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                                วันที่ Draft B/L
+                                วันที่ Payment D/O *
                                 </label>
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_payment_do"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_payment_do}
+                                            rules={{ required: true }}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <input
+                                                    placeholder='กรุณากรอกข้อมูล'
+                                                    value={value}
+                                                    onBlur={onBlur}
+                                                    onChange={onChange}
+                                                    type="date" className={`
+                                            ${data.date_payment_do ? 'border-red-500' : 'border-gray-200'}
+                                            px-4 py-2 outline-none rounded-md w-full`} />
+                                            )}
+                                        />
+                                        {data.date_payment_do && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                    </>
+                                    : <p>{data?.date_payment_do}</p>}
+                            </div>
+                            <div className="w-1/2">
+                                <div className="p-5">
+                                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">อัพโหลดเอกสาร</label>
+
+                                    {dataStatus.type !== "view" ?
+                                        <>
+                                            <UploadImageComponent 
+                                            name="file_payment_do"
+                                            setValue={setValue} control={control}></UploadImageComponent>
+                                        </>
+                                        : <p>{dataStatus?.booking_date}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div className="flex">
+                            <div className="w-1/2 p-5">
+                                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                                ยอด Payment D/O *
+                                </label>
+                                {dataStatus.type !== "view" ?
+                                    <>
+                                        <Controller
+                                            name="amount_payment_do"
+                                            control={control}
+                                            defaultValue={data?.amount_payment_do}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -346,22 +346,22 @@ const DepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="text" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.amount_payment_do ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.amount_payment_do && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.amount_payment_do}</p>}
                             </div>
                             <div className="w-1/2">
                                 <div className="p-5">
-                                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">อัพโหลดเอกสาร</label>
+                                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">ไฟล์แนบสลิป</label>
 
                                     {dataStatus.type !== "view" ?
                                         <>
                                             <UploadImageComponent 
-                                            name="B/L"
+                                            name="file_amount_payment_do"
                                             setValue={setValue} control={control}></UploadImageComponent>
                                         </>
                                         : <p>{dataStatus?.booking_date}</p>}
@@ -372,8 +372,6 @@ const DepartureComponent = ({ purchase }: {
 
                       
 
-
-                    
 
 
 

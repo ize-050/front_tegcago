@@ -166,7 +166,6 @@ export const  submitEditPrePurchase = createAsyncThunk(
         );
         return response
       }
-
     } catch (error) {
       throw error;
     }
@@ -189,7 +188,8 @@ export const submitPrePurchase = createAsyncThunk(
               message: "บันทึกข้อมูลสำเร็จ",
             })
           );
-          
+
+          return response;
         }
        
       } catch (error) {

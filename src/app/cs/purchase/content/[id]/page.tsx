@@ -14,11 +14,6 @@ import GroupPurchase from '@/components/CS/Content/GroupPurchase'
 function PurchaseDetail({ params }: { params: { id: string } }) {
 
   const id = params.id;
-
-
-  // const { id }: {
-  //   id: string
-  // } = useParams();
   return (
     <>
       <nav aria-label="Breadcrumb" className="p-5">

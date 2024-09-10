@@ -14,6 +14,9 @@ import {
   TransportData,
 } from '../prepurchase.interface'
 
+//rouer
+import {useRouter} from 'next/navigation'
+
 
 //store 
 import { useAppDispatch } from '@/stores/hooks';
@@ -29,9 +32,10 @@ const FormEdit = ({ purchase }: {
   purchase: Partial<any>
 }) => {
   const methods = useForm()
+  const router = useRouter()
   const session: any = useSession()
   const dispatch = useAppDispatch()
-
+  const [openTag,setOpenTag] = useState<boolean>(false)
   const [Bookdate, setBookdate] = useState<string>(moment(purchase.createdAt).format('YYYY-MM-DD HH:mm:ss'))
 
   const {
@@ -44,7 +48,9 @@ const FormEdit = ({ purchase }: {
 
   //hook
   useEffect(() => {
-    console.log('formProduct', purchase)
+     if(purchase.d_refund_tag){
+       setOpenTag(true)
+     }
   }, [purchase])
 
 
@@ -58,7 +64,13 @@ const FormEdit = ({ purchase }: {
       data.id = purchase.id
 
       console.log("dataSubmit", data)
-      dispatch(submitEditPrePurchase(data));
+      dispatch(submitEditPrePurchase(data)).then((response:any)=>{
+        console.log("response",response)
+        if(response.payload.data.statusCode == 200){
+          dispatch(changeFormeditPurchase(false))
+          router.push('/purchase')
+        }
+      });
     }
     catch (err) {
       console.log(err)
@@ -211,9 +223,9 @@ const FormEdit = ({ purchase }: {
             </div>
           </div>
 
-          <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+          <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-10 mt-5">
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className="block flex mb-1 text-gray-600 font-semibold">เลือกประเภทงาน</label>
+              <label className=" flex mb-1 text-gray-600 font-semibold">เลือกประเภทงาน</label>
               <Controller
                 name="d_group_work"
                 defaultValue={purchase.d_group_work}
@@ -236,6 +248,30 @@ const FormEdit = ({ purchase }: {
 
               />
               {errors.d_group_work && <p className="text-red-500">กรุณากรอกประเภทงาน.</p>}
+            </div>
+
+            <div className="w-full md:w-1/3 flex flex-col">
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+                วันที่โหลดตู้
+              </label>
+              <Controller
+                name="date_cabinet"
+                defaultValue={purchase.date_cabinet}
+                control={control}
+                rules={{ required: false }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <input
+                    type="date"
+                    onChange={onChange}
+                    value={value}
+                    placeholder="กรอก"
+                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                  />
+                )}
+              />
+              {errors.date_cabinet && (
+                <p className="text-red-500">กรุณากรอกชื่อสินค้า.</p>
+              )}
             </div>
           </div>
 
@@ -454,39 +490,154 @@ const FormEdit = ({ purchase }: {
 
           </div>
 
+          <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
+          <div className="w-full md:w-1/2 flex flex-col">
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+              Link map ต้นทาง{" "}
+              </label>
+              <Controller
+                name="link_d_origin"
+                control={control}
+                defaultValue={purchase.link_d_origin}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <input
+                    type="text"
+                    onChange={onChange}
+                    value={value}
+                    placeholder="กรอก"
+                    className={`${
+                      errors.link_d_origin
+                        ? "border-red-500"
+                        : "border-gray-200"
+                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                  />
+                )}
+              />
+              {errors.link_d_origin && (
+                <p className="text-red-500">กรุณากรอกLinkmap.</p>
+              )}
+            </div>
+
+            <div className="w-full md:w-1/2 flex flex-col">
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+              Link map ปลายทาง{" "}
+              </label>
+              <Controller
+                name="link_d_destination"
+                defaultValue={purchase.link_d_destination}
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <input
+                    type="text"
+                    onChange={onChange}
+                    value={value}
+                    placeholder="กรอก"
+                    className={`${
+                      errors.link_d_destination
+                        ? "border-red-500"
+                        : "border-gray-200"
+                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                  />
+                )}
+              />
+              {errors.link_d_destination && (
+                <p className="text-red-500">กรุณากรอกLinkmap.</p>
+              )}
+            </div>
+
+          </div>
+
 
 
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2  text-gray-700  text-sm font-semibold">Refund Tax
-                ต้นทาง</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+                Refund Tax ต้นทาง
+              </label>
+
+              <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 ">
+                <div className="flex w-1/2 items-center ps-3  rounded">
+                  <input
+                    onChange={() => {
+                      setOpenTag(true)
+                    }}
+                    id="bordered-radio-1"
+                    type="radio"
+                    value="true"
+                    name="bordered-radio"
+                    checked={openTag}
+                    className={
+                      `w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600`
+                    }
+                  />
+                  <label className="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    ใช่
+                  </label>
+                </div>
+                <div className="flex  w-1/2  items-center ps-3">
+                  <input
+                    onChange={() => {
+                      setOpenTag(false)
+                    }}
+                    id="bordered-radio-1"
+                    type="radio"
+                    value="false"
+                    checked={!openTag}
+                    name="bordered-radio"
+                    className={`w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600`}
+                  />
+                  <label className="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    ไม่ใช่
+                  </label>
+                </div>
+              </div>
+            {openTag &&
               <Controller
                 name="d_refund_tag"
-                defaultValue={purchase.d_refund_tag}
                 control={control}
-                rules={{ required: true }}
+                defaultValue={purchase.d_refund_tag}
+                rules={{ required: false }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
-                    className={`${errors.d_refund_tag ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                  <input
+                    type="text"
+                    onChange={onChange}
+                    value={value}
+                    placeholder="กรอก"
+                    className={`${
+                      errors.d_refund_tag ? "border-red-500" : "border-gray-200"
+                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
-              {errors.d_weight && <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>}
+            }
+              {errors.d_weight && (
+                <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>
+              )}
+            
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
-              <label className="block mb-2  text-gray-700  text-sm font-semibold">หมายเหตุ </label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+                หมายเหตุ{" "}
+              </label>
               <Controller
                 name="d_etc"
                 control={control}
-                defaultValue={purchase.d_etc}
                 rules={{ required: false }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
-                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base" />
+                  <input
+                    type="text"
+                    onChange={onChange}
+                    value={value}
+                    placeholder="กรอก"
+                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                  />
                 )}
               />
             </div>
           </div>
+
 
 
 

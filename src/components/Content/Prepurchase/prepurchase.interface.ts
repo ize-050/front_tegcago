@@ -70,5 +70,17 @@ export const TermData:Term[] = [
         id:"4",
         name:"GREEN",
     },
+    {
+       id:"5",
+       name:"FOB"
+    },
+    {
+      id:"6",
+      name:"EXW"
+    },
+    {
+      id:"CIF",
+      name:"CIF"
+    }
 
 ]

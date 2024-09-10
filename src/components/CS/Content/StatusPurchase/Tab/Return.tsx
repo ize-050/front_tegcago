@@ -156,7 +156,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 <label className="inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    style={{display: "none"}}
+                    style={{ display: "none" }}
                     className=" peer"
                     checked={isChecked}
                     onChange={handleCheckboxChange}
@@ -298,7 +298,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 <label className="inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    style={{display: "none"}}
+                    style={{ display: "none" }}
                     className=" peer"
                     checked={isChecked_return}
                     onChange={() => {
@@ -433,7 +433,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
               </>
             )}
 
-<div className="flex">
+            <div className="flex">
               <div className="w-1/2 p-5 flex">
                 <label className="block mb-2 text-lg text-gray-500  mr-5 sm:text-sm font-semibold">
                   คืนมัดจำตู้
@@ -442,7 +442,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 <label className="inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    style={{display: "none"}}
+                    style={{ display: "none" }}
                     className="peer"
                     checked={isChecked_cabinet}
                     onChange={() => {
@@ -464,7 +464,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    Deposit ยอดค่ามัดจำตู้ *
+                      Deposit ยอดค่ามัดจำตู้ *
                     </label>
                     {dataStatus.type !== "view" ? (
                       <>
@@ -501,7 +501,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                   <div className="w-1/2">
                     <div className="p-5">
                       <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      ไฟล์เอกสาร คืนมัดจำตู้
+                        ไฟล์เอกสาร คืนมัดจำตู้
                       </label>
 
                       {dataStatus.type !== "view" ? (
@@ -521,7 +521,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    ยอดคืนมัดจำตู้  
+                      ยอดคืนมัดจำตู้
                     </label>
                     {dataStatus.type !== "view" ? (
                       <>
@@ -558,7 +558,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                   <div className="w-1/2">
                     <div className="p-5">
                       <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      สลิปยอดคืนมัดจำตู้
+                        สลิปยอดคืนมัดจำตู้
                       </label>
 
                       {dataStatus.type !== "view" ? (

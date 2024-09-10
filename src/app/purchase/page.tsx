@@ -38,6 +38,8 @@ import {
 
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
 import { setAllPurchase } from "@/stores/purchase";
+import { NavLink } from "react-router-dom";
+import Link from "next/link";
 
 
 
@@ -380,20 +382,21 @@ function Purchase() {
 
                                   <Table.Td className="text-center   border-slate-200/60  text-gray-900">
                                     <div className="flex">
-                                      <button
-                                        onClick={() => {
-                                          router.replace(`purchase/content/${data?.id}`)
-                                        }}
+                                      <Link href={`/purchase/content/[id]`}
+                                            as={`/purchase/content/${data?.id}`}
+                                        // onClick={() => {
+                                        //   router.replace(`purchase/content/${data?.id}`)
+                                        // }}
                                         style={{
                                           background: "#C8D9E3"
                                         }}
-                                        className=" hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
+                                        className=" hover:bg-blue-500 w-8 h-8 rounded-lg pt-2 mr-1">
                                         <Lucide
                                           color="#6C9AB5"
                                           icon="Pencil"
                                           className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                         ></Lucide>
-                                      </button>
+                                      </Link>
                                       {data.d_status !== 'ยกเลิกคำสั่งซื้อ' && data.d_status !== "ิปิดการขาย" &&
                                         <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
                                           onClick={() => {

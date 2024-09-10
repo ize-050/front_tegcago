@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { useDropzone } from 'react-dropzone'
@@ -25,7 +26,6 @@ const UploadImageComponent = ({setValue,control}:{
     const [previewUrls, setPreviewUrls] = useState<any[]>([]);
 
     useEffect(() => {
-
         const urls = files.map((file) =>{
             let Datafile :Partial<any> = {}
             if(file.type === 'application/pdf'){
@@ -50,7 +50,6 @@ const UploadImageComponent = ({setValue,control}:{
                     name:file.name
                 }
             }
-
             return Datafile
 
         });

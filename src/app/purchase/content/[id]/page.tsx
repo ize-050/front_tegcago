@@ -1,4 +1,5 @@
 "use client";
+
 import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 
@@ -51,15 +52,7 @@ function Addpurchase() {
 
   const handleTabClick = useCallback((tabName: any) => {
     if (tabName === 'purchase') {
-      // if (purchase?.d_purchase_status[0].status_name == 'CS กำลังดำเนินการ') {
       setActiveTab(tabName);
-
-      // else {
-      //   dispatch(setOpenToast({
-      //     type: 'info',
-      //     message: 'ไม่สามารถเข้าถึงข้อมูลได้ กรุณาตีราคาให้สำเร็จก่อน'
-      //   }))
-      // }
     }
     else {
       setActiveTab(tabName);
@@ -175,7 +168,7 @@ function Addpurchase() {
                   onClick={() => handleTabClick('Prepurchase')}
                   href="#"
                   className={`
-                                 flex inline-block p-4 border-b-2 text-black rounded-t-lg 
+                                 flex  p-4 border-b-2 text-black rounded-t-lg 
                                  ${activeTab === 'Prepurchase' ? 'border-[#417CA0] text-[#417CA0]' : 'border-transparent'} 
                                  hover:text-gray-600 hover:border-gray-300
                                `}

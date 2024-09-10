@@ -31,7 +31,7 @@ const TablePaymentComponent = () => {
 
     }, [purchase])
 
-
+    
 
     function NumberFormat(number: number) {
         return number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
@@ -56,20 +56,20 @@ const TablePaymentComponent = () => {
                                 <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
                                     รายการ
                                 </Table.Td>
-                                <Table.Td
+                                {/* <Table.Td
                                     className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                                     ค่าใช้จ่าย
-                                </Table.Td>
+                                </Table.Td> */}
 
                                 <Table.Td
                                     className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                                     สกุลเงิน
                                 </Table.Td>
 
-                                <Table.Td
+                                {/* <Table.Td
                                     className="py-4 font-medium  truncate text-center border-t   border-slate-200/60 text-black">
                                     ส่วนลด
-                                </Table.Td>
+                                </Table.Td> */}
 
                                 <Table.Td className="py-4  truncate font-medium text-center border-t   border-slate-200/60 text-black">
                                     ยอดใช้จ่ายจริง
@@ -91,17 +91,17 @@ const TablePaymentComponent = () => {
                                     <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
                                         {item.payment_name}
                                     </Table.Td>
-                                    <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                    {/* <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                                         {item.payment_price}
-                                    </Table.Td>
+                                    </Table.Td> */}
 
                                     <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                                         {item.payment_currency}
                                     </Table.Td>
 
-                                    <Table.Td className="py-4 font-medium  truncate text-center border-t   border-slate-200/60 text-black">
+                                    {/* <Table.Td className="py-4 font-medium  truncate text-center border-t   border-slate-200/60 text-black">
                                         {item.payment_discount}
-                                    </Table.Td>
+                                    </Table.Td> */}
 
                                     <Table.Td className="py-4  truncate font-medium text-center border-t   border-slate-200/60 text-black">
                                         {NumberFormat(item.payment_net_balance)}

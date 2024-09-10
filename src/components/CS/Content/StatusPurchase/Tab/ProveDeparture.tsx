@@ -3,7 +3,7 @@
 import React, { Fragment, useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
-import { statusOrderData, setEditForm } from "@/stores/statusOrder"
+import { statusOrderData, setEditForm, setForm } from "@/stores/statusOrder"
 
 
 import { useRouter } from "next/navigation";
@@ -16,13 +16,20 @@ import { Button } from "@headlessui/react";
 import Lucide from "@/components/Base/Lucide";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 
+//service
+import  {CreateDeparture ,getDeparture } from '@/services/statusOrder'
+import { setOpenToast } from "@/stores/util";
+
+
 const ProveDepartureComponent = ({ purchase }: {
     purchase: any
 }) => {
 
     const methods = useForm()
 
-    const { status } = useAppSelector(statusOrderData)
+    const [data, setData] = useState<any>({})
+    const { status, dataCspurchase } = useAppSelector(statusOrderData);
+
 
     const {
         handleSubmit,
@@ -43,14 +50,72 @@ const ProveDepartureComponent = ({ purchase }: {
         type: "view"
     })
 
-    const [data, setData] = useState<any>({})
+    const fetchData = async (id: any) => {
+        try {
+          const response: any = await getDeparture(id);
+          setData(response);
+        } catch (err: any) {
+          console.log("err", err);
+        }
+      };
+    
+
 
     useEffect(() => {
         setStatus(status)
     }, [status])
 
+
+    useEffect(() => {
+        const checkCreate = dataCspurchase.find((status: any) => {
+          return status.status_key === "Departure";
+        });
+        if (checkCreate?.status_key == "Departure") {
+          fetchData(checkCreate.id);
+          dispatch(
+            setForm({
+              id: "5",
+              tabName: "ยืนยันวันออกเดินทาง",
+              tabKey: "Departure",
+              active: true,
+              type: "view",
+            })
+          );
+        } else {
+          dispatch(
+            setForm({
+              id: "5",
+              tabName: "ยืนยันวันออกเดินทาง",
+              tabKey: "Departure",
+              active: true,
+              type: "create",
+            })
+          );
+        }
+      }, [dataCspurchase]);
+
     const onSubmit = async (data: any) => {
-        console.log(data)
+        try{
+            const requeset ={
+                ...data,
+                d_purchase_id: purchase?.id
+            }
+         if (dataStatus.type === "create") {
+            const response  :any = await  CreateDeparture(requeset)
+            if (response.statusCode == 200) {
+                dispatch(setEditForm("view"));
+                dispatch(
+                  setOpenToast({
+                    type: "success",
+                    message: response.message,
+                  })
+                );
+              }
+            }
+        }
+        catch(err){
+            console.log("err", err)
+        }      
     }
 
 
@@ -118,9 +183,9 @@ const ProveDepartureComponent = ({ purchase }: {
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_etd"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_etd}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -129,13 +194,13 @@ const ProveDepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_etd ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_etd && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.date_etd}</p>}
                             </div>
                             <div className="w-1/2 p-5">
                                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">วันที่ ETA
@@ -145,9 +210,9 @@ const ProveDepartureComponent = ({ purchase }: {
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="date_eta"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.date_eta}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -156,13 +221,13 @@ const ProveDepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="date" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.date_eta ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.date_eta && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.date_eta}</p>}
 
                             </div>
                         </div>
@@ -176,9 +241,9 @@ const ProveDepartureComponent = ({ purchase }: {
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="post_origin"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.post_origin}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -187,13 +252,13 @@ const ProveDepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="text" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.post_origin ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.post_origin && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.post_origin}</p>}
                             </div>
 
 
@@ -203,9 +268,9 @@ const ProveDepartureComponent = ({ purchase }: {
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="post_destination"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.post_destination}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -214,13 +279,13 @@ const ProveDepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="text" className={`
-                                            ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                            ${errors.post_destination ? 'border-red-500' : 'border-gray-200'}
                                             px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.post_destination && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.post_destination}</p>}
                             </div>
 
                         </div>
@@ -234,9 +299,9 @@ const ProveDepartureComponent = ({ purchase }: {
                                 {dataStatus.type !== "view" ?
                                     <>
                                         <Controller
-                                            name="booking_date"
+                                            name="vessel_name"
                                             control={control}
-                                            defaultValue={dataStatus?.booking_date}
+                                            defaultValue={data?.vessel_name}
                                             rules={{ required: true }}
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <input
@@ -245,13 +310,13 @@ const ProveDepartureComponent = ({ purchase }: {
                                                     onBlur={onBlur}
                                                     onChange={onChange}
                                                     type="text" className={`
-                                                    ${errors.booking_date ? 'border-red-500' : 'border-gray-200'}
+                                                    ${errors.vessel_name ? 'border-red-500' : 'border-gray-200'}
                                                      px-4 py-2 outline-none rounded-md w-full`} />
                                             )}
                                         />
-                                        {errors.booking_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
+                                        {errors.vessel_name && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
                                     </>
-                                    : <p>{dataStatus?.booking_date}</p>}
+                                    : <p>{data?.vessel_name}</p>}
                             </div>
 
 
