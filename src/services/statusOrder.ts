@@ -1,4 +1,5 @@
 
+import { get } from 'lodash';
 import axios from '../../axios';
 import App from 'next/app';
 
@@ -315,6 +316,60 @@ export const CreateWaitrelease = async (data:any)=>{
 export const getWaitrelease = async (id: any) => {
     return new Promise(async (resolve, reject) => {
         const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getWaitrelease/${id}`;
+        await axios.get(url).then(res => {
+            if (res.status === 200) {
+                resolve(res.data.data)
+            }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
+export const createSuccessRelease = async(data:any)=>{
+    return new Promise(async (resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createSuccessRelease/${data.d_purchase_id}`;
+        const formData = new FormData();
+        const files: any = {
+            file_do: data?.file_do,
+            file_card: data?.file_card,
+            file_return_document: data?.file_return_document,
+        };
+        [
+            'file_do',
+            'file_card',
+            'file_return_document',
+          ].forEach((key) => delete data[key]);
+
+        Object.keys(files).forEach((key: string) => {
+            // ตรวจสอบว่า value ของคีย์นั้นเป็น array หรือไม่
+            if (Array.isArray(files[key]) && files[key].length > 0) {
+            appendFilesToFormData(formData, key, files[key]);
+            }
+        });
+        Object.keys(data).forEach((key: string) => {
+            formData.append(key, data[key]);
+          });
+      
+    await axios.post(url,
+        formData,
+        {
+            headers: {
+                Accept: 'multipart/form-data',
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                resolve(res)
+            }
+        }).catch(err => {
+            reject(err)
+        })
+})
+}
+
+export const getSuccessRelease = async (id: any) => {
+    return new Promise(async (resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getSuccessRelease/${id}`;
         await axios.get(url).then(res => {
             if (res.status === 200) {
                 resolve(res.data.data)
