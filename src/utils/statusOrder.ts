@@ -67,7 +67,7 @@ export const tab : TabStatus[] = [
         },
         {
             id: "9",
-            tabName: "กำลังไปส่งยังปลายทาง",
+            tabName: "จัดส่งปลายทาง",
             tabKey: "Destination",
             active :false,
             type:"view"

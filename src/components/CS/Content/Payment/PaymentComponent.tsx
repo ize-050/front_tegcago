@@ -18,6 +18,8 @@ import { Button } from "@headlessui/react";
 //store
 
 import { submitAddpayment } from "@/stores/purchase";
+import { setActiveTab } from "@/stores/util";
+import { getPurchaseById } from "@/services/purchase";
 import { set } from "lodash";
 import { useRouter } from "next/navigation";
 
@@ -26,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { getDataCurrency } from "@/services/system/currency";
 const PaymentComponent = (props: any) => {
   const [currency, getSetCurrency] = useState<any>([]);
+
   const router = useRouter();
   const dispatch = useAppDispatch();
   const {
@@ -83,15 +86,21 @@ const PaymentComponent = (props: any) => {
     }
   }, [props]);
 
-  const SubmitPayment = (request: any) => {
+  const SubmitPayment = async (request: any) => {
     try {
       const RequestData = {
         ...request,
         purchase_id: props.id,
       };
-      dispatch(submitAddpayment(RequestData));
+      await  dispatch(submitAddpayment(RequestData));
+      await   getPurchaseById(props.id)
+      
+      await router.push(`/cs/purchase/content/${props.id}`);
+    
+      
 
-      router.push("/cs/purchase");
+     
+      
     } catch (err: any) {
       throw err;
     }
@@ -197,16 +206,16 @@ const PaymentComponent = (props: any) => {
               <Table.Td className="py-4 font-medium truncate text-center   border-t  border-slate-200/60 text-black">
                 หัวข้อ
               </Table.Td>
-              <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black"></Table.Td>
+              <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">ค่าใช้จ่าย</Table.Td>
               <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
-                ค่าใช้จ่าย
+                ยอดเงิน
               </Table.Td>
 
               <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                 สกุลเงิน
               </Table.Td>
               <Table.Td className="py-4  truncate font-medium text-center border-t  border-slate-200/60 text-black">
-                ค่าใช้จ่าย
+                กำไร
               </Table.Td>
               <Table.Td className="py-4 font-medium  truncate text-center border-t   border-slate-200/60 text-black">
                 ส่วนลด

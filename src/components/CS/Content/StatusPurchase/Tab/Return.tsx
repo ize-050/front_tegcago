@@ -181,7 +181,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                     {dataStatus.type !== "view" ? (
                       <>
                         <Controller
-                          name="booking_date"
+                          name="repair_date"
                           control={control}
                           defaultValue={dataStatus?.booking_date}
                           rules={{ required: true }}
@@ -248,7 +248,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
-                              type="date"
+                              type="text"
                               className={`
                                             ${
                                               errors.booking_date
@@ -392,7 +392,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
-                              type="date"
+                              type="text"
                               className={`
                                             ${
                                               errors.booking_date
@@ -479,7 +479,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
-                              type="date"
+                              type="text"
                               className={`
                                             ${
                                               errors.booking_date
@@ -536,7 +536,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
-                              type="date"
+                              type="text"
                               className={`
                                             ${
                                               errors.booking_date

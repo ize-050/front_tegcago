@@ -61,18 +61,24 @@ const ApproveComponent = () => {
             const submitpayment: any = await Submitpayment(RequestData)
             if (submitpayment.status === 200) {
                 console.log("submitpayment", submitpayment)
-                dispatch(setOpenToast({
+              await   dispatch(setOpenToast({
                     type: "success",
                     message: "บันทึกข้อมูลสำเร็จ"
                 })  
                 )
+
+             await    setTimeout(() => {
+                    location.reload()
+                }, 3000)
                  //router.push('/purchase')
-            }
-            else {
-                console.log("error", submitpayment)
             }
         }
         catch (e:any) {
+            dispatch(setOpenToast({
+                type: "error",
+                message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง"
+            })  
+            )   
             throw new Error(e)
         }
     }

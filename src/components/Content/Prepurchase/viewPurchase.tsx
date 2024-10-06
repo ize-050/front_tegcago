@@ -166,7 +166,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
             {/*))}*/}
 
             {data?.d_product?.d_product_image.map(
-              async (images: any, index: number) => {
+               (images: any, index: number) => {
                 const isExcel =
                   images.name?.endsWith(".xlsx") ||
                   images.name?.endsWith(".xls") ||
@@ -392,7 +392,9 @@ const ViewPrePurchase = ({ purchase }: any) => {
           <label className="block mb-2  text-gray-500  text-sm font-semibold">
             Refund Tax ต้นทาง
           </label>
-          <p>{data?.d_refund_tag}</p>
+          <p>
+            {data?.d_refund_tax === "" ? "" : data?.d_refund_tax}
+            </p>
         </div>
         <div className="w-full md:w-1/2 flex flex-col">
           <label className="block mb-2  text-gray-500  text-sm font-semibold">

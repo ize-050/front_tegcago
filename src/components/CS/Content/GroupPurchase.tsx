@@ -14,7 +14,7 @@ import {
 } from "@/stores/purchase";
 import { useEffect, useState } from "react";
 //store
-import { setOpenToast } from "@/stores/util";
+import { setOpenToast, utilStore , utilData } from "@/stores/util";
 import { setModalWatchDocument, documentData } from "@/stores/document";
 import {
   GetAgentCy,
@@ -40,6 +40,9 @@ const GroupPurchase = ({ id }: any) => {
   const { purchase, modelAdddo } = useAppSelector(purchaseData);
 
   const { modalWatchDocument } = useAppSelector(documentData);
+
+  const {tab} = useAppSelector(utilData);
+  
 
   const [activeTab, setActiveTab] = useState("Prepurchase");
 
@@ -71,6 +74,13 @@ const GroupPurchase = ({ id }: any) => {
     GetdocumentPurchase(id);
     getAgentCy();
   }, [id]);
+
+
+  useEffect(()=>{
+    if(tab =="purchase"){
+      setActiveTab("purchase")
+    }
+  },[tab])
 
   const watchDocument = () => {
     dispatch(setModalWatchDocument(true));

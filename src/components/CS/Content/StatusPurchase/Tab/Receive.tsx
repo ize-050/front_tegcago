@@ -119,20 +119,23 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
             dispatch(
               setOpenToast({
                 type: "success",
-                message: response.payload.message,
+                message: response.payload.data.message,
               })
             );
+            fetchData(response.payload.data.id);
           }
         });
       } else {
       }
     } catch (err: any) {
-      console.log("errr", err);
-    } finally {
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
-    }
+      dispatch(
+        setOpenToast({
+          type: "error",
+          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        })
+      );
+      location.reload();
+    } 
   };
 
   const PurchaseData = useMemo(() => {

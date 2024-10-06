@@ -193,6 +193,7 @@ export const sentPrepurchase = async (data: any) => {
     // const Request ={
     //     ...data
     // }
+ 
 
     return new Promise(async (resolve, reject) => {
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/submitEstimate/${customer_id}`;
@@ -205,6 +206,9 @@ export const sentPrepurchase = async (data: any) => {
         delete data.files
         for (const key in data) {
             formData.append(key, data[key]);
+        }
+        if(data.d_refund_tag ==""){
+            formData.append('d_refund_tag', "");
         }
         await axios.post(url,
             formData,

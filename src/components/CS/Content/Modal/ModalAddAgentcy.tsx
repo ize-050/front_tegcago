@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import {
   purchaseData,
   setModalAgentcy,
+  setPurchaseData,
   setSubmitAddAgency,
 } from "@/stores/purchase";
 import { Controller, useForm, useWatch, useFieldArray } from "react-hook-form";
@@ -25,6 +26,8 @@ import { useRouter } from "next/navigation";
 //service
 
 import { getDataCurrency } from "@/services/system/currency";
+import { setActiveTab } from "@/stores/util";
+import { getPurchaseById } from "@/services/purchase";
 
 const ModalAdddocument = () => {
   const dispatch = useAppDispatch();
@@ -79,6 +82,7 @@ const ModalAdddocument = () => {
 
     append({
       d_type: "",
+      d_typePayer:"",
       d_type_text: "",
       d_price: "",
       d_currency: "",
@@ -98,6 +102,7 @@ const ModalAdddocument = () => {
       setValue(`type[0].d_discount`, "");
       setValue(`type[0].d_price`, "");
       setValue(`type[0].d_type`, "");
+      setValue(`type[0].d_typePayer`, "");
       setValue(`type[0].d_type_text`, "");
     })();
   }, []);
@@ -135,15 +140,19 @@ const ModalAdddocument = () => {
     return netTotal;
   }
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     try {
       console.log("data", data);
       const RequestData = {
         ...data,
         purchase_id: purchase.id,
       };
-      dispatch(setSubmitAddAgency(RequestData));
-      router.push("/cs/purchase");
+      await dispatch(setSubmitAddAgency(RequestData));
+      await setShowModal(false);
+
+      setTimeout(() => {
+        location.reload();
+      }, 3000);
     } catch (err: any) {
       throw err;
     }
@@ -383,9 +392,9 @@ const ModalAdddocument = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="flex p-4 flex-col box box--stacked">
-                  <div className="flex flex-row flex-wrap">
-                    <Table className="border-b border-gray-100">
+                <div className="">
+                  <div className="overflow-x-auto">
+                    <Table className="border-b border-gray-100 table-auto">
                       <Table.Thead>
                         <Table.Tr
                           style={{
@@ -393,6 +402,9 @@ const ModalAdddocument = () => {
                           }}
                           className="text-sm font-bold"
                         >
+                          <Table.Td className="py-4 font-medium truncate text-center   border-t  border-slate-200/60 text-black">
+                            ผู้จ่าย
+                          </Table.Td>
                           <Table.Td className="py-4 font-medium truncate text-center   border-t  border-slate-200/60 text-black">
                             หัวข้อ
                           </Table.Td>
@@ -429,6 +441,27 @@ const ModalAdddocument = () => {
                           return (
                             <>
                               <Table.Tr className="text-sm" key={key}>
+                                <Table.Td className="text-center    border-slate-200/60  text-gray-900">
+                                  <Controller
+                                    name={`type[${key}].d_typePayer`}
+                                    control={control}
+                                    rules={{ required: false }}
+                                    render={({
+                                      field: { onChange, onBlur, value },
+                                    }) => (
+                                      <>
+                                        <select
+                                          onChange={onChange}
+                                          className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        >
+                                          <option>เลือก</option>
+                                          <option value="ลูกค้า">ลูกค้า</option>
+                                          <option value="โรงงาน">โรงงาน</option>
+                                        </select>
+                                      </>
+                                    )}
+                                  />
+                                </Table.Td>
                                 <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                   <Controller
                                     name={`type[${key}].d_type`}

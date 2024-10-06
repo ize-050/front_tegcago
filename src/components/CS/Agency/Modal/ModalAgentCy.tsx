@@ -18,7 +18,7 @@ import { createAgency,editAgency } from '@/services/system/agency'
 //form
 
 import { useForm, Controller, SubmitHandler, FormProvider } from "react-hook-form"
-import { setOpenToast } from "@/stores/util";
+import { setActiveTab, setOpenToast } from "@/stores/util";
 import { set } from "lodash";
 
 
@@ -52,9 +52,8 @@ const ModalAgency = () => {
                         message: submit.message
                     })
                     )
-                    dispatch(setOpenModal(false))
-
-                    setTimeout(() => {
+                   await  dispatch(setOpenModal(false))
+                    setTimeout(() => {       
                         location.reload()
                     }, 2000)
                 }
@@ -68,11 +67,11 @@ const ModalAgency = () => {
                         message: submit.message
                     })
                     )
-                    dispatch(setOpenModal(false))
+                   await  dispatch(setOpenModal(false))
+                   setTimeout(() => {       
+                    location.reload()
+                }, 2000)
 
-                    setTimeout(() => {
-                        location.reload()
-                    }, 2000)
                 }
 
             }

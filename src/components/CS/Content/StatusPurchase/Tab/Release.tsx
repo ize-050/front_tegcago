@@ -105,11 +105,18 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                 message: response.message,
               })
             );
+            fetchData(response.id);
           }
         }
     }
     catch(err){
-        console.log("err", err)
+        dispatch(
+            setOpenToast({
+              type: "error",
+              message: "เกิดข้อผิดพลาด",
+            })
+          );
+        location.reload();
     }      
 }
 
@@ -486,10 +493,13 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                           className="border w-full border-gray-200 p-2 rounded-md"
                         >
                           <option value="">เลือก</option>
-                          <option value="รถยนต์">รถยนต์</option>
-                          <option value="รถตู้">รถตู้</option>
-                          <option value="รถบรรทุก">รถบรรทุก</option>
-                          <option value="เรือ">เรือ</option>
+                          <option value="รถกระบะ4ล้อ">รถกระบะ4ล้อ</option>
+                          <option value="รถกระบะตู้ทึบ">รถกระบะตู้ทึบ</option>
+                          <option value="รถ6ล้อ">รถ6ล้อ</option>
+                          <option value="รถ6ล้อตู้ทึบ">รถ6ล้อตู้ทึบ</option>
+                          <option value="รถ10ล้อ">รถ10ล้อ</option>
+                          <option value="รถ10ล้อตู้ทึบ">รถ10ล้อตู้ทึบ</option>
+                          <option value="รถหัวลาก">รถหัวลาก</option>
                         </select>
                       )}
                     />

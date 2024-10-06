@@ -253,40 +253,40 @@ function Purchase() {
                 className="pl-9 sm:w-34 rounded-[0.5rem] text-black"
                 onChange={(e) => setSearchedVal(e.target.value)}
               />
-            </div>
 
-            <div className="relative">
-              {/*<select*/}
-              {/*  onChange={(e: any) => {*/}
-              {/*    if (e.target.value != "") {*/}
-              {/*      const cus = customer.filter((res: any) => {*/}
-              {/*        return res.customer_status[0].cus_status === e.target.value*/}
-              {/*      })*/}
-              {/*      setCurrentData(cus)*/}
-              {/*    }*/}
-              {/*    else {*/}
-              {/*      setCurrentData(customer)*/}
-              {/*    }*/}
-              {/*  }}*/}
-              {/*  id="countries" className=" border border-gray-200 text-gray-400  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500">*/}
-              {/*  <option selected value="" className="text-gray-200">Status</option>*/}
-              {/*  <option value="สนใจ">สนใจ</option>*/}
-              {/*  <option value="ไม่สนใจ">ไม่สนใจ</option>*/}
-              {/*  <option value="ติดตามต่อ">ติดตามต่อ</option>*/}
-              {/*  <option value="ติดต่อไม่ได้">ติดต่อไม่ได้</option>*/}
-              {/*  <option value="ปิดการขาย">ปิดการขาย</option>*/}
-              {/*</select>*/}
+
+              
             </div>
 
 
-            {/* <select
+            <select
               id="deliver"
               className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+              onChange={(e) => {
+                let data :any =  purchaseAll;
+                let status = e.target.value;
+
+                if(status === ""){
+                  setCurrentData(data);
+                  return;
+                }
+
+                setCurrentData(data.filter((row: any) => {
+                  console.log('row',row)
+                  return row.d_status == status;
+                 }))
+              }}
             >
-              <option selected>ส่งมอบงาน</option>
-              <option value="delivered">Delivered</option>
-              <option value="pending">Pending</option>
-            </select> */}
+              <option selected>สถานะ</option>
+              <option value="">ทั้งหมด</option>
+              <option value="Sale ตีราคา">Sale ตีราคา</option>
+              <option value="Sale แนบเอกสาร">Sale แนบเอกสาร</option>
+              <option value="Cs รับงาน">Cs รับงาน</option>
+              <option value="Cs เสนอราคา">Cs เสนอราคา</option>
+              <option value="อยู่ระหว่างทำ Financial">อยู่ระหว่างทำ Financial</option>
+              <option value="ปิดการขาย">ปิดการขาย</option>
+            </select>
+            
           </div>
 
           <div className="grid grid-cols-12 gap-y-10 gap-x-6">

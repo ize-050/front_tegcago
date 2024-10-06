@@ -21,6 +21,7 @@ import {
   createDocumentStatus,
   getDocumentStatus,
 } from "@/services/statusOrder";
+import { setOpenToast } from "@/stores/util";
 
 const DocumentComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
@@ -98,11 +99,28 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
         d_purchase_id: purchase?.id,
       };
       if (dataStatus.type === "create") {
-        const res = await createDocumentStatus(formData);
+        const res :any = await createDocumentStatus(formData);
+        if(res.statusCode === 200){
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: res.message,
+            })
+          );
+          fetchData(res.id);
+        }
       }
     } catch (err: any) {
-    } finally {
-    }
+      dispatch(
+        setOpenToast({
+          type: "error",
+          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        })
+      );
+      location.reload();
+      dispatch(setEditForm("view"));
+    } 
   };
 
   const PurchaseData = useMemo(() => {
@@ -194,7 +212,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร  Invoice Doc
                   </label>
                 
                   {dataStatus.type !== "view" ? (
@@ -283,7 +301,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร Packing list Doc
                   </label>
                   {dataStatus.type !== "view" ? (
                     <>
@@ -370,7 +388,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร Draft F/E
                   </label>
                   {dataStatus.type !== "view" ? (
                     <>
@@ -457,7 +475,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร ใบอนุญาตอื่นๆ
                   </label>
 
                   {dataStatus.type !== "view" ? (
@@ -548,7 +566,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร Draft Invoice Doc
                   </label>
 
                   {dataStatus.type !== "view" ? (
@@ -637,7 +655,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร Draft B/L
                   </label>
 
                   {dataStatus.type !== "view" ? (
@@ -725,7 +743,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร
+                    อัพโหลดเอกสาร Master B/L
                   </label>
 
                   {dataStatus.type !== "view" ? (

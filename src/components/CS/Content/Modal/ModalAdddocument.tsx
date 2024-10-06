@@ -123,52 +123,7 @@ const ModalAdddocument = () => {
                   </div>
                 </div>
            
-                <div className="flex flex-row">
-                  <div className="mb-5 w-1/2">
-                    <label className="block flex mb-1 text-gray-600 font-semibold">ระยะเวลายึดอายุ
-                      <div className="text-red-500">
-                        *
-                      </div></label>
-                    <Controller
-                      name="d_num_date"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { onChange, onBlur, value } }) => (
-                        <input
-                          placeholder='กรอก'
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={onChange}
-                          type="text" className={`
-                          ${errors.d_num_date ? 'border-red-500' : 'border-gray-200'}
-                          px-4 py-2 outline-none rounded-md w-full`} />
-                      )}
-
-                    />
-                    {errors.d_num_date && <p className="text-red-500">กรุณากรอกข้อมูล</p>}
-                  </div>
-                  <div className="mb-5 w-1/2 ml-5">
-                    <label className="block mb-1 text-gray-600 font-semibold">วันเวลาสิ้นอายุ</label>
-                    <Controller
-                      name="d_end_date"
-                      control={control}
-                      rules={{ required: true, maxLength: 10 }}
-                      render={({ field: { onChange, onBlur, value } }) => (
-                        <input
-                          placeholder='เลือก'
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={onChange}
-                          type="date" className={`
-                          ${errors.d_end_date ? 'border-red-500' : 'border-gray-200'}
-                          px-4 py-2 outline-none rounded-md w-full`} />
-                      )}
-
-                    />
-                    {errors.d_end_date && <p className="text-red-500">กรุณากรอกข้อมูล.</p>}
-                  </div>
-
-                </div>
+               
 
                 <div className="mb-5">
                   <h2>เอกสารที่ต้องใช้</h2>

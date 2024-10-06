@@ -110,11 +110,18 @@ const ProveDepartureComponent = ({ purchase }: {
                     message: response.message,
                   })
                 );
+                fetchData(response.id);
               }
             }
         }
         catch(err){
-            console.log("err", err)
+            dispatch(
+                setOpenToast({
+                  type: "error",
+                  message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+                })
+              )
+            location.reload()
         }      
     }
 

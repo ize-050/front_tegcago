@@ -33,6 +33,7 @@ import {
   createContain,
 } from "@/stores/statusOrder";
 import { setOpenToast } from "@/stores/util";
+import ViewImageComponent from "../Image/ViewImageComponent";
 
 const ContainComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
@@ -55,7 +56,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
   const router = useRouter();
 
   const [dataStatus, setStatus] = useState<Partial<any>>({
-    type: "view",
+    type: "create",
   });
 
   const [data, setData] = useState<any>({});
@@ -94,7 +95,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     } else {
       dispatch(
         setForm({
-          id: "2",
+          id: "3",
           tabName: "บรรจุตู้",
           tabKey: "Contain",
           active: true,
@@ -121,11 +122,19 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 message: response.payload.message,
               })
             );
+            fetchData(response.payload.data.id);
           }
         });
       } else {
       }
     } catch (err: any) {
+      dispatch(
+        setOpenToast({
+          type: "error",
+          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        })
+      );
+      location.reload();
       console.log("errr", err);
     } finally {
       //   setTimeout(() => {
@@ -241,6 +250,42 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     );
   };
 
+  const TableView: React.FC = () => {
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: "items",
+    });
+
+    const handleDeleteRow = (index: number) => {
+      remove(index);
+    };
+
+    return (
+      <div className="w-full">
+        <Table className="w-full">
+          <Table.Tr>
+            <Table.Th>สินค้า</Table.Th>
+            <Table.Th>H.s.Code</Table.Th>
+           
+          </Table.Tr>
+
+          {data?.Contain_product?.map((field: any, index: number) => (
+            <Table.Tr key={field.id}>
+              <Table.Td>    
+                {field.product_name}
+              </Table.Td>
+              <Table.Td>
+              {field.product_hscode}
+              </Table.Td>
+
+             
+            </Table.Tr>
+          ))}
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <Fragment>
       <div>
@@ -320,7 +365,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
             <div className="flex">
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                  Carbon Total
+                  Cartons Total
                 </label>
                 {dataStatus.type !== "view" ? (
                   <>
@@ -464,7 +509,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     )}
                   </>
                 ) : (
-                  <p>{data?.gw_total}</p>
+                  <p>{data?.gw_total} KG.</p>
                 )}
               </div>
             </div>
@@ -476,7 +521,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     สินค้าทั้งหมด
                   </h1>
                 </div>
-                {dataStatus.type !== "view" && (
+                
+                {dataStatus.type !== "view" ? (
                   <div className="flex-end justify-center mt-1">
                     <Button
                       type="button"
@@ -487,12 +533,21 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       <span>เพิ่มข้อมูล</span>
                     </Button>
                   </div>
-                )}
+                ):''}
               </div>
-
-              <div className="flex">
+                
+              {dataStatus.type == "view" && (
+                 <div className="flex mb-5">
+                <TableView></TableView>
+                </div>
+              )}
+          
+              {dataStatus.type == "create" && (
+              <div className="flex mb-5">
                 <TablePlus></TablePlus>
               </div>
+              )}
+             
             </div>
 
             <div className="flex">
@@ -518,7 +573,37 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     </div>
                   </>
                 ) : (
-                  <p>{dataStatus?.booking_date}</p>
+                  <div className="flex  flex-wrap ">
+                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "cabinet"}))?.map(
+                      (images: any, index: number) => {
+                        const isExcel =
+                          images.picture_name?.endsWith(".xlsx") ||
+                          images.picture_name?.endsWith(".xls") ||
+                          images.picture_name?.endsWith(".csv");
+                        const isPdf = images.picture_name?.endsWith(".pdf");
+                        const isImage =
+                          images.picture_name?.endsWith(".jpg") ||
+                          images.picture_name?.endsWith(".png");
+                        const url =
+                          process.env.NEXT_PUBLIC_URL_API +
+                          images.picture_path;
+
+                        return(
+                        <>
+                       
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                         
+                        </>)
+                      }
+                    )}
+                   </div>
                 )}
               </div>
 
@@ -538,7 +623,37 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     </div>
                   </>
                 ) : (
-                  <p>{dataStatus?.booking_date}</p>
+                  <div className="flex  flex-wrap ">
+                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "purchase_file"}))?.map(
+                      (images: any, index: number) => {
+                        const isExcel =
+                          images.picture_name?.endsWith(".xlsx") ||
+                          images.picture_name?.endsWith(".xls") ||
+                          images.picture_name?.endsWith(".csv");
+                        const isPdf = images.picture_name?.endsWith(".pdf");
+                        const isImage =
+                          images.picture_name?.endsWith(".jpg") ||
+                          images.picture_name?.endsWith(".png");
+                        const url =
+                          process.env.NEXT_PUBLIC_URL_API +
+                          images.picture_path;
+
+                        return(
+                        <>
+                       
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                         
+                        </>)
+                      }
+                    )}
+                   </div>
                 )}
               </div>
             </div>
@@ -560,7 +675,37 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     </div>
                   </>
                 ) : (
-                  <p>{dataStatus?.booking_date}</p>
+                  <div className="flex  flex-wrap ">
+                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "close_cabinet"}))?.map(
+                      (images: any, index: number) => {
+                        const isExcel =
+                          images.picture_name?.endsWith(".xlsx") ||
+                          images.picture_name?.endsWith(".xls") ||
+                          images.picture_name?.endsWith(".csv");
+                        const isPdf = images.picture_name?.endsWith(".pdf");
+                        const isImage =
+                          images.picture_name?.endsWith(".jpg") ||
+                          images.picture_name?.endsWith(".png");
+                        const url =
+                          process.env.NEXT_PUBLIC_URL_API +
+                          images.picture_path;
+
+                        return(
+                        <>
+                       
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                         
+                        </>)
+                      }
+                    )}
+                   </div>
                 )}
               </div>
 
@@ -580,7 +725,37 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     </div>
                   </>
                 ) : (
-                  <p>{dataStatus?.booking_date}</p>
+                  <div className="flex  flex-wrap ">
+                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "etc"}))?.map(
+                      (images: any, index: number) => {
+                        const isExcel =
+                          images.picture_name?.endsWith(".xlsx") ||
+                          images.picture_name?.endsWith(".xls") ||
+                          images.picture_name?.endsWith(".csv");
+                        const isPdf = images.picture_name?.endsWith(".pdf");
+                        const isImage =
+                          images.picture_name?.endsWith(".jpg") ||
+                          images.picture_name?.endsWith(".png");
+                        const url =
+                          process.env.NEXT_PUBLIC_URL_API +
+                          images.picture_path;
+
+                        return(
+                        <>
+                       
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                         
+                        </>)
+                      }
+                    )}
+                   </div>
                 )}
               </div>
             </div>

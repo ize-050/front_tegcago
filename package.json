@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3003",
-    "pm2-start": "pm2 start yarn --name front-tegcago -- start",
-    "pm2-stop": "pm2 stop front-tegcago",
+    "pm2-start": "pm2 start ecosystem.config.js ",
+    "pm2-start-1":"pm2 start yarn --name nextjs --interpreter bash -- start",
+    "pm2-stop": "pm2 stop nextjs",
     "pm2-stop-1": "pm2 kill",
     "pm2-monit": "pm2 monit",
     "build": "next build",
