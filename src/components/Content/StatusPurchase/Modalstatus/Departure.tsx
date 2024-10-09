@@ -13,13 +13,13 @@ import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Ima
 import { setOpenToast } from "@/stores/util";
 import { createLeave, getLeave } from "@/services/statusOrder";
 // viewImage
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+import ViewImageComponent from "./ViewImagecomponent";
 
 interface ModalDepartureProps {
     purchase: any;
     setModalstatus: any;
   }
-  const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
+const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
     purchase,
     setModalstatus,
   }) => {

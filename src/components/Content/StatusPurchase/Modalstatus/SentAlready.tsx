@@ -16,7 +16,7 @@ import { setOpenToast } from "@/stores/util";
 import { getSendsuccess, createSendSuccess } from "@/services/statusOrder";
 
 //components
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+import ViewImageComponent from "./ViewImagecomponent";
 
 interface ModalSentAlreadyProps {
   purchase: any;
@@ -181,7 +181,7 @@ const ModalSentAlreadyComponent: React.FC<ModalSentAlreadyProps> = ({
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      วันที่รับตู้ออกจากท่าเรือ
+                      วันที่จัดส่งเรียบร้อย
                     </label>
                     {dataStatus.type !== "view" ? (
                       <>
@@ -198,11 +198,10 @@ const ModalSentAlreadyComponent: React.FC<ModalSentAlreadyProps> = ({
                               onChange={onChange}
                               type="date"
                               className={`
-                                            ${
-                                              errors.date_out_arrival
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.date_out_arrival
+                                  ? "border-red-500"
+                                  : "border-gray-200"
+                                }
                                             px-4 py-2 outline-none rounded-md w-full`}
                             />
                           )}
@@ -218,7 +217,7 @@ const ModalSentAlreadyComponent: React.FC<ModalSentAlreadyProps> = ({
                   <div className="w-1/2">
                     <div className="p-5">
                       <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      แนบรูปรถถึงปลายทาง
+                        แนบรูปรถถึงปลายทาง
                       </label>
 
                       {dataStatus.type !== "view" ? (
@@ -285,11 +284,10 @@ const ModalSentAlreadyComponent: React.FC<ModalSentAlreadyProps> = ({
                               onChange={onChange}
                               type="text"
                               className={`
-                                            ${
-                                              errors.etc
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.etc
+                                  ? "border-red-500"
+                                  : "border-gray-200"
+                                }
                                             px-4 py-2 outline-none rounded-md w-full`}
                             />
                           )}
@@ -304,7 +302,7 @@ const ModalSentAlreadyComponent: React.FC<ModalSentAlreadyProps> = ({
                   </div>
                 </div>
 
-             
+
               </form>
             </FormProvider>
           </div>

@@ -15,7 +15,7 @@ import { setOpenToast } from "@/stores/util";
 //service
 import { getWaitrelease, CreateWaitrelease } from "@/services/statusOrder";
 
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+import ViewImageComponent from "./ViewImagecomponent";
 
 interface ModalReceiveProps {
   purchase: any;

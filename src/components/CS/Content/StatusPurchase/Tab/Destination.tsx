@@ -192,7 +192,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
             <div className="flex">
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                  วันที่จัดส่งเรียบร้อย
+                  วันที่จัดส่ง
                 </label>
                 {dataStatus.type !== "view" ? (
                   <>

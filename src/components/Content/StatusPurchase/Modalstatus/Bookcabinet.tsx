@@ -341,6 +341,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                   </>
                 ) : (
                   <>
+                   <div className="flex">
                     {data?.Bookcabinet_picture?.map(
                       (images: any, index: number) => {
                         const isExcel =
@@ -490,6 +491,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                         );
                       }
                     )}
+                    </div>
                   </>
                 )}
               </div>

@@ -15,7 +15,7 @@ import { setOpenToast } from "@/stores/util";
 
 //service
 import { createDestination, getDestination } from "@/services/statusOrder";
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+import ViewImageComponent from "./ViewImagecomponent";
 
 interface ModalDestinationProps {
   purchase: any;
@@ -202,7 +202,7 @@ const ModalDestinationComponent: React.FC<ModalDestinationProps> = ({
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      วันที่จัดส่งเรียบร้อย
+                      วันที่จัดส่ง
                     </label>
                     {dataStatus.type !== "view" ? (
                       <>

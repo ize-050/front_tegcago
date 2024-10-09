@@ -306,12 +306,14 @@ const Purchase = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-around items-center">
-                    <div className="flex justify-around items-center">
-                      <p className="text-right text-gray-600">ผู้จ่าย</p>
-                      <p className="text-xl font-bold">{res?.d_agentcy_detail[0]?.d_typePayer}</p>
+                  <div className="flex justify-end">
+                    <div className=" mr-36">
+                      <p className="text-gray-600">ผู้จ่าย</p>
+                      <p className="text-xl font-bold">
+                        {res?.d_agentcy_detail[0].d_typePayer}
+                      </p>
                     </div>
-                    <div className="flex flex-col items-end">
+                    <div className="">
                       <p className="text-gray-600">ยอดค่าใช้จ่ายจริง</p>
                       <p className="text-xl font-bold">
                         {res?.d_agentcy_detail?.reduce(
@@ -373,17 +375,28 @@ const Purchase = () => {
                   {/*<p className="text-gray-600">หมายเหตุ: {res.agentcy_etc}</p>*/}
                 </div>
               </div>
-              <div className="flex flex-col items-end">
-                <p className="text-gray-600">ผู้จ่าย</p>
-                <p className="text-gray-600">ยอดค่าใช้จ่ายจริง</p>
-                <p className="text-xl font-bold">
-                  {data?.d_sale_agentcy[0]?.d_agentcy?.d_agentcy_detail?.reduce(
-                    (accumulator: number, item: any) =>
-                      accumulator + Number(item.d_net_balance),
-                    0 // Initial value for the accumulator
-                  )}{" "}
-                  ฿
-                </p>
+
+              <div className="flex justify-end">
+                <div className=" mr-36">
+                  <p className="text-gray-600">ผู้จ่าย</p>
+                  <p className="text-xl font-bold">
+                    {
+                      data?.d_sale_agentcy[0]?.d_agentcy?.d_agentcy_detail[0]
+                        ?.d_typePayer
+                    }
+                  </p>
+                </div>
+                <div className="">
+                  <p className="text-gray-600">ยอดค่าใช้จ่ายจริง</p>
+                  <p className="text-xl font-bold">
+                    {data?.d_sale_agentcy[0]?.d_agentcy?.d_agentcy_detail?.reduce(
+                      (accumulator: number, item: any) =>
+                        accumulator + Number(item.d_net_balance),
+                      0 // Initial value for the accumulator
+                    )}{" "}
+                    ฿
+                  </p>
+                </div>
               </div>
             </div>
           </>

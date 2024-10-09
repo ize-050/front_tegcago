@@ -65,7 +65,7 @@ function Addpurchase() {
   useEffect(() => {
     const getPurchase = async () => {
       const purchase = await getPurchaseById(id)
-      console.log('purchase', purchase)
+      
       dispatch(setPurchaseData(purchase))
 
     }

@@ -58,7 +58,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
   useEffect(() => {
     setStatus(status);
   }, [status]);
-  
+
   const fetchData = useCallback(
     async (id_get: string) => {
       try {
@@ -128,7 +128,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
       dispatch(
         setOpenToast({
           type: "error",
-          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง", 
+          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
       console.log("errr", err);
@@ -377,7 +377,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                 ) : (
                   <>
                     {data?.Bookcabinet_picture?.map(
-                       (images: any, index: number) => {
+                      (images: any, index: number) => {
                         const isExcel =
                           images.picture_name?.endsWith(".xlsx") ||
                           images.picture_name?.endsWith(".xls") ||

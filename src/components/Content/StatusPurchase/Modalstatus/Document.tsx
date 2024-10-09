@@ -14,7 +14,9 @@ import Lucide from "@/components/Base/Lucide";
 import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
 
 // viewImage
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+//import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+
+import ViewImageComponent from "./ViewImagecomponent";
 
 //service
 import {

@@ -28,7 +28,7 @@ const Statuspurchase = ({ purchase }: { purchase: any }) => {
   const dispatch = useAppDispatch();
   const [data, setData] = useState<any>([]);
 
-  const [modal, setModal] = useState<string>(0);
+  const [modal, setModal] = useState<string>("");
 
   const fetchData = async (id: string) => {
     try {

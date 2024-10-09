@@ -46,7 +46,7 @@ const AddPurchase = ({ BookingId }: any) => {
   async function onSubmit(request: any) {
     try {
       request.book_number = BookingId;
-      console.log("request", request.files);
+      request.d_truck = request.d_truck.join(",");
       dispatch(submitPrePurchase(request)).then((response:any) => {
         if (response.payload.data.statusCode === 200) {
           router.push("/purchase");
@@ -440,9 +440,15 @@ const AddPurchase = ({ BookingId }: any) => {
                     <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 ">
                       <div className="flex w-1/2 items-center ps-3 border border-gray-200 rounded dark:border-gray-700">
                         <input
-                          onChange={onChange}
+                          //onChange={onChange}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...(value || []), e.target.value]
+                              : (value || []).filter((v:any) => v !== e.target.value);
+                            onChange(newValue);
+                          }}
                           id="bordered-radio-2"
-                          type="radio"
+                          type="checkbox"
                           value="บริการหัวลากต้นทาง"
                           name="bordered-radio"
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -453,9 +459,15 @@ const AddPurchase = ({ BookingId }: any) => {
                       </div>
                       <div className="flex  w-1/2  items-center ps-3 border border-gray-200 rounded dark:border-gray-700">
                         <input
-                          onChange={onChange}
+                          //onChange={onChange}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...(value || []), e.target.value]
+                              : (value || []).filter((v:any) => v !== e.target.value);
+                            onChange(newValue);
+                          }}
                           id="bordered-radio-2"
-                          type="radio"
+                          type="checkbox"
                           value="บริการหัวลากปลายทาง"
                           name="bordered-radio"
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

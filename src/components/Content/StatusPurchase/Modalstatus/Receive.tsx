@@ -410,6 +410,7 @@ const ModalReceiveComponent: React.FC<ModalReceiveProps> = ({
                       </>
                     ) : (
                       <>
+                      <div className="flex">
                         {data?.Receive_picture?.map(
                           (images: any, index: number) => {
                             const isExcel =
@@ -429,7 +430,7 @@ const ModalReceiveComponent: React.FC<ModalReceiveProps> = ({
                             return (
                               <div
                                 key={index}
-                                className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden"
+                                className="relative flex w-32 h-32 m-2  overflow-hidden"
                               >
                                 {isPdf && (
                                   <>
@@ -473,7 +474,7 @@ const ModalReceiveComponent: React.FC<ModalReceiveProps> = ({
 
                                 {isImage && (
                                   <>
-                                    <div className="relative w-full h-full   overflow-hidden">
+                                    <div className="relative w-full h-full    overflow-hidden">
                                       <Image
                                         src={url}
                                         alt={`Preview ${index}`}
@@ -559,6 +560,7 @@ const ModalReceiveComponent: React.FC<ModalReceiveProps> = ({
                             );
                           }
                         )}
+                        </div>
                       </>
                     )}
                   </div>

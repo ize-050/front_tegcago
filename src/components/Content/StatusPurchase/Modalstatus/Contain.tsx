@@ -33,7 +33,7 @@ import {
   createContain,
 } from "@/stores/statusOrder";
 import { setOpenToast } from "@/stores/util";
-import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
+import ViewImageComponent from "./ViewImagecomponent";
 
 interface ModalContainProps {
   purchase: any;
@@ -564,7 +564,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                 <div className="flex ">
                   <div className="p-5 w-1/2">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      แนบรูปการตรวจตู้
+                      รูปการตรวจตู้
                     </label>
 
                     {dataStatus.type !== "view" ? (
@@ -578,7 +578,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                         </div>
                       </>
                     ) : (
-                      <div className="flex  flex-wrap ">
+                      <div className="flex">
                         {data?.Contain_picture?.filter(
                           (res: { key: string }) => {
                             return res.key === "cabinet";
@@ -615,7 +615,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
 
                   <div className="p-5 w-1/2">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      แนบรูปสินค้า
+                      รูปสินค้า
                     </label>
 
                     {dataStatus.type !== "view" ? (
@@ -668,7 +668,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                 <div className="flex ">
                   <div className="p-5 w-1/2">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      แนบรูปปิดตู้
+                      รูปปิดตู้
                     </label>
 
                     {dataStatus.type !== "view" ? (
@@ -719,7 +719,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
 
                   <div className="p-5 w-1/2">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      แนบรูปอื่นๆ
+                      รูปอื่นๆ
                     </label>
 
                     {dataStatus.type !== "view" ? (

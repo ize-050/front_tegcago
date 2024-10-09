@@ -374,19 +374,73 @@ const FormEdit = ({ purchase }: {
 
             </div>
             <div className="w-full md:w-1/2  flex flex-col">
-              <label
-                className="block mb-2  text-gray-700  text-sm font-semibold">บริการหัวรถลาก</label>
+              <label className="block mb-2  text-gray-700  text-sm font-semibold">
+                บริการหัวรถลาก
+              </label>
               <Controller
                 name="d_truck"
-                defaultValue={purchase.d_truck}
                 control={control}
+                defaultValue={purchase.d_truck.split(',')}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <input type="text" onChange={onChange} value={value} placeholder="กรอก"
-                    className={`${errors.d_truck ? 'border-red-500' : 'border-gray-200'} px-4 py-2 outline-none rounded-md border border-gray-300 text-base`} />
+                  <>
+                    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 ">
+                      <div className="flex w-1/2 items-center ps-3 border border-gray-200 rounded dark:border-gray-700">
+                        <input
+                          //onChange={onChange}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...(value || []), e.target.value]
+                              : (value || []).filter((v:any) => v !== e.target.value);
+                            onChange(newValue);
+                          }}
+                          id="bordered-radio-2"
+                          type="checkbox"
+                          value="บริการหัวลากต้นทาง"
+                          checked={(value || []).includes("บริการหัวลากต้นทาง")} 
+                          name="bordered-radio"
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label className="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                          บริการหัวลากต้นทาง
+                        </label>
+                      </div>
+                      <div className="flex  w-1/2  items-center ps-3 border border-gray-200 rounded dark:border-gray-700">
+                        <input
+                          //onChange={onChange}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...(value || []), e.target.value]
+                              : (value || []).filter((v:any) => v !== e.target.value);
+                            onChange(newValue);
+                          }}
+                          id="bordered-radio-2"
+                          type="checkbox"
+                          value="บริการหัวลากปลายทาง"
+                          checked={(value || []).includes("บริการหัวลากปลายทาง")} 
+                          name="bordered-radio"
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label className="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                          บริการหัวลากปลายทาง
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                  // <input
+                  //   type="text"
+                  //   onChange={onChange}
+                  //   value={value}
+                  //   placeholder="กรอก"
+                  //   className={`${
+                  //     errors.d_truck ? "border-red-500" : "border-gray-200"
+                  //   } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                  // />
                 )}
               />
-              {errors.d_truck && <p className="text-red-500">บริการหัวรถลาก.</p>}
+              {errors.d_truck && (
+                <p className="text-red-500">บริการหัวรถลาก.</p>
+              )}
             </div>
           </div>
 
