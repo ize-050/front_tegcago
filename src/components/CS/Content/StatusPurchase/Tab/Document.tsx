@@ -12,6 +12,7 @@ import Lucide from "@/components/Base/Lucide";
 
 //formcreateImage
 import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
+import EditImageComponent from '@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent'
 
 // viewImage
 import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
@@ -19,6 +20,7 @@ import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/Vie
 //service
 import {
   createDocumentStatus,
+  editDocumentStatus,
   getDocumentStatus,
 } from "@/services/statusOrder";
 import { setOpenToast } from "@/stores/util";
@@ -27,7 +29,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
   const [data, setData] = useState<any>({});
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
-
+  const [document_id,setDocumentId] = useState<any>(null);
   const {
     handleSubmit,
     formState: { errors },
@@ -70,6 +72,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Document") {
       fetchData(checkCreate.id);
+      setDocumentId(checkCreate.id);
       dispatch(
         setForm({
           id: "4",
@@ -92,10 +95,10 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
       const formData = {
-        ...data,
+        ...dataForm,
         d_purchase_id: purchase?.id,
       };
       if (dataStatus.type === "create") {
@@ -111,6 +114,20 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
           fetchData(res.id);
         }
       }
+      else{
+        formData.id = data.id;
+        const res :any = await editDocumentStatus(formData);
+        if(res.statusCode === 200){
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: "แก้ไขข้อมูลสำเร็จ",
+            })
+          );
+          fetchData(document_id);
+        }
+      }
     } catch (err: any) {
       dispatch(
         setOpenToast({
@@ -118,7 +135,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
           message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
-      location.reload();
+      // location.reload();
       dispatch(setEditForm("view"));
     } 
   };
@@ -145,6 +162,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                 รายละเอียดจัดทำเอกสาร
               </h1>
             </div>
+            {dataStatus.type == "view" && (
             <div className="flex-end justify-center mt-1">
               <Button
                 onClick={() => changeEdit(true)}
@@ -167,6 +185,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                 </p>
               </Button>
             </div>
+            )}
           </div>
         </div>
 
@@ -183,7 +202,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_invoice_date"
                       control={control}
                       defaultValue={data?.document_invoice_date}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -215,7 +234,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร  Invoice Doc
                   </label>
                 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_file_invoice"
@@ -223,7 +242,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_file_invoice"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                      <div className="flex  flex-wrap ">
                       {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_invoice"}))?.map(
@@ -271,8 +301,8 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     <Controller
                       name="document_packinglist"
                       control={control}
-                      defaultValue={data?.booking_date}
-                      rules={{ required: true }}
+                      defaultValue={data?.document_packinglist}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -303,7 +333,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                     อัพโหลดเอกสาร Packing list Doc
                   </label>
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_file_packing"
@@ -311,7 +341,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_file_packing"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_packing"}))?.map(
                       (images: any, index: number) => {
@@ -359,7 +400,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_draft"
                       control={control}
                       defaultValue={data?.document_draft}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -390,7 +431,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                     อัพโหลดเอกสาร Draft F/E
                   </label>
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_FE"
@@ -398,7 +439,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  )  : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_FE"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_FE"}))?.map(
                       (images: any, index: number) => {
@@ -446,7 +498,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_etc"
                       control={control}
                       defaultValue={data?.document_etc}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -478,7 +530,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร ใบอนุญาตอื่นๆ
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_file_etc"
@@ -486,7 +538,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_file_etc"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                  
                         <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_etc"}))?.map(
@@ -537,7 +600,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_draft_invoice"
                       control={control}
                       defaultValue={data?.document_draft_invoice}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -569,7 +632,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Draft Invoice Doc
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_draft_invoice"
@@ -577,7 +640,16 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                      <EditImageComponent
+                         setValue={setValue}
+                         name="file_draft_invoice"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+                    </>
+                   ) : (
                     <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "file_draft_invoice"}))?.map(
                       (images: any, index: number) => {
@@ -626,7 +698,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_draft_bl"
                       control={control}
                       defaultValue={data?.document_draft_bl}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -658,7 +730,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Draft B/L
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_BL"
@@ -666,7 +738,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_BL"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_BL"}))?.map(
                       (images: any, index: number) => {
@@ -714,7 +797,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                       name="document_master_bl"
                       control={control}
                       defaultValue={data?.document_master_bl}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -746,7 +829,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Master B/L
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="document_file_master_BL"
@@ -754,7 +837,18 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  )  : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="document_file_master_BL"
+                         control={control}
+                         image={data?.Cs_document_file}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <div className="flex  flex-wrap ">
                     {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_master_BL"}))?.map(
                       (images: any, index: number) => {

@@ -31,22 +31,26 @@ import {
   setEditForm,
   setForm,
   createContain,
+  editContain,
 } from "@/stores/statusOrder";
 import { setOpenToast } from "@/stores/util";
+
+//image
 import ViewImageComponent from "../Image/ViewImageComponent";
+import EdituploadComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
+import { set } from "lodash";
 
 const ContainComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
+  const [id_contains, setIdContains] = useState<string>("");
 
   const {
     handleSubmit,
     formState: { errors },
     reset,
     setValue,
-    getValues,
-    getFieldState,
     setError,
     control,
     watch,
@@ -68,8 +72,11 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
   const fetchData = useCallback(
     async (id_get: string) => {
       try {
-        const response = await getContain(id_get);
-        setData(response);
+        let response: any = await getContain(id_get);
+        const Formdata = response;
+        setData(Formdata);
+
+        // delete response["Contain_picture"];
       } catch (error) {
         console.log(error);
       }
@@ -83,6 +90,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Contain") {
       fetchData(checkCreate.id);
+      setIdContains(checkCreate.id);
       dispatch(
         setForm({
           id: "3",
@@ -105,11 +113,10 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (form: any) => {
     try {
-      console.log("data", data);
-      const formData = {
-        ...data,
+      let formData = {
+        ...form,
         d_purchase_id: purchase?.id,
       };
       if (status.type === "create") {
@@ -126,6 +133,21 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
           }
         });
       } else {
+        console.log("data.id", data.id);
+        formData.id = data.id;
+        dispatch(editContain(formData)).then((response: any) => {
+          console.log("responseedit", response);
+          if (response.payload.data.statusCode == 200) {
+            dispatch(setEditForm("view"));
+            dispatch(
+              setOpenToast({
+                type: "success",
+                message: "แก้ไขข้อมูลสำเร็จ",
+              })
+            );
+            fetchData(id_contains);
+          }
+        });
       }
     } catch (err: any) {
       dispatch(
@@ -160,11 +182,11 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     }
   };
 
-  const handleAddRow = () => {
-    append({ product_name: "", product_hscode: "" });
-  };
-
   const TablePlus: React.FC = () => {
+    const handleAddRow = () => {
+      append({ product_name: "", product_hscode: "" });
+    };
+
     const { fields, append, remove } = useFieldArray({
       control,
       name: "items",
@@ -176,6 +198,16 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
 
     return (
       <div className="w-full">
+        <div className="flex flex-end justify-end mt-1 mr-5">
+          <Button
+            type="button"
+            onClick={handleAddRow}
+            className="flex items-center px-4 py-2 space-x-2 bg-[#273A6F]    text-white rounded-lg hover:bg-blue-600"
+          >
+            <CirclePlus size={20} />
+            <span>เพิ่มข้อมูล</span>
+          </Button>
+        </div>
         <Table className="w-full">
           <Table.Tr>
             <Table.Th>สินค้า</Table.Th>
@@ -266,22 +298,129 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
           <Table.Tr>
             <Table.Th>สินค้า</Table.Th>
             <Table.Th>H.s.Code</Table.Th>
-           
           </Table.Tr>
 
           {data?.Contain_product?.map((field: any, index: number) => (
             <Table.Tr key={field.id}>
-              <Table.Td>    
-                {field.product_name}
-              </Table.Td>
-              <Table.Td>
-              {field.product_hscode}
-              </Table.Td>
-
-             
+              <Table.Td>{field.product_name}</Table.Td>
+              <Table.Td>{field.product_hscode}</Table.Td>
             </Table.Tr>
           ))}
         </Table>
+      </div>
+    );
+  };
+
+  const TableEdit: React.FC = () => {
+    const handleAddRow = () => {
+      append({ product_name: "", product_hscode: "" });
+    };
+
+    const {
+      control,
+      register,
+      handleSubmit,
+      formState: { errors },
+    } = useForm();
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: "items",
+    });
+
+    useEffect(() => {
+      data.Contain_product.forEach((item: any) => append(item));
+    }, [append]);
+
+    const handleDeleteRow = (index: number) => {
+      remove(index);
+    };
+
+    return (
+      <div className="w-full">
+        <div className="flex flex-end justify-end mt-1 mr-5">
+          <Button
+            type="button"
+            onClick={handleAddRow}
+            className="flex items-center px-4 py-2 space-x-2 bg-[#273A6F]    text-white rounded-lg hover:bg-blue-600"
+          >
+            <CirclePlus size={20} />
+            <span>เพิ่มข้อมูล</span>
+          </Button>
+        </div>
+        <form>
+          {" "}
+          {/* เพิ่ม tag <form> */}
+          <Table className="w-full">
+            <Table.Tr>
+              <Table.Th>สินค้า</Table.Th>
+              <Table.Th>H.s.Code</Table.Th>
+            </Table.Tr>
+
+            {fields.map((field: any, index: number) => (
+              <Table.Tr key={field.id}>
+                <Table.Td>
+                  <Controller
+                    name={`items.${index}.product_name`}
+                    control={control}
+                    defaultValue={field.product_name} // ใช้ defaultValue จาก field
+                    rules={{ required: true }}
+                    render={({ field, fieldState }) => (
+                      <input
+                        {...field}
+                        placeholder="กรอก"
+                        type="text"
+                        className={`
+                          border-${fieldState.invalid ? "red-500" : "gray-200"}
+                          px-4 py-2 outline-none rounded-md w-full`}
+                      />
+                    )}
+                  />
+                  {Array.isArray(errors.items) &&
+                    errors.items[index]?.product_name && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                </Table.Td>
+                <Table.Td>
+                  <Controller
+                    name={`items.${index}.product_hscode`}
+                    control={control}
+                    defaultValue={field.product_hscode} // ใช้ defaultValue จาก field
+                    rules={{ required: true }}
+                    render={({ field, fieldState }) => (
+                      <input
+                        {...field}
+                        placeholder="กรอก"
+                        type="text"
+                        className={`
+                          border-${fieldState.invalid ? "red-500" : "gray-200"}
+                          px-4 py-2 outline-none rounded-md w-full`}
+                      />
+                    )}
+                  />
+                  {Array.isArray(errors.items) &&
+                    errors.items[index]?.product_hscode && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                </Table.Td>
+
+                <Table.Td>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteRow(index)}
+                    className="bg-red-300  hover:bg-red-700 w-8 h-8 rounded-lg"
+                  >
+                    <Lucide
+                      color="#FF5C5C"
+                      icon="Trash"
+                      className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                    ></Lucide>
+                  </button>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table>
+        </form>{" "}
+        {/* ปิด tag <form> */}
       </div>
     );
   };
@@ -297,26 +436,28 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
+              {dataStatus.type == "view" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -334,7 +475,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       name="date_booking"
                       control={control}
                       defaultValue={data?.date_booking}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -360,6 +501,41 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.date_booking}</p>
                 )}
               </div>
+
+              <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  SHIPMENT
+                </label>
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="type_contain"
+                      control={control}
+                      defaultValue={data?.type_contain}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <select
+                          onChange={onChange}
+                          value={value}
+                          className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                          <option value="">กรุณาเลือกข้อมูล</option>
+                          <option value="SEA">SEA</option>
+                          <option value="CLG">CLG</option>
+                          <option value="MG">MG</option>
+                          <option value="LCL">LCL</option>
+                          <option value="AW">AW</option>
+                        </select>
+                      )}
+                    />
+                    {errors.type_contain && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.type_contain}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex">
@@ -373,7 +549,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       name="carbon_total"
                       control={control}
                       defaultValue={data?.carbon_total}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0.0"
@@ -409,8 +585,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     <Controller
                       name="cmb_total"
                       control={control}
-                      defaultValue={dataStatus?.cmb_total}
-                      rules={{ required: true }}
+                      defaultValue={data?.cmb_total}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0.0"
@@ -420,7 +596,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                           type="text"
                           className={`
                                             ${
-                                              errors.booking_date
+                                              errors.cmb_total
                                                 ? "border-red-500"
                                                 : "border-gray-200"
                                             }
@@ -448,8 +624,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     <Controller
                       name="nw_total"
                       control={control}
-                      defaultValue={dataStatus?.nw_total}
-                      rules={{ required: true }}
+                      defaultValue={data?.nw_total}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0.0"
@@ -485,8 +661,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     <Controller
                       name="gw_total"
                       control={control}
-                      defaultValue={dataStatus?.gw_total}
-                      rules={{ required: true }}
+                      defaultValue={data?.gw_total}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0.0"
@@ -521,33 +697,25 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                     สินค้าทั้งหมด
                   </h1>
                 </div>
-                
-                {dataStatus.type !== "view" ? (
-                  <div className="flex-end justify-center mt-1">
-                    <Button
-                      type="button"
-                      onClick={handleAddRow}
-                      className="flex items-center px-4 py-2 space-x-2 bg-[#273A6F]    text-white rounded-lg hover:bg-blue-600"
-                    >
-                      <CirclePlus size={20} />
-                      <span>เพิ่มข้อมูล</span>
-                    </Button>
-                  </div>
-                ):''}
               </div>
-                
+
               {dataStatus.type == "view" && (
-                 <div className="flex mb-5">
-                <TableView></TableView>
+                <div className="flex mb-5">
+                  <TableView></TableView>
                 </div>
               )}
-          
+
               {dataStatus.type == "create" && (
-              <div className="flex mb-5">
-                <TablePlus></TablePlus>
-              </div>
+                <div className="flex mb-5">
+                  <TablePlus></TablePlus>
+                </div>
               )}
-             
+
+              {dataStatus.type == "edit" && (
+                <div className="flex mb-5">
+                  <TableEdit></TableEdit>
+                </div>
+              )}
             </div>
 
             <div className="flex">
@@ -562,7 +730,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปการตรวจตู้
                 </label>
 
-                {dataStatus.type !== "view" ? (
+                {dataStatus.type == "add" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -572,25 +740,35 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       ></UploadImageComponent>
                     </div>
                   </>
+                ) : dataStatus.type == "edit" ? (
+                  <>
+                    <div className="">
+                      <EdituploadComponent
+                        name="cabinet"
+                        setValue={setValue}
+                        image={data.Contain_picture}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "cabinet"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.picture_name?.endsWith(".xlsx") ||
-                          images.picture_name?.endsWith(".xls") ||
-                          images.picture_name?.endsWith(".csv");
-                        const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage =
-                          images.picture_name?.endsWith(".jpg") ||
-                          images.picture_name?.endsWith(".png");
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.picture_path;
+                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                      return res.key === "cabinet";
+                    })?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.picture_name?.endsWith(".xlsx") ||
+                        images.picture_name?.endsWith(".xls") ||
+                        images.picture_name?.endsWith(".csv");
+                      const isPdf = images.picture_name?.endsWith(".pdf");
+                      const isImage =
+                        images.picture_name?.endsWith(".jpg") ||
+                        images.picture_name?.endsWith(".png");
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.picture_path;
 
-                        return(
+                      return (
                         <>
-                       
                           <ViewImageComponent
                             isExcel={isExcel}
                             isPdf={isPdf}
@@ -599,11 +777,10 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                             images={images}
                             index={index}
                           ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                        </>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
 
@@ -612,35 +789,45 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปสินค้า
                 </label>
 
-                {dataStatus.type !== "view" ? (
+                {dataStatus.type == "add" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
-                        name="product"
+                        name="purchase_file"
                         setValue={setValue}
                         control={control}
                       ></UploadImageComponent>
                     </div>
                   </>
+                ) : dataStatus.type == "edit" ? (
+                  <>
+                    <div className="">
+                      <EdituploadComponent
+                        name="purchase_file"
+                        setValue={setValue}
+                        image={data.Contain_picture}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "purchase_file"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.picture_name?.endsWith(".xlsx") ||
-                          images.picture_name?.endsWith(".xls") ||
-                          images.picture_name?.endsWith(".csv");
-                        const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage =
-                          images.picture_name?.endsWith(".jpg") ||
-                          images.picture_name?.endsWith(".png");
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.picture_path;
+                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                      return res.key === "purchase_file";
+                    })?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.picture_name?.endsWith(".xlsx") ||
+                        images.picture_name?.endsWith(".xls") ||
+                        images.picture_name?.endsWith(".csv");
+                      const isPdf = images.picture_name?.endsWith(".pdf");
+                      const isImage =
+                        images.picture_name?.endsWith(".jpg") ||
+                        images.picture_name?.endsWith(".png");
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.picture_path;
 
-                        return(
+                      return (
                         <>
-                       
                           <ViewImageComponent
                             isExcel={isExcel}
                             isPdf={isPdf}
@@ -649,11 +836,10 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                             images={images}
                             index={index}
                           ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                        </>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </div>
@@ -664,7 +850,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปปิดตู้
                 </label>
 
-                {dataStatus.type !== "view" ? (
+                {dataStatus.type == "add" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -674,25 +860,35 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       ></UploadImageComponent>
                     </div>
                   </>
+                ) : dataStatus.type == "edit" ? (
+                  <>
+                    <div className="">
+                      <EdituploadComponent
+                        name="close_cabinet"
+                        setValue={setValue}
+                        image={data.Contain_picture}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "close_cabinet"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.picture_name?.endsWith(".xlsx") ||
-                          images.picture_name?.endsWith(".xls") ||
-                          images.picture_name?.endsWith(".csv");
-                        const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage =
-                          images.picture_name?.endsWith(".jpg") ||
-                          images.picture_name?.endsWith(".png");
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.picture_path;
+                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                      return res.key === "close_cabinet";
+                    })?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.picture_name?.endsWith(".xlsx") ||
+                        images.picture_name?.endsWith(".xls") ||
+                        images.picture_name?.endsWith(".csv");
+                      const isPdf = images.picture_name?.endsWith(".pdf");
+                      const isImage =
+                        images.picture_name?.endsWith(".jpg") ||
+                        images.picture_name?.endsWith(".png");
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.picture_path;
 
-                        return(
+                      return (
                         <>
-                       
                           <ViewImageComponent
                             isExcel={isExcel}
                             isPdf={isPdf}
@@ -701,11 +897,10 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                             images={images}
                             index={index}
                           ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                        </>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
 
@@ -714,7 +909,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปอื่นๆ
                 </label>
 
-                {dataStatus.type !== "view" ? (
+                {dataStatus.type == "add" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -724,25 +919,35 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       ></UploadImageComponent>
                     </div>
                   </>
+                ) : dataStatus.type == "edit" ? (
+                  <>
+                    <div className="">
+                      <EdituploadComponent
+                        name="etc"
+                        setValue={setValue}
+                        image={data.Contain_picture}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter(((res: { key: string; })=>{return res.key === "etc"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.picture_name?.endsWith(".xlsx") ||
-                          images.picture_name?.endsWith(".xls") ||
-                          images.picture_name?.endsWith(".csv");
-                        const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage =
-                          images.picture_name?.endsWith(".jpg") ||
-                          images.picture_name?.endsWith(".png");
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.picture_path;
+                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                      return res.key === "etc";
+                    })?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.picture_name?.endsWith(".xlsx") ||
+                        images.picture_name?.endsWith(".xls") ||
+                        images.picture_name?.endsWith(".csv");
+                      const isPdf = images.picture_name?.endsWith(".pdf");
+                      const isImage =
+                        images.picture_name?.endsWith(".jpg") ||
+                        images.picture_name?.endsWith(".png");
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.picture_path;
 
-                        return(
+                      return (
                         <>
-                       
                           <ViewImageComponent
                             isExcel={isExcel}
                             isPdf={isPdf}
@@ -751,11 +956,10 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                             images={images}
                             index={index}
                           ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                        </>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </div>

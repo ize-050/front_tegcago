@@ -48,13 +48,14 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const fetchData = async (id: any) => {
     try {
       const response: any = await getLeave(id);
+      if(response?.check_price_deposit){
+       setIsChecked(response?.check_price_deposit)
+      }
       setData(response);
     } catch (err: any) {
       console.log("err", err);
     }
   };
-
-
 
   useEffect(() => {
     const checkCreate = dataCspurchase.find((status: any) => {
@@ -84,17 +85,19 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
 
   const onSubmit = async (data: any) => {
     try {
+      data.check_price_deposit =   isChecked;
+
       const formData = {
         ...data,
         d_purchase_id: purchase?.id,
       };
+     
       if (dataStatus.type === "create") {
         const res: any = await createLeave(formData);
         if (res.statusCode === 200) {
@@ -105,7 +108,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-            fetchData(res.id);
+          fetchData(res.id);
         }
       }
     } catch (err: any) {
@@ -314,7 +317,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     </>
                   ) : (
                     <>
-                    <div className="flex  flex-wrap ">
+                      <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_original_fe";
                         })?.map((images: any, index: number) => {
@@ -402,7 +405,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     </>
                   ) : (
                     <>
-                    <div className="flex  flex-wrap ">
+                      <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_surrender";
                         })?.map((images: any, index: number) => {
@@ -490,7 +493,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     </>
                   ) : (
                     <>
-                    <div className="flex  flex-wrap ">
+                      <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_enter_doc";
                         })?.map((images: any, index: number) => {
@@ -578,7 +581,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     </>
                   ) : (
                     <>
-                    <div className="flex  flex-wrap ">
+                      <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_payment_do";
                         })?.map((images: any, index: number) => {
@@ -666,7 +669,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     </>
                   ) : (
                     <>
-                    <div className="flex  flex-wrap ">
+                      <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_amount_payment_do";
                         })?.map((images: any, index: number) => {
@@ -696,11 +699,10 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         })}
                       </div>
                     </>
-                    )}
+                  )}
                 </div>
               </div>
             </div>
-
 
             <div className="flex">
               <div className="w-1/2 p-5 flex">
@@ -712,7 +714,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                   <input
                     type="checkbox"
                     style={{ display: "none" }}
-                    className=" peer"
+                    className="peer"
                     checked={isChecked}
                     onChange={handleCheckboxChange}
                   />
@@ -762,13 +764,10 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         )}
                       </>
                     ) : (
-                      <p>{dataStatus?.booking_date}</p>
+                      <p>{data?.price_deposit}</p>
                     )}
                   </div>
-                 
                 </div>
-
-           
               </>
             )}
 

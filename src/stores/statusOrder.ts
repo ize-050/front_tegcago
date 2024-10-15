@@ -7,7 +7,9 @@ import { icons } from "@/components/Base/Lucide";
 import { tab, TabStatus } from "@/utils/statusOrder"
 
 //service
-import { serviceCreateBookcabinet ,serviceCreateReceive ,serviceCreateContain } from "@/services/statusOrder"
+import { serviceCreateBookcabinet ,serviceCreateReceive ,serviceCreateContain , serviceEditContain , serviceReturncabinet ,
+    serviceeditReturncabinet
+ } from "@/services/statusOrder"
 
 
 interface TapPurchase {
@@ -40,11 +42,47 @@ export const createBookcabinet = createAsyncThunk(
     }
 );
 
+
+
+export const createReturn = createAsyncThunk(
+    "cs_purchase/createReturn",
+    async (action: any, { dispatch, getState }) => {
+        try {
+            const dataRequest = Object.fromEntries(
+                Object.entries(action).filter(([, value]) => value !== undefined)
+              );
+            const response: any = await serviceReturncabinet(dataRequest);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+
+    }
+);
+
+export const editReturn = createAsyncThunk(
+    "cs_purchase/editReturn",
+    async (action: any, { dispatch, getState }) => {
+        try {
+            const dataRequest = Object.fromEntries(
+                Object.entries(action).filter(([, value]) => value !== undefined)
+              );
+            const response: any = await serviceeditReturncabinet(dataRequest);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+);
+
 export const createReceive = createAsyncThunk(
     "cs_purchase/createReceive",
     async (action: any, { dispatch, getState }) => {
         try {
-            let dataRequest = action;
+            const dataRequest = Object.fromEntries(
+                Object.entries(action).filter(([, value]) => value !== undefined)
+              );
+
             const response: any = await serviceCreateReceive(dataRequest);
             return response;
         } catch (error) {
@@ -67,6 +105,27 @@ export const createContain= createAsyncThunk(
     }
 );
 
+
+
+
+export const editContain= createAsyncThunk(
+    "cs_purchase/editContainer",
+    async (action: any, { dispatch, getState }) => {
+        try {
+           
+          // สร้าง object ใหม่เพื่อเก็บค่าที่ไม่ใช่ undefined
+          const dataRequest = Object.fromEntries(
+            Object.entries(action).filter(([, value]) => value !== undefined)
+          );
+          
+
+          const response: any = await serviceEditContain(dataRequest);
+          return response;
+        } catch (error) {
+          throw error;
+        }
+      }
+);
 
 
 

@@ -18,6 +18,22 @@ export const getCspurchase = async (id: any) => {
   });
 };
 
+export const getReturn = async (id: any) => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getReturn/${id}`;
+    await axios
+      .get(url)
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const getBookcabinet = async (id: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getDataBookcabinet/${id}`;
@@ -113,13 +129,94 @@ export const serviceCreateReceive = async (data: any) => {
   });
 };
 
+export const serviceReturncabinet = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    const id = data.d_purchase_id;
+
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createReturn/${id}`;
+
+    const formData = new FormData();
+
+    console.log("dataReturn", data);
+
+    if (data?.file_repair_cabinet.length > 0) {
+      for (let i = 0; i < data?.file_repair_cabinet.length; i++) {
+        formData.append("file_repair_cabinet", data.file_repair_cabinet[i]);
+      }
+      delete data.file_repair_cabinet;
+    }
+
+    if (data?.file_request_document_cabinet.length > 0) {
+      for (let i = 0; i < data.file_request_document_cabinet.length; i++) {
+        formData.append(
+          "file_request_document_cabinet",
+          data.file_request_document_cabinet[i]
+        );
+      }
+      delete data.file_request_document_cabinet;
+    }
+
+    if (data?.file_document_cabinet.length > 0) {
+      for (let i = 0; i < data.file_document_cabinet.length; i++) {
+        formData.append("file_document_cabinet", data.file_document_cabinet[i]);
+      }
+      delete data.file_document_cabinet;
+    }
+
+    if (data?.file_request_deposit_cabinet.length > 0) {
+      for (let i = 0; i < data.file_request_deposit_cabinet.length; i++) {
+        formData.append(
+          "file_request_deposit_cabinet",
+          data.file_request_deposit_cabinet[i]
+        );
+      }
+      delete data.file_request_deposit_cabinet;
+    }
+
+    if (data?.file_price_deposit.length > 0) {
+      for (let i = 0; i < data.file_price_deposit.length; i++) {
+        formData.append("file_price_deposit", data.file_price_deposit[i]);
+      }
+      delete data.file_price_deposit;
+    }
+
+    if (data?.file_return_deposit_cabinet.length > 0) {
+      for (let i = 0; i < data.file_return_deposit_cabinet.length; i++) {
+        formData.append(
+          "file_return_deposit_cabinet",
+          data.file_return_deposit_cabinet[i]
+        );
+      }
+      delete data.file_return_deposit_cabinet;
+    }
+
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+    await axios
+      .post(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const serviceCreateContain = async (data: any) => {
   return new Promise(async (resolve, reject) => {
     const d_purchase_id = data.d_purchase_id;
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createContain/${d_purchase_id}`;
     const formData = new FormData();
 
-    const datas = data;
+    console.log("data", data);
 
     if (data?.cabinet?.length > 0) {
       for (let i = 0; i < data.cabinet.length; i++) {
@@ -128,11 +225,11 @@ export const serviceCreateContain = async (data: any) => {
       delete data.cabinet;
     }
 
-    if (data?.product?.length > 0) {
-      for (let i = 0; i < data.product.length; i++) {
-        formData.append("purchase_file", data.product[i]);
+    if (data?.purchase_file?.length > 0) {
+      for (let i = 0; i < data.purchase_file.length; i++) {
+        formData.append("purchase_file", data.purchase_file[i]);
       }
-      delete data.product;
+      delete data.purchase_file;
     }
 
     if (data?.close_cabinet?.length > 0) {
@@ -174,6 +271,207 @@ export const serviceCreateContain = async (data: any) => {
   });
 };
 
+export const serviceeditReturncabinet = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    console.log("id",data)
+    const id = data.id;
+
+    delete data.id;
+
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editreturn/${id}`;
+
+    const formData = new FormData();
+
+    if (data?.file_repair_cabinet.length > 0) {
+      data.file_repair_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_repair_cabinet",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.file_repair_cabinet;
+    }
+
+    if (data?.file_request_document_cabinet.length > 0) {
+      data.file_request_document_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_request_document_cabinet",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.file_request_document_cabinet;
+    }
+
+    if (data?.file_document_cabinet.length > 0) {
+      data.file_document_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_document_cabinet",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.file_document_cabinet;
+    }
+
+    if (data?.file_request_deposit_cabinet.length > 0) {
+      data.file_request_deposit_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_request_deposit_cabinet",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.file_request_deposit_cabinet;
+    }
+
+    if (data?.file_price_deposit.length > 0) {
+      data.file_price_deposit.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_price_deposit",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.file_price_deposit;
+    }
+
+    if (data?.file_return_deposit_cabinet.length > 0) {
+      data.file_return_deposit_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(
+            "file_return_deposit_cabinet",
+            image.originalFile,
+            image.name
+          );
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+    }
+
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+    await axios
+      .put(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+export const serviceEditContain = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    const id = data.id;
+
+    delete data.id;
+
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editContain/${id}`;
+
+    const formData = new FormData();
+
+    console.log("dataedit", data.cabinet);
+
+    if (data?.cabinet?.length > 0) {
+      data.cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append("cabinet", image.originalFile, image.name);
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.cabinet;
+    }
+
+    if (data?.purchase_file?.length > 0) {
+      data.purchase_file.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append("purchase_file", image.originalFile, image.name);
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.purchase_file;
+    }
+
+    if (data?.close_cabinet?.length > 0) {
+      data.close_cabinet.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append("close_cabinet", image.originalFile, image.name);
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.close_cabinet;
+    }
+
+    if (data?.etc?.length > 0) {
+      data.etc.forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append("etc", image.originalFile, image.name);
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+      delete data.etc;
+    }
+
+    if (data?.items?.length > 0) {
+      formData.append("items", JSON.stringify(data.items));
+      delete data.items;
+    }
+
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+    await axios
+      .put(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const getReceive = async (id: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getDataReceive/${id}`;
@@ -194,6 +492,12 @@ export const createDocumentStatus = async (data: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createDocumentStatus/${data.d_purchase_id}`;
     const formData = new FormData();
+
+    const dataRequest :any = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined)
+    );
+  
+  
     const files: any = {
       document_file_invoice: data?.document_file_invoice,
       document_packinglist: data?.document_packinglist,
@@ -222,8 +526,8 @@ export const createDocumentStatus = async (data: any) => {
         appendFilesToFormData(formData, key, files[key]);
       }
     });
-    Object.keys(data).forEach((key: string) => {
-      formData.append(key, data[key]);
+    Object.keys(dataRequest).forEach((key: string) => {
+      formData.append(key, dataRequest[key]);
     });
 
     await axios
@@ -242,6 +546,78 @@ export const createDocumentStatus = async (data: any) => {
       });
   });
 };
+
+export const editDocumentStatus = async (data:any)=>{
+  return new Promise(async (resolve, reject) => {
+  const dataRequest :any = Object.fromEntries(
+    Object.entries(data).filter(([, value]) => value !== undefined)
+  );
+
+  const files: any = {
+    document_file_invoice: dataRequest?.document_file_invoice,
+    document_packinglist: dataRequest?.document_packinglist,
+    document_file_packing: dataRequest?.document_file_packing,
+    document_FE: dataRequest?.document_FE,
+    document_file_etc: dataRequest?.document_file_etc,
+    document_approve: dataRequest?.document_approve,
+    file_draft_invoice: dataRequest?.file_draft_invoice,
+    document_BL: dataRequest?.document_BL,
+    document_file_master_BL: dataRequest?.document_file_master_BL,
+  };
+  
+  const keysToCheck = [
+    "document_file_invoice",
+    "document_packinglist",
+    "document_file_packing",
+    "document_file_master_BL",
+    "document_FE",
+    "document_file_etc",
+    "document_approve",
+    "file_draft_invoice",
+    "document_BL",
+  ];
+  
+  const formData = new FormData();
+
+  Object.keys(dataRequest).forEach((key: string) => {
+    formData.append(key, dataRequest[key]);
+  });
+  
+  keysToCheck.forEach((key: string) => {
+    if (Array.isArray(files[key]) && files[key].length > 0) {
+      files[key].forEach((image: any) => {
+        if (image.status === "added" || image.status === "edited") {
+          formData.append(key, image.originalFile, image.name);
+        } else if (image.status === "unchanged" && image.id) {
+          formData.append("existingImageIds[]", image.id.toString());
+        }
+      });
+    }
+  });
+
+
+  const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editDocumentStatus/${dataRequest.id}`;
+
+
+
+  await axios
+    .put(url, formData, {
+      headers: {
+        Accept: "multipart/form-data",
+      },
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        resolve(res.data);
+      }
+    })
+    .catch((err) => {
+      reject(err);
+    });
+});
+  
+
+}
 
 export const getDocumentStatus = async (id: any) => {
   return new Promise(async (resolve, reject) => {
@@ -496,72 +872,69 @@ export const getSendsuccess = async (id: any) => {
   });
 };
 
-
-
 export const createLeave = async (data: any) => {
-    return new Promise(async (resolve, reject) => {
-      const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createLeave/${data.d_purchase_id}`;
-      const formData = new FormData();
-      const files: any = {
-        file_hbl: data?.file_hbl,
-        file_original_fe: data?.file_original_fe,
-        file_surrender: data?.file_surrender,
-        file_enter_doc: data?.file_enter_doc,
-        file_payment_do: data?.file_payment_do,
-        file_amount_payment_do: data?.file_amount_payment_do,
-      };
-      [
-        "file_hbl",
-        "file_original_fe",
-        "file_surrender",
-        "file_enter_doc",
-        "file_payment_do",
-        "file_amount_payment_do",
-      ].forEach((key) => delete data[key]);
-  
-      Object.keys(files).forEach((key: string) => {
-        // ตรวจสอบว่า value ของคีย์นั้นเป็น array หรือไม่
-        if (Array.isArray(files[key]) && files[key].length > 0) {
-          appendFilesToFormData(formData, key, files[key]);
-        }
-      });
-      Object.keys(data).forEach((key: string) => {
-        formData.append(key, data[key]);
-      });
-  
-      await axios
-        .post(url, formData, {
-          headers: {
-            Accept: "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            resolve(res.data);
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createLeave/${data.d_purchase_id}`;
+    const formData = new FormData();
+    const files: any = {
+      file_hbl: data?.file_hbl,
+      file_original_fe: data?.file_original_fe,
+      file_surrender: data?.file_surrender,
+      file_enter_doc: data?.file_enter_doc,
+      file_payment_do: data?.file_payment_do,
+      file_amount_payment_do: data?.file_amount_payment_do,
+    };
+    [
+      "file_hbl",
+      "file_original_fe",
+      "file_surrender",
+      "file_enter_doc",
+      "file_payment_do",
+      "file_amount_payment_do",
+    ].forEach((key) => delete data[key]);
+
+    Object.keys(files).forEach((key: string) => {
+      // ตรวจสอบว่า value ของคีย์นั้นเป็น array หรือไม่
+      if (Array.isArray(files[key]) && files[key].length > 0) {
+        appendFilesToFormData(formData, key, files[key]);
+      }
     });
-  };
+    Object.keys(data).forEach((key: string) => {
+      formData.append(key, data[key]);
+    });
+
+    await axios
+      .post(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 export const getLeave = async (id: any) => {
-    return new Promise(async (resolve, reject) => {
-      const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getLeave/${id}`;
-      await axios
-        .get(url)
-        .then((res) => {
-          if (res.status === 200) {
-            resolve(res.data.data);
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  };
-
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getLeave/${id}`;
+    await axios
+      .get(url)
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 const appendFilesToFormData = (
   formData: FormData,
