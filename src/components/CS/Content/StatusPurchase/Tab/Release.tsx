@@ -12,15 +12,19 @@ import Lucide from "@/components/Base/Lucide";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import { setOpenToast } from "@/stores/util";
 
-
 //service
-import { getWaitrelease, CreateWaitrelease } from "@/services/statusOrder";
+import {
+  getWaitrelease,
+  CreateWaitrelease,
+  EditWaitrelease,
+} from "@/services/statusOrder";
 import { View } from "lucide-react";
-import ViewImageComponent from '../Image/ViewImageComponent';
+import ViewImageComponent from "../Image/ViewImageComponent";
+import EditImageComponent from "./Image/EditImageComponent";
 const ReleaseComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
-  const { status ,dataCspurchase } = useAppSelector(statusOrderData);
+  const { status, dataCspurchase } = useAppSelector(statusOrderData);
 
   const {
     handleSubmit,
@@ -36,21 +40,21 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
 
   const dispatch = useAppDispatch();
   const router = useRouter();
-
+  const [releaseId, setReleaseId] = useState<any>(null);
   const [dataStatus, setStatus] = useState<Partial<any>>({
-    type: "view",
+    type: "create",
   });
 
   const [data, setData] = useState<any>({});
 
   const fetchData = async (id: any) => {
     try {
-      const res = await getWaitrelease(id);
+      const res  :any = await getWaitrelease(id);
       setData(res);
     } catch (err: any) {
     } finally {
     }
-  }
+  };
 
   useEffect(() => {
     setStatus(status);
@@ -66,6 +70,8 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "WaitRelease") {
       fetchData(checkCreate.id);
+      setReleaseId(checkCreate.id);
+     
       dispatch(
         setForm({
           id: "7",
@@ -89,36 +95,47 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
   }, [dataCspurchase]);
 
   const onSubmit = async (data: any) => {
-    try{
-        console.log("data", data)
-        const requeset ={
-            ...data,
-            d_purchase_id: purchase?.id
-        }
-     if (dataStatus.type === "create") {
-        const response  :any = await  CreateWaitrelease(requeset)
+    try {
+      console.log("data", data);
+      const requeset = {
+        ...data,
+        d_purchase_id: purchase?.id,
+      };
+      if (dataStatus.type === "create") {
+        const response: any = await CreateWaitrelease(requeset);
         if (response.statusCode == 200) {
-            dispatch(setEditForm("view"));
-            dispatch(
-              setOpenToast({
-                type: "success",
-                message: response.message,
-              })
-            );
-            fetchData(response.id);
-          }
-        }
-    }
-    catch(err){
-        dispatch(
+          dispatch(setEditForm("view"));
+          dispatch(
             setOpenToast({
-              type: "error",
-              message: "เกิดข้อผิดพลาด",
+              type: "success",
+              message: response.message,
             })
           );
-        location.reload();
-    }      
-}
+          fetchData(response.id);
+        }
+      } else if (dataStatus.type === "edit") {
+        const response: any = await EditWaitrelease(requeset);
+        if (response.statusCode == 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: response.message,
+            })
+          );
+          fetchData(response.id);
+        }
+      }
+    } catch (err) {
+      dispatch(
+        setOpenToast({
+          type: "error",
+          message: "เกิดข้อผิดพลาด",
+        })
+      );
+      location.reload();
+    }
+  };
 
   const PurchaseData = useMemo(() => {
     return purchase;
@@ -189,18 +206,11 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="text"
                           className={`
-                                            ${
-                                              data.dem_free_time
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          border-gray-200    px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.dem_free_time && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
+                   
                   </>
                 ) : (
                   <p>{data?.dem_free_time}</p>
@@ -225,19 +235,11 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              data.demurrage_dem_date
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                          className={`border-gray-200
                                             px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.demurrage_dem_date && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.demurrage_dem_date}</p>
@@ -485,7 +487,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="type_car"
                       control={control}
                       defaultValue={data?.type_car}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <select
                           onChange={onChange}
@@ -503,9 +505,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                         </select>
                       )}
                     />
-                    {data.type_car && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
+                 
                   </>
                 ) : (
                   <p>{data?.type_car}</p>
@@ -524,7 +524,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="license_plate"
                       control={control}
                       defaultValue={data?.license_plate}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรอก"
@@ -542,9 +542,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                         />
                       )}
                     />
-                    {data.license_plate && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
+                   
                   </>
                 ) : (
                   <p>{data?.license_plate}</p>
@@ -561,7 +559,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="phone_number"
                       control={control}
                       defaultValue={data?.phone_number}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรอก"
@@ -579,9 +577,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                         />
                       )}
                     />
-                    {data.phone_number && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
+                   
                   </>
                 ) : (
                   <p>{data?.phone_number}</p>
@@ -600,7 +596,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="location_exchange"
                       control={control}
                       defaultValue={data?.location_exchange}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรอก"
@@ -632,44 +628,54 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                     ไฟล์แนบแลกการ์ดรับตู้
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         setValue={setValue}
                         control={control}
                       ></UploadImageComponent>
                     </>
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="files"
+                        control={control}
+                        image={data?.waitrelease_file}
+                      ></EditImageComponent>
+                    </>
                   ) : (
                     <>
-                       <div className="flex  flex-wrap ">
-                      {data?.waitrelease_file?.map((images: any,index:number) => {
-                         const isExcel =
-                         images.file_name?.endsWith(".xlsx") ||
-                         images.file_name?.endsWith(".xls") ||
-                         images.file_name?.endsWith(".csv");
-                       const isPdf = images.file_name?.endsWith(".pdf");
-                       const isImage =
-                         images.file_name?.endsWith(".jpg") ||
-                         images.file_name?.endsWith(".png");
-                       const url =
-                         process.env.NEXT_PUBLIC_URL_API +
-                         images.file_path;
+                      <div className="flex  flex-wrap ">
+                        {data?.waitrelease_file?.map(
+                          (images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                        return (
-                            <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                        );
-                    })}
-                    </div>
+                            return (
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            );
+                          }
+                        )}
+                      </div>
                     </>
-                    
-                    )}  
+                  )}
                 </div>
               </div>
             </div>
@@ -705,3 +711,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
 };
 
 export default ReleaseComponent;
+function setReleaseId(id: any) {
+  throw new Error("Function not implemented.");
+}
+

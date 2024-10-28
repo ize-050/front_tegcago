@@ -704,6 +704,23 @@ export const CreateWaitrelease = async (data: any) => {
   });
 };
 
+export const EditWaitrelease = async (data: any) => {
+  return new Promise(async(resolve, reject) => {
+    const url =  `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editWaitrelease/${data.id}`;
+    const formData = new FormData();
+    await axios
+      .put(url)
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const getWaitrelease = async (id: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getWaitrelease/${id}`;
