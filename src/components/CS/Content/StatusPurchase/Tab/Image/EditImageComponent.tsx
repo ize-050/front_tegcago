@@ -88,7 +88,7 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
           file.type === 'image/jpeg' ||
           file.type === 'image/png' ||
           file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'   
-  
+            
         ) {
   
           let status;

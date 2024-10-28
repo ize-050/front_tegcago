@@ -39,11 +39,6 @@ const initialState: SideMenuState = {
       title: "ข้อมูลลูกค้าที่ดูแล",
     },
     {
-      icon: "Boxes",
-      pathname: "/allcustomer",
-      title: "ลูกค้าในระบบ",
-    },
-    {
       icon: "Proportions",
       pathname: "/report",
       title: "รายงาน",

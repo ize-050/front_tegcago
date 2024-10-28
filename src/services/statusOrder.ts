@@ -706,8 +706,18 @@ export const CreateWaitrelease = async (data: any) => {
 
 export const EditWaitrelease = async (data: any) => {
   return new Promise(async(resolve, reject) => {
-    const url =  `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editWaitrelease/${data.id}`;
+    const url =  `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editWaitRelease/${data.id}`;
     const formData = new FormData();
+
+    if (data.files.length > 0) {
+      for (let i = 0; i < data.files.length; i++) {
+        formData.append("files", data.files[i]);
+      }
+    }
+    delete data.files;
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
     await axios
       .put(url)
       .then((res) => {
@@ -889,7 +899,8 @@ export const getSendsuccess = async (id: any) => {
   });
 };
 
-export const createLeave = async (data: any) => {
+
+export const createLeave = async (data: any):Promise<any> => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createLeave/${data.d_purchase_id}`;
     const formData = new FormData();

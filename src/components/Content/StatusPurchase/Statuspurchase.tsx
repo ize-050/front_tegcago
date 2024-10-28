@@ -19,8 +19,10 @@ import ModalWaitRelease from "@/components/Content/StatusPurchase/Modalstatus/Wa
 import ModalSuccessReleaseComponent from "@/components/Content/StatusPurchase/Modalstatus/SuccessRelease";
 import ModalDestinationComponent from "@/components/Content/StatusPurchase/Modalstatus/Destination";
 import ModalSentAlreadyComponent from "@/components/Content/StatusPurchase/Modalstatus/SentAlready";
+import ModalReturnCabinet from "@/components/Content/StatusPurchase/Modalstatus/ModalReturnCabinet";
 
 import { setDataAll } from "@/stores/statusOrder";
+import purchase from '../../../stores/purchase';
 
 
 
@@ -155,6 +157,13 @@ const Statuspurchase = ({ purchase }: { purchase: any }) => {
           purchase={purchase}
           setModalstatus={setModalstatus}
         ></ModalSentAlreadyComponent>
+      )}
+      {modal ==="return_cabinet" &&(
+        <ModalReturnCabinet
+          purchase={purchase}
+          setModalstatus={setModalstatus}
+        >
+        </ModalReturnCabinet>
       )}
     </Fragment>
   );

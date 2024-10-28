@@ -114,6 +114,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
           fetchData(response.id);
         }
       } else if (dataStatus.type === "edit") {
+        requeset.id = data.id;
         const response: any = await EditWaitrelease(requeset);
         if (response.statusCode == 200) {
           dispatch(setEditForm("view"));
