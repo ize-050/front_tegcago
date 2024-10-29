@@ -411,9 +411,7 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
                           images.picture_name?.endsWith(".xls") ||
                           images.picture_name?.endsWith(".csv");
                         const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage =
-                          images.picture_name?.endsWith(".jpg") ||
-                          images.picture_name?.endsWith(".png");
+                        const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                         const url =
                           process.env.NEXT_PUBLIC_URL_API +
                           "/" +

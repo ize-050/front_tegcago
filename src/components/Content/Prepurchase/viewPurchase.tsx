@@ -172,9 +172,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
                   images.name?.endsWith(".xls") ||
                   images.name?.endsWith(".csv");
                 const isPdf = images.name?.endsWith(".pdf");
-                const isImage =
-                  images.name?.endsWith(".jpg") ||
-                  images.name?.endsWith(".png");
+                const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                 const url = images.url;
                 return (
                   <div

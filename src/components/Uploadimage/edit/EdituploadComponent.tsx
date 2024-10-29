@@ -179,7 +179,7 @@ const EdituploadComponent = ({ setValue, control ,image}: {
                     {previewUrls.map((data, index) => {
                         const isExcel = data.name?.endsWith('.xlsx') || data.name?.endsWith('.xls') || data.name?.endsWith('.csv');
                         const isPdf = data.name?.endsWith('.pdf');
-                        const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png');
+                        const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                         const url = data.url;
 
                         return (

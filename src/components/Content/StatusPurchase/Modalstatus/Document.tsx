@@ -248,9 +248,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png");
+                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
@@ -336,9 +334,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage =
-                              images.file_name?.endsWith(".jpg") ||
-                              images.file_name?.endsWith(".png");
+                            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -424,9 +420,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage =
-                              images.file_name?.endsWith(".jpg") ||
-                              images.file_name?.endsWith(".png");
+                            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -513,9 +507,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage =
-                              images.file_name?.endsWith(".jpg") ||
-                              images.file_name?.endsWith(".png");
+                            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -602,9 +594,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage =
-                              images.file_name?.endsWith(".jpg") ||
-                              images.file_name?.endsWith(".png");
+                            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -691,9 +681,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage =
-                              images.file_name?.endsWith(".jpg") ||
-                              images.file_name?.endsWith(".png");
+                            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -771,9 +759,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                             images.file_name?.endsWith(".xls") ||
                             images.file_name?.endsWith(".csv");
                           const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage =
-                            images.file_name?.endsWith(".jpg") ||
-                            images.file_name?.endsWith(".png");
+                          const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
