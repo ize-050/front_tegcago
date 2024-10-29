@@ -276,45 +276,53 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                                 )}
 
                                 {isExcel && (
-                                    <div>
-                                        <div className="relative w-full h-32  border-2   overflow-hidden">
-                                            <Lucide icon="Sheet" className="absolute top-10 left-6 w-8 h-8 mx-auto text-green-500" />
-                                            <h3 className="text-sm font-semibold mb-2">{data.name}</h3>
-                                            <div
-                                                className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                                <span className="text-white text-lg font-medium">Excel</span>
-                                            </div>
-                                            <div className="absolute bottom-1 right-0 flex gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => DeleteImage(index)}
-                                                    className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg "
-                                                >
-                                                    <Lucide
-                                                        color="#6C9AB5"
-                                                        icon="Trash"
-                                                        className="w-5 h-5 m-auto"
-                                                    />
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        window.open(data.url);
-                                                    }}
-                                                    type="button"
-                                                    className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                                >
-                                                    <Lucide
-                                                        color="#6C9AB5"
-                                                        icon="Eye"
-                                                        className="w-5 h-5 m-auto"
-                                                    />
-                                                </button>
-                                            </div>
-
-                                        </div>
-
-
-                                    </div>
+                                     <div>
+                                     <div className="relative w-full h-32 border-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                                       <div className="absolute inset-0 flex items-center justify-center">
+                                         <img
+                                           src="/excel-dowload.png"
+                                           alt="excel"
+                                           className="w-10 h-10 m-auto"
+                                         />
+                                       </div>
+                                       <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-70 transition-opacity duration-300 flex items-center justify-center">
+                                         <p className="text-center text-white text-sm font-medium">
+                                           {data.name}
+                                         </p>
+                                       </div>
+                 
+                                       <div className="absolute bottom-2 right-2 flex gap-2">
+                                         <button
+                                           type="button"
+                                           onClick={() => DeleteImage(index)}
+                                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg "
+                                         >
+                                           <Lucide
+                                             color="#6C9AB5"
+                                             icon="Trash"
+                                             className="w-5 h-5 m-auto"
+                                           />
+                                         </button>
+                                         <a
+                                           href={data.url}
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                                         >
+                                           <Lucide
+                                             color="#6C9AB5"
+                                             icon="Download"
+                                             className="w-5 h-5"
+                                           />
+                                         </a>
+                                       </div>
+                                       <div className="absolute bottom-2 left-2">
+                                         {/* <h3 className="text-sm font-semibold text-gray-800">
+                                           {data.name}
+                                         </h3> */}
+                                       </div>
+                                     </div>
+                                   </div>
 
                                 )}
 
