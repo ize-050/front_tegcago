@@ -192,7 +192,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
                           name="shipping"
                           control={control}
                           defaultValue={data?.shipping}
-                          rules={{ required: true }}
+                          rules={{ required: false }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <input
                               placeholder="กรอก"
@@ -228,7 +228,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
                           name="date_release"
                           control={control}
                           defaultValue={data?.date_release}
-                          rules={{ required: true }}
+                          rules={{ required: false }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <input
                               placeholder="กรอก"
@@ -267,7 +267,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
                           name="date_do"
                           control={control}
                           defaultValue={data?.date_do}
-                          rules={{ required: true }}
+                          rules={{ required: false }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <input
                               placeholder="กรุณากรอกข้อมูล"
