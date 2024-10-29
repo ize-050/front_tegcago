@@ -155,7 +155,7 @@ const CsViewPrePurchase = () => {
                   images.name?.endsWith(".xls") ||
                   images.name?.endsWith(".csv");
                 const isPdf = images.name?.endsWith(".pdf");
-                const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
+                const isImage = images.name?.endsWith('.jpg') || images.name?.endsWith('.png') || images.name?.endsWith('.jpeg') || images.name?.endsWith('.webp');;
                 const url = images.url;
                 return (
                   <Fragment key={index}>

@@ -390,7 +390,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');;
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
@@ -489,7 +489,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
@@ -618,7 +618,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
@@ -706,19 +706,18 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                         <div className="flex  flex-wrap ">
                           {data?.cs_return_cabinet_file
                             ?.filter((res: { key: string }) => {
-                              return res.key === "file_request_deposit_cabinet";
+                              return res.key == "file_request_deposit_cabinet";
                             })
                             ?.map((images: any, index: number) => {
-                              console.log("images", images);
+                              console.log("imagesSlip", images);
                               const isExcel =
                                 images.file_name?.endsWith(".xlsx") ||
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                                process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
                               return (
                                 <>
@@ -842,7 +841,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
@@ -939,7 +938,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                                 images.file_name?.endsWith(".xls") ||
                                 images.file_name?.endsWith(".csv");
                               const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+                              const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                               const url =
                                 process.env.NEXT_PUBLIC_URL_API +
                                 images.file_path;
