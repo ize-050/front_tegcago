@@ -20,7 +20,7 @@ import {
 } from "@/services/statusOrder";
 import { View } from "lucide-react";
 import ViewImageComponent from "../Image/ViewImageComponent";
-import EditImageComponent from "./Image/EditImageComponent";
+import EditImageComponent from "./Image/EditImageNotkeyComponent";
 const ReleaseComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
@@ -94,11 +94,11 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
-      console.log("data", data);
-      const requeset = {
-        ...data,
+      console.log("data", dataForm);
+      let requeset = {
+        ...dataForm,
         d_purchase_id: purchase?.id,
       };
       if (dataStatus.type === "create") {
@@ -124,17 +124,17 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(response.id);
+          fetchData(releaseId);
         }
       }
     } catch (err) {
       dispatch(
         setOpenToast({
           type: "error",
-          message: "เกิดข้อผิดพลาด",
+          message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
-      location.reload();
+      // location.reload();
     }
   };
 
@@ -161,27 +161,29 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            </div>
+              {dataStatus.type !== "edit" && dataStatus.type !== "create" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              )}
+              </div>
           </div>
         </div>
 
@@ -198,7 +200,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="dem_free_time"
                       control={control}
                       defaultValue={data?.dem_free_time}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0 Days"
@@ -228,7 +230,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="demurrage_dem_date"
                       control={control}
                       defaultValue={data?.demurrage_dem_date}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="เลือก"
@@ -259,7 +261,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="det_free_time"
                       control={control}
                       defaultValue={data?.det_free_time}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0 Days"
@@ -296,7 +298,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="detention_det_date"
                       control={control}
                       defaultValue={data?.detention_det_date}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="เลือก"
@@ -336,7 +338,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="terminal_release"
                       control={control}
                       defaultValue={data?.terminal_release}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -362,6 +364,44 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.terminal_release}</p>
                 )}
               </div>
+
+              <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  สถานที่แลก D/0
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="location_do"
+                      control={control}
+                      defaultValue={data?.location_exchange}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรุณากรอกข้อมูล"
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          type="text"
+                          className={`
+                                            ${
+                                              errors.location_exchange
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                    {errors.location_exchange && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.location_exchange}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex">
@@ -375,7 +415,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_planing"
                       control={control}
                       defaultValue={data?.date_planing}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0 Days"
@@ -412,7 +452,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_receive"
                       control={control}
                       defaultValue={data?.date_receive}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="เลือก"
@@ -451,7 +491,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="company_car"
                       control={control}
                       defaultValue={data?.company_car}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="เลือก"
@@ -530,16 +570,10 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                         <input
                           placeholder="กรอก"
                           value={value}
-                          onBlur={onBlur}
+                        
                           onChange={onChange}
                           type="text"
-                          className={`
-                                        ${
-                                          data.license_plate
-                                            ? "border-red-500"
-                                            : "border-gray-200"
-                                        }
-                                        px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
@@ -565,16 +599,10 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                         <input
                           placeholder="กรอก"
                           value={value}
-                          onBlur={onBlur}
+
                           onChange={onChange}
                           type="text"
-                          className={`
-                                        ${
-                                          data.phone_number
-                                            ? "border-red-500"
-                                            : "border-gray-200"
-                                        }
-                                        px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
@@ -589,7 +617,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
             <div className="flex">
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                  สถานที่แลกการ์ดรับตู้
+                  สถานที่เก็บการ์ด
                 </label>
                 {dataStatus.type !== "view" ? (
                   <>
@@ -605,19 +633,10 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="text"
-                          className={`
-                                            ${
-                                              data.location_exchange
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.location_exchange && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.location_exchange}</p>

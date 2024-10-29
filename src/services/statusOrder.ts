@@ -656,6 +656,26 @@ export const CreateDeparture = async (data: any) => {
   });
 };
 
+export const UpdateDeparture = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateDeparture/${data.id}`;
+    await axios
+      .put(url, data, {
+        headers: {
+          Application: "application/json",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const getDeparture = async (id: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getDeparture/${id}`;
@@ -710,19 +730,35 @@ export const EditWaitrelease = async (data: any) => {
     const formData = new FormData();
 
     if (data.files.length > 0) {
-      for (let i = 0; i < data.files.length; i++) {
-        formData.append("files", data.files[i]);
+    
+          data.files.forEach((image: any) => {
+            if (image.status === "added" || image.status === "edited") {
+              formData.append('files', image.originalFile, image.name);
+            } else if (image.status === "unchanged" && image.id) {
+              formData.append("existingImageIds[]", image.id.toString());
+            }
+          });
+
+    }
+
+    delete data.files;
+
+
+
+    for (const key in data) {
+      if (data[key] !== undefined) {
+        formData.append(key, data[key]);
       }
     }
-    delete data.files;
-    for (const key in data) {
-      formData.append(key, data[key]);
-    }
     await axios
-      .put(url)
+      .put(url,formData,{
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
       .then((res) => {
         if (res.status === 200) {
-          resolve(res.data.data);
+          resolve(res.data);
         }
       })
       .catch((err) => {
@@ -945,6 +981,71 @@ export const createLeave = async (data: any):Promise<any> => {
       .catch((err) => {
         reject(err);
       });
+  });
+};
+
+
+export const editLeave = async (data: any):Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/editLeave/${data.id}`;
+    const formData = new FormData();
+
+    const dataRequest :any = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined)
+    );
+  
+    const files: any = {
+      file_hbl: dataRequest?.file_hbl,
+      file_original_fe: dataRequest?.file_original_fe,
+      file_surrender: dataRequest?.file_surrender,
+      file_enter_doc: dataRequest?.file_enter_doc,
+      file_payment_do: dataRequest?.file_payment_do,
+      file_amount_payment_do: dataRequest?.file_amount_payment_do,
+    };
+
+  
+    const keysToCheck = [
+      "file_hbl",
+      "file_original_fe",
+      "file_surrender",
+      "file_enter_doc",
+      "file_payment_do",
+      "file_amount_payment_do",
+    ];
+
+  
+    Object.keys(dataRequest).forEach((key: string) => {
+      formData.append(key, dataRequest[key]);
+    });
+    
+    keysToCheck.forEach((key: string) => {
+      if (Array.isArray(files[key]) && files[key].length > 0) {
+        files[key].forEach((image: any) => {
+          if (image.status === "added" || image.status === "edited") {
+            formData.append(key, image.originalFile, image.name);
+          } else if (image.status === "unchanged" && image.id) {
+            formData.append("existingImageIds[]", image.id.toString());
+          }
+        });
+      }
+    });
+
+    await axios
+    .put(url, formData, {
+      headers: {
+        Accept: "multipart/form-data",
+      },
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        resolve(res.data);
+      }
+    })
+    .catch((err) => {
+      reject(err);
+    });
+
+
   });
 };
 

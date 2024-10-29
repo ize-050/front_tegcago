@@ -67,7 +67,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
       dispatch(
         setForm({
           id: "8",
-          tabName: "ปล่อยตรวจเรียบร้อย",
+          tabName: "ตรวจปล่อยเรียบร้อย",
           tabKey: "Released",
           active: true,
           type: "view",
@@ -77,7 +77,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
       dispatch(
         setForm({
           id: "8",
-          tabName: "ปล่อยตรวจเรียบร้อย",
+          tabName: "ตรวจปล่อยเรียบร้อย",
           tabKey: "Released",
           active: true,
           type: "create",
@@ -140,7 +140,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
           <div className="flex bg-gray-50">
             <div className=" flex-1 w-50  px-5  rounded-md">
               <h1 className="mb-5  text-1xl font-semibold">
-                รายละเอียดการปล่อยตรวจเรียบร้อย
+                รายละเอียดการตรวจปล่อยเรียบร้อย
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">

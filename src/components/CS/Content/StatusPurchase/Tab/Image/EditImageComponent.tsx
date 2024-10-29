@@ -45,7 +45,8 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
   
     useEffect(() => {
       if (image) {
-        const newFiles = image.filter(res=>res.key===name).map((file: any) => {
+        console.log("image",image)
+        let newFiles = image.filter(res=>res.key===name).map((file: any) => {
           if (file instanceof File) {
             return {
               url: URL.createObjectURL(file),
@@ -63,6 +64,10 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
             } as FileData;
           }
         });
+
+        
+
+
   
         setPreviewUrls(newFiles);
         setFiles(newFiles);
@@ -88,7 +93,7 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
           file.type === 'image/jpeg' ||
           file.type === 'image/png' ||
           file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'   
-            
+  
         ) {
   
           let status;

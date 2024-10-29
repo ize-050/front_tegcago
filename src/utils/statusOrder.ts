@@ -60,7 +60,7 @@ export const tab : TabStatus[] = [
         },
         {
             id: "8",
-            tabName: "ปล่อยตรวจเรียบร้อย",
+            tabName: "ตรวจปล่อยเรียบร้อย",
             tabKey: "SuccessRelease",
             active :false,
             type:"view"

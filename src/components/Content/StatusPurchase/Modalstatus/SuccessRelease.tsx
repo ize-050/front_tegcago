@@ -75,7 +75,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
       dispatch(
         setForm({
           id: "8",
-          tabName: "ปล่อยตรวจเรียบร้อย",
+          tabName: "ตรวจปล่อยเรียบร้อย",
           tabKey: "Released",
           active: true,
           type: "view",
@@ -85,7 +85,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
       dispatch(
         setForm({
           id: "8",
-          tabName: "ปล่อยตรวจเรียบร้อย",
+          tabName: "ตรวจปล่อยเรียบร้อย",
           tabKey: "Released",
           active: true,
           type: "create",
@@ -143,14 +143,14 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
 
   return (
     <Fragment>
-      รายละเอียดการปล่อยตรวจเรียบร้อย
+      รายละเอียดการตรวจปล่อยเรียบร้อย
       <div className="modal-overlay"></div>
       <div className="text-black justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
         <div className="relative w-full my-6 mx-auto max-w-2xl">
           <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
             <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                รายละเอียดการปล่อยตรวจเรียบร้อย
+                รายละเอียดการตรวจปล่อยเรียบร้อย
               </h3>
               <button
                 type="button"
@@ -176,7 +176,7 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
                   />
                 </svg>
                 <span className="sr-only">Close modal</span>
-              </button>
+              </button> 
             </div>
 
             <FormProvider {...methods}>

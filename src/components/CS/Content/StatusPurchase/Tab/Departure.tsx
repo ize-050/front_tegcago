@@ -9,16 +9,20 @@ import { useRouter } from "next/navigation";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Button } from "@headlessui/react";
 import Lucide from "@/components/Base/Lucide";
-import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
+
 import { setOpenToast } from "@/stores/util";
-import { createLeave, getLeave } from "@/services/statusOrder";
+import { createLeave, editLeave, getLeave } from "@/services/statusOrder";
 import ViewImageComponent from "../Image/ViewImageComponent";
+
+import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
+import EditImageComponent from '@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent'
 
 const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
   const [isChecked, setIsChecked] = useState(false);
+  const [departureId, setDepartureId] = useState<any>({});
 
   const {
     handleSubmit,
@@ -36,7 +40,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const router = useRouter();
 
   const [dataStatus, setStatus] = useState<Partial<any>>({
-    type: "view",
+    type: "create",
   });
 
   const [data, setData] = useState<any>({});
@@ -63,6 +67,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Leave") {
       fetchData(checkCreate.id);
+      setDepartureId(checkCreate.id)
       dispatch(
         setForm({
           id: "6",
@@ -89,12 +94,12 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
     setIsChecked(!isChecked);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
-      data.check_price_deposit =   isChecked;
+      dataForm.check_price_deposit =   isChecked;
 
-      const formData = {
-        ...data,
+      let formData = {
+        ...dataForm,
         d_purchase_id: purchase?.id,
       };
      
@@ -109,6 +114,21 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
             })
           );
           fetchData(res.id);
+        }
+      }
+      else if(dataStatus.type === "edit"){
+        let id = departureId
+        formData.id = data.id
+        const res: any = await editLeave(formData);
+        if (res.statusCode === 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: res.message,
+            })
+          );
+          fetchData(id);
         }
       }
     } catch (err: any) {
@@ -150,27 +170,29 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            </div>
+              {dataStatus.type !== "edit" && dataStatus.type !== "create" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              )}
+              </div>
           </div>
         </div>
 
@@ -187,7 +209,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="date_hbl"
                       control={control}
                       defaultValue={data?.date_hbl}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -219,7 +241,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร H B/L
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_hbl"
@@ -227,7 +249,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="file_hbl"
+                         control={control}
+                         image={data?.Leavefile}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -275,7 +308,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="date_original_fe"
                       control={control}
                       defaultValue={data?.date_original_fe}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -307,7 +340,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Original F/E *
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_original_fe"
@@ -315,7 +348,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                   ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="file_original_fe"
+                         control={control}
+                         image={data?.Leavefile}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -363,7 +407,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="date_surrender"
                       control={control}
                       defaultValue={data?.date_surrender}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -395,7 +439,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Surrender *
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_surrender"
@@ -403,7 +447,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="file_surrender"
+                         control={control}
+                         image={data?.Leavefile}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -451,7 +506,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="date_enter_doc"
                       control={control}
                       defaultValue={data?.date_enter_doc}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -483,7 +538,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Enter Doc
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_enter_doc"
@@ -491,7 +546,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="file_enter_doc"
+                         control={control}
+                         image={data?.Leavefile}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -539,7 +605,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="date_payment_do"
                       control={control}
                       defaultValue={data?.date_payment_do}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -547,19 +613,10 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              data.date_payment_do
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200  px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.date_payment_do && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.date_payment_do}</p>
@@ -571,7 +628,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     อัพโหลดเอกสาร Payment D/O *
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_payment_do"
@@ -579,7 +636,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                  ) : dataStatus.type == "edit"? (
+                    <>
+                     <EditImageComponent
+                         setValue={setValue}
+                         name="file_payment_do"
+                         control={control}
+                         image={data?.Leavefile}
+                       ></EditImageComponent>
+
+                       
+                    </>
+                   ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -627,7 +695,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                       name="amount_payment_do"
                       control={control}
                       defaultValue={data?.amount_payment_do}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="0.00"
@@ -635,19 +703,11 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="text"
-                          className={`
-                                            ${
-                                              errors.amount_payment_do
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {errors.amount_payment_do && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
+
                   </>
                 ) : (
                   <p>{data?.amount_payment_do}</p>
@@ -659,7 +719,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     ไฟล์แนบสลิป
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_amount_payment_do"
@@ -667,7 +727,18 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : (
+                 ) : dataStatus.type == "edit"? (
+                  <>
+                   <EditImageComponent
+                       setValue={setValue}
+                       name="file_amount_payment_do"
+                       control={control}
+                       image={data?.Leavefile}
+                     ></EditImageComponent>
+
+                     
+                  </>
+                 ) : (
                     <>
                       <div className="flex  flex-wrap ">
                         {data?.Leavefile?.filter((res: { key: string }) => {
@@ -741,7 +812,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           name="price_deposit"
                           control={control}
                           defaultValue={dataStatus?.booking_date}
-                          rules={{ required: true }}
+                          rules={{ required: false }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <input
                               placeholder="กรุณากรอกข้อมูล"
