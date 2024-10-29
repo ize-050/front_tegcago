@@ -2,11 +2,13 @@
 const nextConfig = {
     reactStrictMode: false,
     images: {
-        domains: ['example.com','localhost',"https://api-cs2.tegcargo.com","http://api-cs2.tegcargo.com","api-cs2.tegcargo.com"], 
+        domains: ['example.com','localhost',"https://api-cs2.tegcargo.com","http://api-cs2.tegcargo.com","api-cs2.tegcargo.com",
+          'api-cs.teglogistics.co.th','https://api-cs.teglogistics.co.th','http://api-cs.teglogistics.co.th'
+        ], 
       },
 
     env:{
-      URl_DOMAIN: "http://localhost:3003",
+      URl_DOMAIN: process.env.NEXTAUTH_URL || 'http://localhost:3003',
     }
 };
 
