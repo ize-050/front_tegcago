@@ -285,6 +285,8 @@ function Purchase() {
               <option value="Cs เสนอราคา">Cs เสนอราคา</option>
               <option value="อยู่ระหว่างทำ Financial">อยู่ระหว่างทำ Financial</option>
               <option value="ปิดการขาย">ปิดการขาย</option>
+              <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
+              <option value="ลูกค้าเครดิต">ลูกค้าเครดิต</option>
             </select>
             
           </div>
