@@ -15,14 +15,18 @@ import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Ima
 import {
   createSuccessRelease,
   getSuccessRelease,
+  updateSuccessRelease,
 } from "@/services/statusOrder";
 import { setOpenToast } from "@/stores/util";
 import ViewImageComponent from "../Image/ViewImageComponent";
+import EditImageComponent from "./Image/EditImageComponent";
 
 const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successReleaseId, setSuccessReleaseId] = useState<string>();
 
   const {
     handleSubmit,
@@ -40,7 +44,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
   const router = useRouter();
 
   const [dataStatus, setStatus] = useState<Partial<any>>({
-    type: "view",
+    type: "create",
   });
 
   const [data, setData] = useState<any>({});
@@ -64,6 +68,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Released") {
       fetchData(checkCreate.id);
+      setSuccessReleaseId(checkCreate.id);
       dispatch(
         setForm({
           id: "8",
@@ -86,24 +91,40 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
-      const formData = {
-        ...data,
+      let formData = {
+        ...dataForm,
         d_purchase_id: purchase?.id,
       };
-      //   if (dataStatus.type === "create") {
-      const response: any = await createSuccessRelease(formData);
-      if (response.statusCode == 200) {
-        dispatch(setEditForm("view"));
-        dispatch(
-          setOpenToast({
-            type: "success",
-            message: response.message,
-          })
-        );
-        fetchData(response.id);
+      if (dataStatus.type === "create") {
+        const response: any = await createSuccessRelease(formData);
+        if (response.statusCode == 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: response.message,
+            })
+          );
+          fetchData(response.id);
+        }
+      } else if (dataStatus.type === "edit") {
+        let id = successReleaseId;
+        formData.id = data.id;
+        const response: any = await updateSuccessRelease(formData);
+        if (response.statusCode == 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: response.message,
+            })
+          );
+          await fetchData(id);
+        }
       }
+
       //   }
     } catch (err: any) {
       console.log("err", err);
@@ -113,13 +134,9 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
           message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
-      location.reload();
+      //location.reload();
     }
   };
-
-  useEffect(() => {
-    console.log("purchasesss", purchase);
-  }, [purchase]);
 
   const PurchaseData = useMemo(() => {
     return purchase;
@@ -143,28 +160,30 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                 รายละเอียดการตรวจปล่อยเรียบร้อย
               </h1>
             </div>
-            <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            </div>
+            {dataStatus.type == "view" && (
+              <div className="flex-end justify-center mt-1">
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -181,7 +200,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="shipping"
                       control={control}
                       defaultValue={data?.shipping}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรอก"
@@ -189,19 +208,10 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="text"
-                          className={`
-                                            ${
-                                              errors.shipping
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {errors.shipping && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.shipping}</p>
@@ -217,7 +227,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_release"
                       control={control}
                       defaultValue={data?.date_release}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรอก"
@@ -225,19 +235,10 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              errors.date_release
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {errors.date_release && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.date_release}</p>
@@ -256,7 +257,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_do"
                       control={control}
                       defaultValue={data?.date_do}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -264,19 +265,10 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              data.date_do
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.date_do && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.date_do}</p>
@@ -287,13 +279,22 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                     ไฟล์แนบแลก D/0
                   </label>
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_do"
                         setValue={setValue}
                         control={control}
                       ></UploadImageComponent>
+                    </>
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_do"
+                        control={control}
+                        image={data?.cs_inspection_file}
+                      ></EditImageComponent>
                     </>
                   ) : (
                     <>
@@ -308,7 +309,11 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                               images.file_name?.endsWith(".xls") ||
                               images.file_name?.endsWith(".csv");
                             const isPdf = images.file_name?.endsWith(".pdf");
-                            const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
                             const url =
                               process.env.NEXT_PUBLIC_URL_API +
                               images.file_path;
@@ -344,7 +349,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_card"
                       control={control}
                       defaultValue={data?.date_card}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -352,19 +357,10 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              data.date_card
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.date_card && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.date_card}</p>
@@ -384,6 +380,15 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_card"
+                        control={control}
+                        image={data?.cs_inspection_file}
+                      ></EditImageComponent>
+                    </>
                   ) : (
                     <div className="flex  flex-wrap ">
                       {data?.cs_inspection_file
@@ -396,7 +401,11 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                             images.file_name?.endsWith(".xls") ||
                             images.file_name?.endsWith(".csv");
                           const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
@@ -430,7 +439,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       name="date_return_document"
                       control={control}
                       defaultValue={data?.date_return_document}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -438,19 +447,10 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                           onBlur={onBlur}
                           onChange={onChange}
                           type="date"
-                          className={`
-                                            ${
-                                              data.date_return_document
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
-                                            px-4 py-2 outline-none rounded-md w-full`}
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
                     />
-                    {data.date_return_document && (
-                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
-                    )}
                   </>
                 ) : (
                   <p>{data?.date_return_document}</p>
@@ -470,6 +470,15 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_return_document"
+                        control={control}
+                        image={data?.cs_inspection_file}
+                      ></EditImageComponent>
+                    </>
                   ) : (
                     <div className="flex  flex-wrap ">
                       {data?.cs_inspection_file
@@ -482,7 +491,11 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                             images.file_name?.endsWith(".xls") ||
                             images.file_name?.endsWith(".csv");
                           const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
 

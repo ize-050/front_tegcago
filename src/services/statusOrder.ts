@@ -78,7 +78,9 @@ export const serviceCreateBookcabinet = async (data: any) => {
     }
     delete data.files;
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .post(url, formData, {
@@ -110,7 +112,9 @@ export const serviceCreateReceive = async (data: any) => {
     }
     delete data.files;
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .post(url, formData, {
@@ -191,7 +195,9 @@ export const serviceReturncabinet = async (data: any) => {
     }
 
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .post(url, formData, {
@@ -252,7 +258,9 @@ export const serviceCreateContain = async (data: any) => {
     }
 
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .post(url, formData, {
@@ -372,7 +380,9 @@ export const serviceeditReturncabinet = async (data: any) => {
     }
 
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .put(url, formData, {
@@ -453,7 +463,9 @@ export const serviceEditContain = async (data: any) => {
     }
 
     for (const key in data) {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .put(url, formData, {
@@ -803,11 +815,75 @@ export const createSuccessRelease = async (data: any) => {
       }
     });
     Object.keys(data).forEach((key: string) => {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
     });
 
     await axios
       .post(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+
+export const updateSuccessRelease = async (data: any) => {
+
+  return new Promise(async (resolve, reject) => {
+    const formData = new FormData();
+    const files: any = {
+      file_do: data?.file_do,
+      file_card: data?.file_card,
+      file_return_document: data?.file_return_document,
+    };
+    ["file_do", "file_card", "file_return_document"].forEach(
+      (key) => delete data[key]
+    );
+
+    const keysToCheck = [
+      "file_do",
+      "file_card",
+      "file_return_document",
+    ];
+
+    keysToCheck.forEach((key: string) => {
+      if (Array.isArray(files[key]) && files[key].length > 0) {
+        files[key].forEach((image: any) => {
+          if (image.status === "added" || image.status === "edited") {
+            formData.append(key, image.originalFile, image.name);
+          } else if (image.status === "unchanged" && image.id) {
+            formData.append("existingImageIds[]", image.id.toString());
+          }
+        });
+      }
+    });
+    Object.keys(files).forEach((key: string) => {
+      if (Array.isArray(files[key]) && files[key].length > 0) {
+        appendFilesToFormData(formData, key, files[key]);
+      }
+    });
+
+    delete data.files;
+
+    for (const key in data) {
+      if (data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    }
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateSuccessRelease/${data.id}`;
+    await axios 
+      .put(url,formData,{
         headers: {
           Accept: "multipart/form-data",
         },
@@ -964,7 +1040,9 @@ export const createLeave = async (data: any):Promise<any> => {
       }
     });
     Object.keys(data).forEach((key: string) => {
-      formData.append(key, data[key]);
+      if (data[key] !== undefined) {  
+        formData.append(key, data[key]);
+      }
     });
 
     await axios
@@ -1015,7 +1093,9 @@ export const editLeave = async (data: any):Promise<any> => {
 
   
     Object.keys(dataRequest).forEach((key: string) => {
-      formData.append(key, dataRequest[key]);
+      if (data[key] !== undefined) {  
+        formData.append(key, data[key]);
+      }
     });
     
     keysToCheck.forEach((key: string) => {

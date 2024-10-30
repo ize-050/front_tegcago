@@ -708,7 +708,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                      วันที่ Master B/L
+                    เอกสารอื่นๆ
                     </label>
                     {dataStatus.type !== "view" ? (
                       <>

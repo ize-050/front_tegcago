@@ -188,6 +188,7 @@ const PaymentComponent = ({
                   <option value="">เลือก</option>
                   <option value="ปิดการขาย">ปิดการขาย</option>
                   <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
+                  <option value="ลูกค้าเครดิต">ลูกค้าเครดิต</option>
                 </select>
               </>
             )} />

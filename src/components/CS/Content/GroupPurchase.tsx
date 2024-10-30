@@ -30,7 +30,7 @@ import ModalwatchDocument from "./Modal/ModalwatchDocument";
 import CsPurchaseComponent from "@/components/CS/Content/Purchase/purchase";
 import Button from "@/components/Base/Button";
 import Lucide from "@/components/Base/Lucide";
-import ApprovePurchase from "@/components/Content/ApprovePurchase/ApproveComponent";
+import ApprovePurchase from "@/components/CS/Content/ApprovePurchase/ApproveComponent";
 import StatusPurchase from "@/components/CS/Content/StatusPurchase/StatusPurchase";
 import GroupTab from "@/components/CS/Content/StatusPurchase/Grouptab";
 

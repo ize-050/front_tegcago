@@ -23,6 +23,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
   const [isChecked, setIsChecked] = useState(false);
   const [departureId, setDepartureId] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     handleSubmit,
@@ -95,6 +96,8 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   };
 
   const onSubmit = async (dataForm: any) => {
+    if (isLoading) return; 
+    setIsLoading(true);
     try {
       dataForm.check_price_deposit =   isChecked;
 
@@ -128,7 +131,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-          fetchData(id);
+        await  fetchData(id);
         }
       }
     } catch (err: any) {
@@ -140,6 +143,9 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
       );
       //location.reload();
       //dispatch(setEditForm("view"));
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -847,6 +853,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                 <button
                   className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 "
                   type="submit"
+                  disabled={isLoading}
                   // onClick={() => setShowModal(false)}
                 >
                   บันทึก
