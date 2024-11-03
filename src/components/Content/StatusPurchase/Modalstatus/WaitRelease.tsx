@@ -142,10 +142,10 @@ const ReleaseComponent: React.FC<ModalReceiveProps> = ({
   return (
     <Fragment>
       <div className="modal-overlay"></div>
-      <div className="text-black justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+      <div className="text-black pt-16 justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
         <div className="relative w-full my-6 mx-auto max-w-2xl">
-        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+          <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               รายละเอียด การตรวจปล่อย
             </h3>
@@ -680,6 +680,23 @@ const ReleaseComponent: React.FC<ModalReceiveProps> = ({
               </div>
             </form>
           </FormProvider>
+
+          <div className="flex items-center justify-end  rounded-b">
+                  <button
+                    style={{
+                      border: "1px solid #417CA0",
+                      color: "#305D79",
+                      marginRight: "10px",
+                    }}
+                    className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => {
+                      setModalstatus("");
+                    }}
+                  >
+                    ปิด
+                  </button>
+                </div>
           </div>
         </div>
       </div>

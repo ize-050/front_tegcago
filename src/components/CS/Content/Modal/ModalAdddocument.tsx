@@ -20,7 +20,8 @@ const ModalAdddocument = () => {
   const dispatch = useAppDispatch()
   const { purchase, document } = useAppSelector(purchaseData);
   const [document_type, setDocument_type] = useState<any[]>([])
-
+  const [etc, setEtc] = useState<boolean>(false)
+  const [inputEtc, setInputEtc] = useState<string>("")
   const { handleSubmit, control, reset, formState: { errors } } = useForm({
     defaultValues: {
       d_num_date: "",
@@ -38,11 +39,27 @@ const ModalAdddocument = () => {
     let document = document_type
     if(document.includes(data)){
       document = document.filter(item => item.key !== data.key)
+
+      if(data.key === "document_etc"){
+        setEtc(false)
+        setInputEtc("")
+      }
+      
       setDocument_type(document)
     }
     else{
       setDocument_type([...document_type, data])
+
+    if(data.key === "document_etc"){
+      setEtc(true)
     }
+    }
+
+
+
+    
+   
+  
 
   }
 
@@ -54,7 +71,8 @@ const ModalAdddocument = () => {
       d_purchase_id :purchase.id,
       d_num_date: data.d_num_date,
       d_end_date: data.d_end_date,
-      document_type: document_type
+      document_type: document_type,
+      input_etc: inputEtc
     }
    
      dispatch(sentrequestFile(data_send)).then((res: any) => {
@@ -135,6 +153,7 @@ const ModalAdddocument = () => {
                       <div key={index} className="w-1/2 flex-shrink-0 p-4">
                         <div className="max-w-full">
                           {res.value ? ( // Check if res.value is defined
+                          <>
                             <div className="flex">
                               {/* <Controller
                                 name="document_type"
@@ -147,6 +166,15 @@ const ModalAdddocument = () => {
                                 {/* )} */}
                               {/* /> */}
                               {res.value}</div>
+
+                            <div>
+                              {etc  && res.key === "document_etc" && <input type="text" className="w-full" 
+                              onChange={(e)=>{
+                                setInputEtc(e.target.value)
+                              }}
+                              />}
+                            </div>
+                            </>
                           ) : (
                             <p className="text-gray-500">No content available</p> // Display a message if not
                           )}

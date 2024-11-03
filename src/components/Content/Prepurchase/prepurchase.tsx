@@ -124,6 +124,7 @@ const PrePurchase = () => {
         <ModalDocument
           document={purchase.d_document}
           purchase_id={purchase.id}
+          input_etc={purchase.input_etc}
         ></ModalDocument>
       )}
     </div>

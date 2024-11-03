@@ -520,6 +520,23 @@ const ModalSuccessReleaseComponent: React.FC<ModalSuccessReleaseProps> = ({
                 </div>
               </form>
             </FormProvider>
+
+            <div className="flex items-center justify-end  rounded-b">
+                  <button
+                    style={{
+                      border: "1px solid #417CA0",
+                      color: "#305D79",
+                      marginRight: "10px",
+                    }}
+                    className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => {
+                      setModalstatus("");
+                    }}
+                  >
+                    ปิด
+                  </button>
+                </div>
           </div>
         </div>
       </div>

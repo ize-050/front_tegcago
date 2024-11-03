@@ -3,86 +3,72 @@ import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 //lib
 import { useState, useEffect, useCallback, createRef, useMemo } from "react";
-import moment from 'moment'
+import moment from "moment";
 import { useRouter } from "next/navigation";
-import Swal from 'sweetalert2'
-
-
-
-
-
+import Swal from "sweetalert2";
 
 //component
 import { FormInput } from "@/components/Base/Form";
-import { CirclePlus, ArrowUpFromLine } from 'lucide-react';
+import { CirclePlus, ArrowUpFromLine } from "lucide-react";
 import Button from "../../components/Base/Button";
 import Table from "../../components/Base/Table";
 import Lucide from "../../components/Base/Lucide";
 
 //services
 import { getAllPurchase, cancelPurchase } from "../../services/purchase";
+import { applyEmployee, acceptJob, Canceljob } from "../../services/sale";
 
 //store
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 
-import {
-  updateCustomerStatus,
+import { updateCustomerStatus, resetStore } from "@/stores/customer";
 
-  resetStore
-
-} from "@/stores/customer";
-
-import {
-  purchaseData
-} from "@/stores/purchase"
+import { purchaseData } from "@/stores/purchase";
 
 import ModalCreateCustomer from "@/components/Sale/Customer/ModalAddcustomer";
 import { setAllPurchase } from "@/stores/purchase";
-import { NavLink } from "react-router-dom";
 import Link from "next/link";
 
-
-
 function Purchase() {
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [isActive, setIsActive] = useState(false);
   const [status, setStatus] = useState("");
   const [tag, setTag] = useState("");
-  const router = useRouter()
+  const router = useRouter();
 
   const statusTag = [
     {
       id: 1,
       name: "สนใจ",
-      color: "bg-blue-500"
+      color: "bg-blue-500",
     },
     {
       id: 2,
       name: "ไม่สนใจ",
-      color: "bg-red-400"
+      color: "bg-red-400",
     },
     {
       id: 3,
       name: "ติดตามต่อ",
-      color: "bg-orange-300"
+      color: "bg-orange-300",
     },
     {
       id: 4,
       name: "ติดต่อไม่ได้",
-      color: "bg-gray-300"
+      color: "bg-gray-300",
     },
     {
       id: 5,
       name: "ปิดการขาย",
-      color: "bg-green-400"
+      color: "bg-green-400",
     },
-  ]
+  ];
   const [tooltipOpen, setTooltipOpen] = useState(null);
   const [searchedVal, setSearchedVal] = useState("");
-  const [totalPage, setTotalPage] = useState(0)
+  const [totalPage, setTotalPage] = useState(0);
 
-  const [currentData, setCurrentData] = useState([])
-  const { purchaseAll, totalData } = useAppSelector(purchaseData)
+  const [currentData, setCurrentData] = useState([]);
+  const { purchaseAll, totalData } = useAppSelector(purchaseData);
 
   const handleButtonClick = (key: any) => {
     setTooltipOpen(tooltipOpen === key ? null : key);
@@ -90,60 +76,88 @@ function Purchase() {
   const dispatch = useAppDispatch();
 
   const changeSubmit = async (id: string, data: string) => {
-
     const PackData: Partial<any> = {
       id: id,
-      status: data
-    }
-    await dispatch(updateCustomerStatus(PackData))
-    await setTooltipOpen(null)
-    await GetAllpurchase()
-  }
+      status: data,
+    };
+    await dispatch(updateCustomerStatus(PackData));
+    await setTooltipOpen(null);
+    await GetAllpurchase();
+  };
   const reAllpurchase = async () => {
-    router.push('/purchase/add')
-  }
-
-
+    router.push("/purchase/add");
+  };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
 
-
+  const ApplyEmployee = async (id: string, employeeId: string) => {
+    try {
+      Swal.fire({
+        title: "ยืนยันการส่งงาน",
+        text: "คุณต้องการจัดการงานนี้ใช่หรือไม่",
+        icon: "warning",
+        showDenyButton: true,
+        confirmButtonText: `ยืนยัน`,
+        denyButtonText: `ยกเลิก`,
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const data: any = await applyEmployee({
+            id: id,
+            employeeId: employeeId,
+          });
+          if (data.status === 200) {
+            Swal.fire({
+              title: "สำเร็จ",
+              text: "จัดการงานสำเร็จ รอยืนยันจากผู้รับผิดชอบ",
+              icon: "success",
+            });
+          }
+          GetAllpurchase();
+        }
+      });
+    } catch (err: unknown) {
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: "เกิดข้อผิดพลาดในการนำเซลล์นี้ไปใช้",
+        icon: "error",
+      });
+    }
+  };
 
   const GetAllpurchase = useCallback(async () => {
     const purchase = await getAllPurchase(currentPage, status, tag);
     dispatch(setAllPurchase(purchase));
-
   }, [currentPage, status, tag]);
-
 
   const cancelOrder = async (id: string) => {
     Swal.fire({
-      title: 'คุณต้องการยกเลิกรายการจองนี้หรือไม่',
+      title: "คุณต้องการยกเลิกรายการจองนี้หรือไม่",
       showDenyButton: true,
-      icon: 'warning',
+      icon: "warning",
       confirmButtonText: `ยืนยัน`,
       denyButtonText: `ยกเลิก`,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const cancel = await cancelPurchase(id);
-        const purchase = await getAllPurchase(currentPage, status, tag);
-        dispatch(setAllPurchase(purchase));
-      }
-    }).catch((err) => {
-      console.log('cancelOrderError', err)
     })
-  }
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          const cancel = await cancelPurchase(id);
+          const purchase = await getAllPurchase(currentPage, status, tag);
+          dispatch(setAllPurchase(purchase));
+        }
+      })
+      .catch((err) => {
+        console.log("cancelOrderError", err);
+      });
+  };
 
   useEffect(() => {
-    dispatch(resetStore())
-  }, [])
+    dispatch(resetStore());
+  }, []);
 
   useEffect(() => {
     GetAllpurchase();
   }, [currentPage]);
-
 
   useEffect(() => {
     const totalPages = Math.ceil(totalData / 10);
@@ -153,35 +167,89 @@ function Purchase() {
 
     const currentData: any = purchaseAll;
 
-    console.log('purchaseAll', purchaseAll)
+    console.log("purchaseAll", purchaseAll);
 
     setCurrentData(currentData);
     setTotalPage(totalPages);
   }, [purchaseAll]);
 
+  const AcceptJob = async (id: string) => {
+    Swal.fire({
+      title: "ยืนยันการรับงาน",
+      text: "คุณต้องการรับงานนี้ใช่หรือไม่",
+      icon: "warning",
+      showDenyButton: true,
+      confirmButtonText: `ยืนยัน`,
+      denyButtonText: `ยกเลิก`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const data: any = await acceptJob(id, { is_active: true });
+        if (data.status === 200) {
+          Swal.fire({
+            title: "สำเร็จ",
+            text: "ยืนยันการรับงานสำเร็จ",
+            icon: "success",
+          });
+          GetAllpurchase();
+        }
+      }
+    });
+  };
 
+  const cancelJob = async (id: string) => {
+    Swal.fire({
+      title: "ยืนยันการยกเลิกงาน",
+      text: "คุณต้องการยกเลิกงานนี้ใช่หรือไม่",
+      icon: "warning",
+      showDenyButton: true,
+      confirmButtonText: `ยืนยัน`,
+      denyButtonText: `ยกเลิก`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const data: any = await Canceljob(id);
+        if (data.status === 200) {
+          Swal.fire({
+            title: "สำเร็จ",
+            text: "ยกเลิกงานสำเร็จ",
+            icon: "success",
+          });
+          GetAllpurchase();
+        }
+      }
+    });
+  };
   // useEffect(() => {
   //   if (formAddcustomer) {
   //     getAllPurchase();
   //   }
   // }, [formAddcustomer])
 
-
-
   return (
     <>
       <nav aria-label="Breadcrumb" className="p-5">
         <ol className="flex items-center space-x-2">
           <li className="flex items-center">
-            <a href="#" className="inline-flex items-center text-gray-500 hover:text-gray-700">
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <a
+              href="#"
+              className="inline-flex items-center text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+              </svg>
               <span className="ml-1">Home</span>
             </a>
           </li>
           <li>
             <div className="flex items-center">
               <span className="text-gray-500">/</span>
-              <a href="#" className="ml-1 text-gray-500 hover:text-gray-700">Projects</a>
+              <a href="#" className="ml-1 text-gray-500 hover:text-gray-700">
+                Projects
+              </a>
             </div>
           </li>
           <li aria-current="page">
@@ -194,25 +262,22 @@ function Purchase() {
       </nav>
       <div className="lg:flex md:flex ">
         <div className="flex-1 p-5">
-          <p className="text-black text-xl font-bold">
-            ข้อมูลรายการจอง
-          </p>
+          <p className="text-black text-xl font-bold">ข้อมูลรายการจอง</p>
         </div>
         <div className="justify-end p-5">
-          <Button className="text-white  border-blue-800"
+          <Button
+            className="text-white  border-blue-800"
             onClick={() => {
-              reAllpurchase()
+              reAllpurchase();
             }}
             style={{
-              background: "#273A6F"
+              background: "#273A6F",
             }}
           >
             <CirclePlus
               color="#ffffff"
-
               className="inset-y-0 bg-secondary-400  mr-1  justify-center m-auto   w-5 h-5  text-slate-500"
             ></CirclePlus>
-
             เพิ่มรายการจอง
           </Button>
         </div>
@@ -239,37 +304,40 @@ function Purchase() {
             </div>
 
             <div className="relative">
-            <select
-              id="deliver"
-              className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              onChange={(e) => {
-                let data :any =  purchaseAll;
-                let status = e.target.value;
+              <select
+                id="deliver"
+                className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => {
+                  let data: any = purchaseAll;
+                  let status = e.target.value;
 
-                if(status === ""){
-                  setCurrentData(data);
-                  return;
-                }
+                  if (status === "") {
+                    setCurrentData(data);
+                    return;
+                  }
 
-                setCurrentData(data.filter((row: any) => {
-                  console.log('row',row)
-                  return row.d_status == status;
-                 }))
-              }}
-            >
-              <option selected>สถานะ</option>
-              <option value="">ทั้งหมด</option>
-              <option value="Sale ตีราคา">Sale ตีราคา</option>
-              <option value="Sale แนบเอกสาร">Sale แนบเอกสาร</option>
-              <option value="Cs รับงาน">Cs รับงาน</option>
-              <option value="Cs เสนอราคา">Cs เสนอราคา</option>
-              <option value="อยู่ระหว่างทำ Financial">อยู่ระหว่างทำ Financial</option>
-              <option value="ปิดการขาย">ปิดการขาย</option>
-              <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
-              <option value="ลูกค้าเครดิต">ลูกค้าเครดิต</option>
-            </select>
+                  setCurrentData(
+                    data.filter((row: any) => {
+                      console.log("row", row);
+                      return row.d_status == status;
+                    })
+                  );
+                }}
+              >
+                <option selected>สถานะ</option>
+                <option value="">ทั้งหมด</option>
+                <option value="Sale ตีราคา">Sale ตีราคา</option>
+                <option value="Sale แนบเอกสาร">Sale แนบเอกสาร</option>
+                <option value="Cs รับงาน">Cs รับงาน</option>
+                <option value="Cs เสนอราคา">Cs เสนอราคา</option>
+                <option value="อยู่ระหว่างทำ Financial">
+                  อยู่ระหว่างทำ Financial
+                </option>
+                <option value="ปิดการขาย">ปิดการขาย</option>
+                <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
+                <option value="ลูกค้าเครดิต">ลูกค้าเครดิต</option>
+              </select>
             </div>
-
 
             {/* <select
               id="deliver"
@@ -291,7 +359,6 @@ function Purchase() {
                         <Table.Tr
                           style={{
                             background: "#FAFAFA",
-
                           }}
                           className="text-sm font-bold"
                         >
@@ -322,37 +389,54 @@ function Purchase() {
                           <Table.Td className="py-4 font-medium truncate text-center border-t   border-slate-200/60 text-black">
                             ส่งมอบงาน
                           </Table.Td>
-                          <Table.Td className="py-4 font-medium truncate text-center border-t   border-slate-200/60 text-black">
-
-                          </Table.Td>
-                          <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
-
-                          </Table.Td>
+                          <Table.Td className="py-4 font-medium truncate text-center border-t   border-slate-200/60 text-black"></Table.Td>
+                          <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black"></Table.Td>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
                         {currentData
-                          .filter((row: any) =>
-                            !searchedVal.length || row?.customer.cus_fullname.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
-                            || row?.book_number.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_route.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_status.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_term.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_transport.toString()
-                              .toLowerCase()
-                              .includes(searchedVal.toString().toLowerCase())
+                          .filter(
+                            (row: any) =>
+                              !searchedVal.length ||
+                              row?.customer.cus_fullname
+                                .toString()
+                                .toLowerCase()
+                                .includes(
+                                  searchedVal.toString().toLowerCase()
+                                ) ||
+                              row?.book_number
+                                .toString()
+                                .toLowerCase()
+                                .includes(
+                                  searchedVal.toString().toLowerCase()
+                                ) ||
+                              row?.d_route
+                                .toString()
+                                .toLowerCase()
+                                .includes(
+                                  searchedVal.toString().toLowerCase()
+                                ) ||
+                              row?.d_status
+                                .toString()
+                                .toLowerCase()
+                                .includes(
+                                  searchedVal.toString().toLowerCase()
+                                ) ||
+                              row?.d_term
+                                .toString()
+                                .toLowerCase()
+                                .includes(
+                                  searchedVal.toString().toLowerCase()
+                                ) ||
+                              row?.d_transport
+                                .toString()
+                                .toLowerCase()
+                                .includes(searchedVal.toString().toLowerCase())
                           )
                           .map((data: any, key: number) => {
+                            {
+                              data;
+                            }
                             return (
                               <>
                                 <Table.Tr className="text-sm  ">
@@ -360,7 +444,10 @@ function Purchase() {
                                     {key + 1}
                                   </Table.Td>
                                   <Table.Td className="text-center truncate truncate    border-slate-200/60  text-gray-900">
-                                    {moment(data.createdAt).format('YYYY/MM/DD HH:mm')} น.
+                                    {moment(data.createdAt).format(
+                                      "YYYY/MM/DD HH:mm"
+                                    )}{" "}
+                                    น.
                                   </Table.Td>
                                   <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
                                     {data?.customer?.cus_fullname}
@@ -380,48 +467,158 @@ function Purchase() {
                                   </Table.Td>
 
                                   <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
-                                    <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
+                                    <div
+                                      className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}
+                                    >
+                                      {data?.d_status}
+                                    </div>
                                   </Table.Td>
 
                                   <Table.Td className="text-center  truncate border-slate-200/60  text-gray-900">
-                                    <select className="w-auto  rounded-md space-x-2">
-                                      <option>กรุณาเลือก</option>
-                                    </select>
+                                    {!data?.is_update_emp ? (
+                                      <>
+                                        {data?.d_purchase_emp[0].is_active ? (
+                                          <select
+                                            className="w-auto rounded-md"
+                                            onChange={(e) =>
+                                              ApplyEmployee(
+                                                data.id,
+                                                e.target.value
+                                              )
+                                            }
+                                          >
+                                            <option value="">กรุณาเลือก</option>{" "}
+                                            {/* เปลี่ยนเป็น value="" */}
+                                            {data?.employee.map((row: any) => (
+                                              <option
+                                                key={row.id}
+                                                value={row.id}
+                                              >
+                                                {" "}
+                                                {/* เพิ่ม key */}
+                                                {row.fullname}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        ) : (
+                                          <div className="flex gap-2">
+                                            <button
+                                              onClick={() => AcceptJob(data.id)}
+                                              className="bg-green-500 hover:bg-green-700 text-white w-8 h-8 rounded-lg flex items-center justify-center"
+                                            >
+                                              <Lucide
+                                                icon="Check"
+                                                className="w-5 h-5"
+                                              />
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                cancelJob(data?.id)
+                                              }
+                                              className="bg-red-500 hover:bg-red-700 text-white w-8 h-8 rounded-lg flex items-center justify-center"
+                                            >
+                                              <Lucide
+                                                icon="X"
+                                                className="w-5 h-5"
+                                              />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </>
+                                    ) : data?.d_purchase_emp[0].is_active ? (
+                                      <p className="text-blue-500">
+                                        กำลังดำเนินการ
+                                      </p>
+                                    ) : (
+                                      <>
+                                        {data?.d_purchase_emp[0].is_active ? (
+                                          <select
+                                            className="w-auto rounded-md"
+                                            onChange={(e) =>
+                                              ApplyEmployee(
+                                                data.id,
+                                                e.target.value
+                                              )
+                                            }
+                                          >
+                                            <option value="">กรุณาเลือก</option>{" "}
+                                            {/* เปลี่ยนเป็น value="" */}
+                                            {data?.employee.map((row: any) => (
+                                              <option
+                                                key={row.id}
+                                                value={row.id}
+                                              >
+                                                {" "}
+                                                {/* เพิ่ม key */}
+                                                {row.fullname}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        ) : (
+                                          <div className="flex gap-2">
+                                            <button
+                                              onClick={() => AcceptJob(data.id)}
+                                              className="bg-green-500 hover:bg-green-700 text-white w-8 h-8 rounded-lg flex items-center justify-center"
+                                            >
+                                              <Lucide
+                                                icon="Check"
+                                                className="w-5 h-5"
+                                              />
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                cancelJob(data?.id)
+                                              }
+                                              className="bg-red-500 hover:bg-red-700 text-white w-8 h-8 rounded-lg flex items-center justify-center"
+                                            >
+                                              <Lucide
+                                                icon="X"
+                                                className="w-5 h-5"
+                                              />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
                                   </Table.Td>
 
                                   <Table.Td className="text-center   border-slate-200/60  text-gray-900">
-                                    <div className="flex">
-                                      <Link href={`/purchase/content/[id]`}
-                                            as={`/purchase/content/${data?.id}`}
-                                        // onClick={() => {
-                                        //   router.replace(`purchase/content/${data?.id}`)
-                                        // }}
-                                        style={{
-                                          background: "#C8D9E3"
-                                        }}
-                                        className=" hover:bg-blue-500 w-8 h-8 rounded-lg pt-2 mr-1">
-                                        <Lucide
-                                          color="#6C9AB5"
-                                          icon="Pencil"
-                                          className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                        ></Lucide>
-                                      </Link>
-                                      {data.d_status !== 'ยกเลิกคำสั่งซื้อ' && data.d_status !== "ิปิดการขาย" &&
-                                        <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
-                                          onClick={() => {
-                                            cancelOrder(data?.id)
+                                    {data.d_purchase_emp[0].is_active && (
+                                      <div className="flex">
+                                        <Link
+                                          href={`/purchase/content/[id]`}
+                                          as={`/purchase/content/${data?.id}`}
+                                          // onClick={() => {
+                                          //   router.replace(`purchase/content/${data?.id}`)
+                                          // }}
+                                          style={{
+                                            background: "#C8D9E3",
                                           }}
+                                          className=" hover:bg-blue-500 w-8 h-8 rounded-lg pt-2 mr-1"
                                         >
                                           <Lucide
-                                            color="#FF5C5C"
-                                            icon="Trash"
-
+                                            color="#6C9AB5"
+                                            icon="Pencil"
                                             className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                           ></Lucide>
-                                        </button>
-                                      }
-
-                                    </div>
+                                        </Link>
+                                        {data.d_status !== "ยกเลิกคำสั่งซื้อ" &&
+                                          data.d_status !== "ิปิดการขาย" && (
+                                            <button
+                                              className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
+                                              onClick={() => {
+                                                cancelOrder(data?.id);
+                                              }}
+                                            >
+                                              <Lucide
+                                                color="#FF5C5C"
+                                                icon="Trash"
+                                                className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
+                                              ></Lucide>
+                                            </button>
+                                          )}
+                                      </div>
+                                    )}
                                   </Table.Td>
                                 </Table.Tr>
                               </>
@@ -429,12 +626,13 @@ function Purchase() {
                           })}
                       </Table.Tbody>
                     </Table>
-
-
                   </div>
 
                   <div className="flex justify-end mt-5 bg-gray-100  flex-wrap items-center p-1 flex-reverse gap-y-2 sm:flex-row">
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <nav
+                      className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                      aria-label="Pagination"
+                    >
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -442,8 +640,18 @@ function Purchase() {
                       >
                         <span className="sr-only">Previous</span>
                         {/* Previous Icon (replace with your preferred icon library) */}
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 19.5L8.25 12l7.5-7.5"
+                          />
                         </svg>
                       </button>
                       {[...Array(totalPage)].map((_, index) => {
@@ -453,8 +661,11 @@ function Purchase() {
                             key={pageNumber}
                             onClick={() => handlePageChange(pageNumber)}
                             disabled={currentPage === pageNumber}
-                            className={`relative inline-flex items-center px-4 py-2    text-sm font-medium ${currentPage === pageNumber ? "text-primary-600 bg-gray-400 rounded-lg" : "text-gray-700"
-                              } hover:bg-gray-50 disabled:opacity-50`}
+                            className={`relative inline-flex items-center px-4 py-2    text-sm font-medium ${
+                              currentPage === pageNumber
+                                ? "text-primary-600 bg-gray-400 rounded-lg"
+                                : "text-gray-700"
+                            } hover:bg-gray-50 disabled:opacity-50`}
                           >
                             {pageNumber}
                           </button>
@@ -467,15 +678,22 @@ function Purchase() {
                       >
                         <span className="sr-only">Next</span>
                         {/* Next Icon (replace with your preferred icon library) */}
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                          />
                         </svg>
                       </button>
-
                     </nav>
-
                   </div>
-
                 </div>
               </div>
             </div>
@@ -483,7 +701,6 @@ function Purchase() {
         </div>
         <ModalCreateCustomer></ModalCreateCustomer>
       </div>
-
     </>
   );
 }

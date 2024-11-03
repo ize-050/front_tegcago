@@ -18,6 +18,22 @@ export const getCspurchase = async (id: any) => {
   });
 };
 
+export const getEtc = async (id: any) => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getEtc/${id}`;
+    await axios
+      .get(url)
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export const getReturn = async (id: any) => {
   return new Promise(async (resolve, reject) => {
     const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/getReturn/${id}`;
@@ -1144,6 +1160,26 @@ export const getLeave = async (id: any) => {
       });
   });
 };
+
+export const createEtc = async (data: any):Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/createEtc/${data.d_purchase_id}`;
+    await axios
+      .post(url, data, {
+        headers: {
+          Application: "application/json",
+        },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          resolve(res.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+} 
 
 const appendFilesToFormData = (
   formData: FormData,

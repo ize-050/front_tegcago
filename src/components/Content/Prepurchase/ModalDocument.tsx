@@ -22,11 +22,12 @@ import DocumentUplaodComponent from '@/components/Uploadimage/document/DocumentU
 const ModalDocument = (
 
     { document,
-        purchase_id
+        purchase_id,
+        input_etc
     }: {
         document: any,
-        purchase_id: string
-
+        purchase_id: string,
+        input_etc?: string
     }
 ) => {
 
@@ -101,6 +102,8 @@ const ModalDocument = (
                                         <Fragment key={index}>
                                             <div key={index} className="border p-5">
                                                 <h1 className="text-xl">{item.d_document_name}</h1>
+
+                                               
                                                 <div className="w-full  flex flex-col">
                                                     <label
                                                         className="block mb-2 text-gray-700  text-sm font-semibold">เพิ่มรูปภาพ / ไฟล์</label>
@@ -109,6 +112,13 @@ const ModalDocument = (
                                                         document_id={item.id}
                                                     ></DocumentUplaodComponent>
                                                 </div>
+                                                <br></br>
+                                                {item.d_document_key === "document_etc" && 
+                                                <> 
+                                                <label className="block mb-2 text-gray-700 text-lg  text-sm font-bold">หมายเหตุเอกสาร <span className="text-red-500">*</span>    </label>
+                                                {input_etc}
+                                                </>
+                                                }
                                             </div>
                                         </Fragment>
                                     ))}

@@ -123,7 +123,7 @@ function Addpurchase() {
           </p>
         </div>
         <div className="justify-end p-5">
-          <Button className="border-[#417CA0] bg-[#C8D9E3] mr-5"
+          {/* <Button className="border-[#417CA0] bg-[#C8D9E3] mr-5"
             style={{
               color: "#305D79"
             }}
@@ -134,8 +134,8 @@ function Addpurchase() {
               className="inset-y-0 bg-secondary-400  mr-2  justify-center m-auto   w-5 h-5  text-slate-500"
             ></CircleUserRound>
             ส่งมอบงาน :
-          </Button>
-          <Button className="text-[#417CA0]  border-[#417CA0] bg-[#FFFFFF]
+          </Button> */}
+          {/* <Button className="text-[#417CA0]  border-[#417CA0] bg-[#FFFFFF]
 
                     hover:bg-blue-200 hover:text-white"
             style={{
@@ -148,7 +148,7 @@ function Addpurchase() {
             ></Clock>
 
             Activity Log
-          </Button>
+          </Button> */}
         </div>
       </div>
 

@@ -693,29 +693,78 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
               </div>
             </div>
 
-            {dataStatus.type !== "view" && (
-              <div className="flex items-center justify-end  rounded-b">
-                <button
-                  style={{
-                    border: "1px solid #417CA0",
-                    color: "#305D79",
-                    marginRight: "10px",
-                  }}
-                  className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => changeEdit(false)}
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 "
-                  type="submit"
-                  // onClick={() => setShowModal(false)}
-                >
-                  บันทึก
-                </button>
+            <div className="flex">
+              <div className="w-1/2 p-5 flex">
+                <label className="block mb-2 text-lg text-gray-500  mr-5 sm:text-sm font-semibold">
+                  มัดจำตู้
+                </label>
+
+                <label className="inline-flex items-center cursor-pointer">
+                
+                </label>
               </div>
-            )}
+            </div>
+
+         
+         
+                <div className="flex">
+                  <div className="w-1/2 p-5">
+                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                      ราคามัดจำตู้ *
+                    </label>
+                    {dataStatus.type !== "view" ? (
+                      <>
+                        <Controller
+                          name="price_deposit"
+                          control={control}
+                          defaultValue={dataStatus?.booking_date}
+                          rules={{ required: false }}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <input
+                              placeholder="กรุณากรอกข้อมูล"
+                              value={value}
+                              onBlur={onBlur}
+                              onChange={onChange}
+                              type="text"
+                              className={`
+                                            ${
+                                              errors.booking_date
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                            />
+                          )}
+                        />
+                        {errors.booking_date && (
+                          <p className="text-red-500">กรุณากรอกข้อมูล</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>{data?.price_deposit}</p>
+                    )}
+                  </div>
+                </div>
+              
+            
+            
+            <div className="flex items-center justify-end  rounded-b">
+                  <button
+                    style={{
+                      border: "1px solid #417CA0",
+                      color: "#305D79",
+                      marginRight: "10px",
+                    }}
+                    className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => {
+                      setModalstatus("");
+                    }}
+                  >
+                    ปิด
+                  </button>
+                </div>
+         
           </form>
         </FormProvider>
       </div>

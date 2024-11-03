@@ -87,4 +87,11 @@ export const tab : TabStatus[] = [
             active :false,
             type:"view"
         },
+        {
+            id: "12",
+            tabName: "หมายเหตุ",
+            tabKey: "Etc",
+            active :false,
+            type:"view"
+        },
     ];
