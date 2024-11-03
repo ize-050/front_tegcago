@@ -243,7 +243,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_file_invoice"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
@@ -251,7 +251,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                      <div className="flex  flex-wrap ">
-                      {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_invoice"}))?.map(
+                      {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_invoice"}))?.map(
                         (images: any, index: number) => {
                           const isExcel =
                             images.file_name?.endsWith(".xlsx") ||
@@ -262,7 +262,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                           const url =
                             process.env.NEXT_PUBLIC_URL_API +
                             images.file_path;
-
+                          console.log("url",url)
                           return(
                           <>
                          
@@ -340,14 +340,14 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_file_packing"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
                     </>
                    ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_packing"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_packing"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||
@@ -436,14 +436,14 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_FE"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
                     </>
                    ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_FE"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_FE"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||
@@ -533,7 +533,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_file_etc"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
@@ -541,7 +541,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                  
                         <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_etc"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_etc"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||
@@ -633,12 +633,12 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_draft_invoice"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
                     </>
                    ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "file_draft_invoice"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "file_draft_invoice"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||
@@ -729,14 +729,14 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_BL"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
                     </>
                    ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_BL"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_BL"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||
@@ -826,14 +826,14 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="document_file_master_BL"
                          control={control}
-                         image={data?.Cs_document_file}
+                         image={data?.cs_document_file}
                        ></EditImageComponent>
 
                        
                     </>
                    ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.Cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_master_BL"}))?.map(
+                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_master_BL"}))?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.file_name?.endsWith(".xlsx") ||

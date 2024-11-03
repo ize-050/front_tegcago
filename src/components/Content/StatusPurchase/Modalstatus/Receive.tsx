@@ -411,7 +411,7 @@ const ModalReceiveComponent: React.FC<ModalReceiveProps> = ({
                     ) : (
                       <>
                       <div className="flex">
-                        {data?.Receive_picture?.map(
+                        {data?.receive_picture?.map(
                           (images: any, index: number) => {
                             const isExcel =
                               images.picture_name?.endsWith(".xlsx") ||

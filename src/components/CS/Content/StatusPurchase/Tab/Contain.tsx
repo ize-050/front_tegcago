@@ -300,7 +300,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
             <Table.Th>H.s.Code</Table.Th>
           </Table.Tr>
 
-          {data?.Contain_product?.map((field: any, index: number) => (
+          {data?.contain_product?.map((field: any, index: number) => (
             <Table.Tr key={field.id}>
               <Table.Td>{field.product_name}</Table.Td>
               <Table.Td>{field.product_hscode}</Table.Td>
@@ -730,7 +730,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปการตรวจตู้
                 </label>
 
-                {dataStatus.type == "add" ? (
+                {dataStatus.type == "create" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -746,14 +746,14 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       <EdituploadComponent
                         name="cabinet"
                         setValue={setValue}
-                        image={data.Contain_picture}
+                        image={data.contain_picture}
                         control={control}
                       ></EdituploadComponent>
                     </div>
                   </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                    {data?.contain_picture?.filter((res: { key: string }) => {
                       return res.key === "cabinet";
                     })?.map((images: any, index: number) => {
                       const isExcel =
@@ -787,7 +787,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปสินค้า
                 </label>
 
-                {dataStatus.type == "add" ? (
+                {dataStatus.type == "create" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -803,14 +803,14 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       <EdituploadComponent
                         name="purchase_file"
                         setValue={setValue}
-                        image={data.Contain_picture}
+                        image={data.contain_picture}
                         control={control}
                       ></EdituploadComponent>
                     </div>
                   </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                    {data?.contain_picture?.filter((res: { key: string }) => {
                       return res.key === "purchase_file";
                     })?.map((images: any, index: number) => {
                       const isExcel =
@@ -846,7 +846,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปปิดตู้
                 </label>
 
-                {dataStatus.type == "add" ? (
+                {dataStatus.type == "create" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -862,14 +862,14 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       <EdituploadComponent
                         name="close_cabinet"
                         setValue={setValue}
-                        image={data.Contain_picture}
+                        image={data.contain_picture}
                         control={control}
                       ></EdituploadComponent>
                     </div>
                   </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                    {data?.contain_picture?.filter((res: { key: string }) => {
                       return res.key === "close_cabinet";
                     })?.map((images: any, index: number) => {
                       const isExcel =
@@ -903,7 +903,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                   แนบรูปอื่นๆ
                 </label>
 
-                {dataStatus.type == "add" ? (
+                {dataStatus.type == "create" ? (
                   <>
                     <div className="">
                       <UploadImageComponent
@@ -919,14 +919,14 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                       <EdituploadComponent
                         name="etc"
                         setValue={setValue}
-                        image={data.Contain_picture}
+                        image={data.contain_picture}
                         control={control}
                       ></EdituploadComponent>
                     </div>
                   </>
                 ) : (
                   <div className="flex  flex-wrap ">
-                    {data?.Contain_picture?.filter((res: { key: string }) => {
+                    {data?.contain_picture?.filter((res: { key: string }) => {
                       return res.key === "etc";
                     })?.map((images: any, index: number) => {
                       const isExcel =

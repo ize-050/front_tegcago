@@ -489,7 +489,7 @@ function Purchase() {
                                           >
                                             <option value="">กรุณาเลือก</option>{" "}
                                             {/* เปลี่ยนเป็น value="" */}
-                                            {data?.employee.map((row: any) => (
+                                            {data?.employee?.map((row: any) => (
                                               <option
                                                 key={row.id}
                                                 value={row.id}

@@ -376,7 +376,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                   </>
                 ) : (
                   <>
-                    {data?.Bookcabinet_picture?.map(
+                    {data?.bookcabinet_picture?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.picture_name?.endsWith(".xlsx") ||
@@ -480,7 +480,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                                       dispatch(setModalImage(false))
                                     }
                                     startIndex={index}
-                                    images={data?.Bookcabinet_picture}
+                                    images={data?.bookcabinet_picture}
                                   />
                                 )}
                               </>

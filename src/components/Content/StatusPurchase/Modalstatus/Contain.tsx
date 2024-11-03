@@ -275,7 +275,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
             <Table.Th>H.s.Code</Table.Th>
           </Table.Tr>
 
-          {data?.Contain_product?.map((field: any, index: number) => (
+          {data?.contain_product?.map((field: any, index: number) => (
             <Table.Tr key={field.id}>
               <Table.Td>{field.product_name}</Table.Td>
               <Table.Td>{field.product_hscode}</Table.Td>
@@ -579,7 +579,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex">
-                        {data?.Contain_picture?.filter(
+                        {data?.contain_picture?.filter(
                           (res: { key: string }) => {
                             return res.key === "cabinet";
                           }
@@ -628,7 +628,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.Contain_picture?.filter(
+                        {data?.contain_picture?.filter(
                           (res: { key: string }) => {
                             return res.key === "purchase_file";
                           }
@@ -679,7 +679,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.Contain_picture?.filter(
+                        {data?.contain_picture?.filter(
                           (res: { key: string }) => {
                             return res.key === "close_cabinet";
                           }
@@ -728,7 +728,7 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.Contain_picture?.filter(
+                        {data?.contain_picture?.filter(
                           (res: { key: string }) => {
                             return res.key === "etc";
                           }

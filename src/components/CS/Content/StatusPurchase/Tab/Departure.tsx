@@ -261,7 +261,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_hbl"
                          control={control}
-                         image={data?.Leavefile}
+                         image={data?.leavefile}
                        ></EditImageComponent>
 
                        
@@ -269,7 +269,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_hbl";
                         })?.map((images: any, index: number) => {
                           const isExcel =
@@ -358,7 +358,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_original_fe"
                          control={control}
-                         image={data?.Leavefile}
+                         image={data?.leavefile}
                        ></EditImageComponent>
 
                        
@@ -366,7 +366,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_original_fe";
                         })?.map((images: any, index: number) => {
                           const isExcel =
@@ -455,7 +455,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_surrender"
                          control={control}
-                         image={data?.Leavefile}
+                         image={data?.leavefile}
                        ></EditImageComponent>
 
                        
@@ -463,7 +463,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_surrender";
                         })?.map((images: any, index: number) => {
                           const isExcel =
@@ -552,7 +552,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_enter_doc"
                          control={control}
-                         image={data?.Leavefile}
+                         image={data?.leavefile}
                        ></EditImageComponent>
 
                        
@@ -560,7 +560,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_enter_doc";
                         })?.map((images: any, index: number) => {
                           const isExcel =
@@ -640,7 +640,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                          setValue={setValue}
                          name="file_payment_do"
                          control={control}
-                         image={data?.Leavefile}
+                         image={data?.leavefile}
                        ></EditImageComponent>
 
                        
@@ -648,7 +648,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                    ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_payment_do";
                         })?.map((images: any, index: number) => {
                           const isExcel =
@@ -729,7 +729,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                        setValue={setValue}
                        name="file_amount_payment_do"
                        control={control}
-                       image={data?.Leavefile}
+                       image={data?.leavefile}
                      ></EditImageComponent>
 
                      
@@ -737,7 +737,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.Leavefile?.filter((res: { key: string }) => {
+                        {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_amount_payment_do";
                         })?.map((images: any, index: number) => {
                           const isExcel =

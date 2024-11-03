@@ -342,7 +342,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                 ) : (
                   <>
                    <div className="flex">
-                    {data?.Bookcabinet_picture?.map(
+                    {data?.bookcabinet_picture?.map(
                       (images: any, index: number) => {
                         const isExcel =
                           images.picture_name?.endsWith(".xlsx") ||
@@ -446,7 +446,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                                       dispatch(setModalImage(false))
                                     }
                                     startIndex={index}
-                                    images={data?.Bookcabinet_picture}
+                                    images={data?.bookcabinet_picture}
                                   />
                                 )}
                               </>

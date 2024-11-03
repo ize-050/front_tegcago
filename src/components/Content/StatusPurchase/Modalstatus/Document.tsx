@@ -238,7 +238,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.Cs_document_file?.filter(
+                            {data?.cs_document_file?.filter(
                               (res: { key: string }) => {
                                 return res.key === "document_file_invoice";
                               }
@@ -324,7 +324,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                         </>
                       ) : (
                         <div className="flex  flex-wrap ">
-                          {data?.Cs_document_file?.filter(
+                          {data?.cs_document_file?.filter(
                             (res: { key: string }) => {
                               return res.key === "document_file_packing";
                             }
@@ -410,7 +410,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                         </>
                       ) : (
                         <div className="flex  flex-wrap ">
-                          {data?.Cs_document_file?.filter(
+                          {data?.cs_document_file?.filter(
                             (res: { key: string }) => {
                               return res.key === "document_FE";
                             }
@@ -497,7 +497,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                         </>
                       ) : (
                         <div className="flex  flex-wrap ">
-                          {data?.Cs_document_file?.filter(
+                          {data?.cs_document_file?.filter(
                             (res: { key: string }) => {
                               return res.key === "document_file_etc";
                             }
@@ -584,7 +584,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                         </>
                       ) : (
                         <div className="flex  flex-wrap ">
-                          {data?.Cs_document_file?.filter(
+                          {data?.cs_document_file?.filter(
                             (res: { key: string }) => {
                               return res.key === "file_draft_invoice";
                             }
@@ -671,7 +671,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                         </>
                       ) : (
                         <div className="flex  flex-wrap ">
-                          {data?.Cs_document_file?.filter(
+                          {data?.cs_document_file?.filter(
                             (res: { key: string }) => {
                               return res.key === "document_BL";
                             }
@@ -749,7 +749,7 @@ const ModalDocumentComponent: React.FC<ModalDocumentProps> = ({
                       </label>
 
                       <div className="flex  flex-wrap ">
-                        {data?.Cs_document_file?.filter(
+                        {data?.cs_document_file?.filter(
                           (res: { key: string }) => {
                             return res.key === "document_file_master_BL";
                           }
