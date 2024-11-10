@@ -520,42 +520,68 @@ const ReleaseComponent: React.FC<ModalReceiveProps> = ({
               </div>
 
               <div className="flex">
-                <div className="w-1/2 p-5">
-                  <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    ป้ายทะเบียน
-                  </label>
-                  {dataStatus.type !== "view" ? (
-                    <>
-                      <Controller
-                        name="license_plate"
-                        control={control}
-                        defaultValue={data?.license_plate}
-                        rules={{ required: true }}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <input
-                            placeholder="กรอก"
-                            value={value}
-                            onBlur={onBlur}
-                            onChange={onChange}
-                            type="text"
-                            className={`
-                                        ${
-                                          data.license_plate
-                                            ? "border-red-500"
-                                            : "border-gray-200"
-                                        }
-                                        px-4 py-2 outline-none rounded-md w-full`}
-                          />
-                        )}
-                      />
-                      {data.license_plate && (
-                        <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+            <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  พนักงานขับรถ{" "}
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="employee_driver"
+                      control={control}
+                      defaultValue={data?.employee_driver}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                       <input
+                       placeholder="กรอก"
+                       value={value}
+                       onBlur={onBlur}
+                       onChange={onChange}
+                       type="text"
+                       className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
+                       />
                       )}
-                    </>
-                  ) : (
-                    <p>{data?.license_plate}</p>
-                  )}
-                </div>
+                    />
+                 
+                  </>
+                ) : (
+                  <p>{data?.employee_driver}</p>
+                )}
+              </div>
+
+              <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  ป้ายทะเบียน
+                </label>
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="license_plate"
+                      control={control}
+                      defaultValue={data?.license_plate}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรอก"
+                          value={value}
+                        
+                          onChange={onChange}
+                          type="text"
+                          className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                   
+                  </>
+                ) : (
+                  <p>{data?.license_plate}</p>
+                )}
+              </div>
+            </div>
+
+              <div className="flex">
+                
                 <div className="w-1/2 p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                     เบอร์โทรศัพท์{" "}

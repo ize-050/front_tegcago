@@ -76,7 +76,7 @@ const ConfirmPayment = ({
     const OpenRow = () => {
         setPaymentData([...PaymentData, {
             type_payment: '',
-            price: 0,
+            price: null,
             currency: "THB",
             change:true,
             image: null
@@ -84,7 +84,7 @@ const ConfirmPayment = ({
 
         const newIndex = PaymentData.length;
         setValue(`type[${newIndex}].type_payment`, ''); 
-        setValue(`type[${newIndex}].price`, 0); 
+        setValue(`type[${newIndex}].price`, null); 
         setValue(`type[${newIndex}].currency`, 'THB'); 
         setValue(`type[${newIndex}].change`, true);
        
@@ -201,7 +201,7 @@ const ConfirmPayment = ({
                                                     <input
                                                         onChange={onChange}
                                                         value={value}
-                                                        type="text" className="border text-center border-gray-200 p-2 rounded-md"></input>
+                                                        type="number"  className="border text-center border-gray-200 p-2 rounded-md"></input>
                                                 </>
                                             )} />
                                     </Table.Td>

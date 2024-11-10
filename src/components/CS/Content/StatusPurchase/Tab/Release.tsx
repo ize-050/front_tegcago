@@ -552,9 +552,41 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.type_car}</p>
                 )}
               </div>
+
+              
             </div>
 
             <div className="flex">
+            <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  พนักงานขับรถ{" "}
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="employee_driver"
+                      control={control}
+                      defaultValue={data?.employee_driver}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                       <input
+                       placeholder="กรอก"
+                       value={value}
+                       onBlur={onBlur}
+                       onChange={onChange}
+                       type="text"
+                       className={`border-gray-200 px-4 py-2 outline-none rounded-md w-full`}
+                       />
+                      )}
+                    />
+                 
+                  </>
+                ) : (
+                  <p>{data?.employee_driver}</p>
+                )}
+              </div>
+
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                   ป้ายทะเบียน
@@ -583,6 +615,9 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.license_plate}</p>
                 )}
               </div>
+            </div>
+             
+            <div className="flex">
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                   เบอร์โทรศัพท์{" "}

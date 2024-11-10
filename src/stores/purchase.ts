@@ -92,7 +92,7 @@ export const sentrequestFile = createAsyncThunk(
         await dispatch(
           setOpenToast({
             type: "success",
-            message: "ส่่งคำร้องเอกสารสำเร็จ",
+            message: "ส่งคำร้องเอกสารสำเร็จ",
           })
         );
         return response

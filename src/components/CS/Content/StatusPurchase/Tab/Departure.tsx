@@ -796,16 +796,120 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
             {isChecked && (
               <>
                 <div className="flex">
+
+                  <div className="w-1/2 p-5">
+                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                      วันที่ Payment *
+                    </label>
+
+
+                    {dataStatus.type !== "view" ? (
+                      <>
+                        <Controller
+                          name="payment_date"
+                          control={control}
+                          defaultValue={data?.payment_date}
+                          rules={{ required: false }}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <input
+                              placeholder="กรุณากรอกข้อมูล"
+                              value={value}
+                              onBlur={onBlur}
+                              onChange={onChange}
+                              type="date"
+                              className={`
+                                            ${
+                                              errors.payment_date
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                            />
+                          )}
+                        />
+                      </>
+                    ) : (
+                      <p>{data?.payment_date}</p>
+                    )}
+                  </div>
+
+
+                  <div className="w-1/2">
+                <div className="p-5">
+                  <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                    ไฟล์แนบสลิป
+                  </label>
+
+                  {dataStatus.type == "create" ? (
+                    <>
+                      <UploadImageComponent
+                        name="payment_date_file"
+                        setValue={setValue}
+                        control={control}
+                      ></UploadImageComponent>
+                    </>
+                 ) : dataStatus.type == "edit"? (
+                  <>
+                   <EditImageComponent
+                       setValue={setValue}
+                       name="payment_date_file"
+                       control={control}
+                       image={data?.leavefile}
+                     ></EditImageComponent>
+
+                     
+                  </>
+                 ) : (
+                    <>
+                      <div className="flex  flex-wrap ">
+                        {data?.leavefile?.filter((res: { key: string }) => {
+                          return res.key === "payment_date_file";
+                        })?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+                  
+                </div>
+
+
+                <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       ราคามัดจำตู้ *
                     </label>
+
+
                     {dataStatus.type !== "view" ? (
                       <>
                         <Controller
                           name="price_deposit"
                           control={control}
-                          defaultValue={dataStatus?.booking_date}
+                          defaultValue={data?.price_deposit}
                           rules={{ required: false }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <input

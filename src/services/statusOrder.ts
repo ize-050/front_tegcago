@@ -1039,6 +1039,7 @@ export const createLeave = async (data: any):Promise<any> => {
       file_enter_doc: data?.file_enter_doc,
       file_payment_do: data?.file_payment_do,
       file_amount_payment_do: data?.file_amount_payment_do,
+      payment_date_file: data?.payment_date_file,
     };
     [
       "file_hbl",
@@ -1047,6 +1048,7 @@ export const createLeave = async (data: any):Promise<any> => {
       "file_enter_doc",
       "file_payment_do",
       "file_amount_payment_do",
+      "payment_date_file",
     ].forEach((key) => delete data[key]);
 
     Object.keys(files).forEach((key: string) => {
@@ -1095,6 +1097,7 @@ export const editLeave = async (data: any):Promise<any> => {
       file_enter_doc: dataRequest?.file_enter_doc,
       file_payment_do: dataRequest?.file_payment_do,
       file_amount_payment_do: dataRequest?.file_amount_payment_do,
+      payment_date_file: dataRequest?.payment_date_file,
     };
 
   
@@ -1105,6 +1108,7 @@ export const editLeave = async (data: any):Promise<any> => {
       "file_enter_doc",
       "file_payment_do",
       "file_amount_payment_do",
+      "payment_date_file",
     ];
 
   

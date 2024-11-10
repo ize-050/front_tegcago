@@ -139,6 +139,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
           <Table.Th>บริษัทรถ</Table.Th>
           <Table.Th>ประเภทรถ</Table.Th>
           <Table.Th>ป้ายทะเบียน</Table.Th>
+          <Table.Th>พนักงานขับรถ</Table.Th>
           <Table.Th>เบอร์โทรศัพท์คนขับ</Table.Th>
         </Table.Tr>
         <Table.Tr>
@@ -146,6 +147,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
           <Table.Td>{data?.waitrelease?.company_car}</Table.Td>
           <Table.Td>{data?.waitrelease?.type_car}</Table.Td>
           <Table.Td>{data?.waitrelease?.license_plate}</Table.Td>
+          <Table.Td>{data?.waitrelease?.employee_driver}</Table.Td>
           <Table.Td>{data?.waitrelease?.phone_number}</Table.Td>
         </Table.Tr>
       </Table>

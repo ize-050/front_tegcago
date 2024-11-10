@@ -198,8 +198,8 @@ function Purchase() {
 
   const cancelJob = async (id: string) => {
     Swal.fire({
-      title: "ยืนยันการยกเลิกงาน",
-      text: "คุณต้องการยกเลิกงานนี้ใช่หรือไม่",
+      title: "ยืนยันไม่รับงานนี้",
+      text: "คุณต้องยืนยันไม่รับงานนี้ใช่หรือไม่",
       icon: "warning",
       showDenyButton: true,
       confirmButtonText: `ยืนยัน`,
