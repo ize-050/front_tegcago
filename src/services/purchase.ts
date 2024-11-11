@@ -185,6 +185,56 @@ export const sendSubmitAddAgency = async (data: any) => {
     })
 }
 
+export const updateAgency = async (data:Partial<any>,id:string):Promise<any> => {
+    return new Promise(async (resolve, reject) => {
+
+
+        console.log('rererere',data.d_image)    
+        console.log('id',id)    
+
+        let formData = new FormData();
+        if (data.d_image.length > 0) {
+            data.d_image.forEach((image: any) => {
+                if (image.status === "added" || image.status === "edited") {
+                  formData.append('d_image', image.originalFile, image.name);
+                } else if (image.status === "unchanged" && image.id) {
+                  formData.append("existingImageIds[]", image.id.toString());
+                }
+            });
+        }
+    
+
+        if (data.type.length > 0) {
+            console.log('data.ty11pe',data.type)
+           for (let i = 0; i < data.type.length; i++) {
+            formData.append('type', JSON.stringify(data.type[i])); // Append as JSON string
+           }
+        }
+        delete data.type
+        delete data.d_image
+      
+       for (const key in data) {
+        formData.append(key, data[key]);
+       }
+
+
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/cs/updateAgency/${id}`;
+        await axios.put(url,formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        .then((res) => {
+            if (res.status === 200) {
+                resolve(res.data);
+            }
+        })
+        .catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 
 export const sentPrepurchase = async (data: any) => {
 

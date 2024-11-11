@@ -29,6 +29,7 @@ export interface internalCustomer {
     formEditPrepurchase:boolean;
     agentcy:any[]
     document:any[];
+    modalEditAgentCy:boolean,
     AgentCyDetail:Partial<any>
 }
 
@@ -43,6 +44,7 @@ const initialState: internalCustomer = {
     modalViewAgentCy:false,
     modalAgentcy:false,
     agentcy:[],
+    modalEditAgentCy:false,
     document:[],
     formEditPrepurchase:false,
     AgentCyDetail:{}
@@ -242,6 +244,9 @@ export const purchase = createSlice({
     },
     setModalUploadPurchase:(state, action) => {
       state.modalUploadpurchase = action.payload
+    },
+    setModalEditAgentCy:(state, action) => {
+      state.modalEditAgentCy = action.payload
     }
   },
 });
@@ -260,7 +265,8 @@ export const {
   setModalViewAgentCy,
   setAgentcy,
   setAgentCyDetail,
-  setModalUploadPurchase
+  setModalUploadPurchase,
+  setModalEditAgentCy
   } = purchase.actions;
 
 export default purchase.reducer;

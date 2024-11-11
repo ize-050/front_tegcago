@@ -126,7 +126,7 @@ const EdituploadNotkeyComponent = ({
         }
       })
       .filter(Boolean) as FileData[];
-
+    console.log('updatedFiles',updatedFiles)
     setPreviewUrls(updatedFiles);
     setValue(name, updatedFiles);
   }, [files, name, setValue]);

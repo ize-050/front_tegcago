@@ -19,6 +19,7 @@ import {
   setModalAgentcy,
   setModalViewAgentCy,
   setAgentCyDetail,
+  setModalEditAgentCy,
 } from "@/stores/purchase";
 import moment from "moment/moment";
 import Button from "@/components/Base/Button";
@@ -30,6 +31,8 @@ import Lucide from "@/components/Base/Lucide";
 import Table from "@/components/Base/Table";
 import Swal from "sweetalert2";
 import PaymentComponent from "../Payment/PaymentComponent";
+import { EditIcon } from "lucide-react";
+import ModalEditAgentCy from "@/components/Agent/ModaleditAgentCy";
 
 const Purchase = () => {
   const dispatch = useAppDispatch();
@@ -259,16 +262,30 @@ const Purchase = () => {
                     <h2 className="text-black  font-semibold  text-lg">
                       {res.agentcy.agent_name}
                     </h2>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        dispatch(setModalViewAgentCy(true));
-                        dispatch(setAgentCyDetail(res));
-                      }}
-                      className="text-blue-500 items-end underline"
-                    >
-                      รายละเอียด
-                    </button>
+                    <div className="flex space-x-2">
+                      {" "}
+                      {/* Added flex container for buttons */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          dispatch(setModalViewAgentCy(true));
+                          dispatch(setAgentCyDetail(res));
+                        }}
+                        className="text-blue-500 underline"
+                      >
+                        รายละเอียด
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          dispatch(setModalEditAgentCy(true));
+                          dispatch(setAgentCyDetail(res));
+                        }}
+                        className="hover:bg-yellow-600 hover:text-white transition-all duration-300 border-2 flex items-center border-yellow-500 text-white bg-yellow-500"
+                      >
+                        <EditIcon className="w-4 h-4" /> แก้ไข
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex w-full">
@@ -419,6 +436,7 @@ const Purchase = () => {
       ></PaymentComponent>
       <br></br>
       <ModalViewAgentCy></ModalViewAgentCy>
+      <ModalEditAgentCy></ModalEditAgentCy>
     </>
   );
 };
