@@ -207,7 +207,7 @@ export const updateAgency = async (data:Partial<any>,id:string):Promise<any> => 
         if (data.type.length > 0) {
             console.log('data.ty11pe',data.type)
            for (let i = 0; i < data.type.length; i++) {
-            formData.append('type', JSON.stringify(data.type[i])); // Append as JSON string
+            formData.append('type[]', JSON.stringify(data.type[i])); // Append as JSON string
            }
         }
         delete data.type
