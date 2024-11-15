@@ -111,7 +111,7 @@ const ModalwatchDocument = ({
                 />
               </svg>
             </button>
-            {document?.length > 0 && (
+            {document?.length > 0 ? (
               <div className="p-1">
                 <h1 className="mb-5  text-2xl">เอกสารเพิ่มเติม</h1>
                 <div className="grid md:grid-cols-2  grid-cols-1 gap-4">
@@ -201,6 +201,20 @@ const ModalwatchDocument = ({
                     )}
                 </div>
               </div>
+            ) : (
+                <>
+              <div className="p-1">
+                <h1 className="mb-5 text-center border-b-2 border-gray-200 pb-2  text-2xl">เอกสารเพิ่มเติม</h1>
+              </div>
+
+              <div className="flex justify-center items-center">
+                <p className="text-gray-500 flex items-center gap-2">
+                    
+                  <Lucide icon="File" className="w-5 h-5" />
+                  <span>ไม่มีเอกสารเพิ่มเติม</span>
+                </p>
+              </div>
+            </>
             )}
           </div>
         </form>

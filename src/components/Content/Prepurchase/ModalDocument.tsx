@@ -76,7 +76,9 @@ const ModalDocument = (
 
     return (
         <>
-            <div className="fixed inset-0 z-50  overflow-x-auto  flex items-center justify-center bg-black bg-opacity-60">
+                 <div className="text-black  bg-opacity-60 bg-black  opacity-100 justify-center items-center flex  fixed inset-0 z-50 outline-none focus:outline-none">
+       <div className="relative w-full my-6 mx-auto max-w-5xl  max-h-[700px]  overflow-scroll">
+        <div className="border-2 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="relative max-w-5xl w-screen bg-white rounded-lg p-4 ">
                         <button
@@ -148,6 +150,8 @@ const ModalDocument = (
                     </div>
 
                 </form>
+            </div>
+            </div>
             </div>
         </>
 
