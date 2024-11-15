@@ -326,7 +326,7 @@ const Purchase = () => {
                           accumulator + Number(item.d_net_balance),
                         0 // Initial value for the accumulator
                       )}{" "}
-                      ฿
+                      {res?.d_agentcy_detail[0]?.d_currency}
                     </p>
                   </div>
                 </div>

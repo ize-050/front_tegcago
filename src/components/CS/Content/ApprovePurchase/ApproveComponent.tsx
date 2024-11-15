@@ -111,7 +111,7 @@ const ApproveComponent = () => {
             <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
               วันที่/เวลา
             </label>
-            <p>{data.createdAt} </p>
+            <p>{moment(data.createdAt).format("DD/MM/YYYY HH:mm")} </p>
           </div>
         </div>
 

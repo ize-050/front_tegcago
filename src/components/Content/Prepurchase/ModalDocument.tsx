@@ -115,8 +115,8 @@ const ModalDocument = (
                                                 <br></br>
                                                 {item.d_document_key === "document_etc" && 
                                                 <> 
-                                                <label className="block mb-2 text-gray-700 text-lg  text-sm font-bold">หมายเหตุเอกสาร <span className="text-red-500">*</span>    </label>
-                                                {input_etc}
+                                                <label className="block mb-2 text-gray-700  text-sm font-bold">หมายเหตุเอกสาร <span className="text-red-500">*</span>    </label>
+                                                {item.d_document_etc}
                                                 </>
                                                 }
                                             </div>

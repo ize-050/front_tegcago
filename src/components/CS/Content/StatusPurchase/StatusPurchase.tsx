@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
 import { purchaseData } from "@/stores/purchase";
 import { useRouter } from "next/navigation";
+import moment from "moment";
 
 const StatusPurchase = () => {
 
@@ -45,7 +46,7 @@ const StatusPurchase = () => {
                     </div>
                     <div className="w-full md:w-1/3 flex flex-col">
                         <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">วันที่/เวลา</label>
-                        <p>{data.createdAt} </p>
+                        <p>{moment(data.createdAt).format("DD/MM/YYYY HH:mm")} </p>
                     </div>
                 </div>
 

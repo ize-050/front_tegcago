@@ -201,7 +201,7 @@ const ConfirmPayment = ({
                                                     <input
                                                         onChange={onChange}
                                                         value={value}
-                                                        type="number"  className="border text-center border-gray-200 p-2 rounded-md"></input>
+                                                        type="text"  className="border text-center border-gray-200 p-2 rounded-md"></input>
                                                 </>
                                             )} />
                                     </Table.Td>
