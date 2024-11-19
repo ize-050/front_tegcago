@@ -314,9 +314,12 @@ function Purchase() {
                           <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                             วันที่
                           </Table.Td>
+                          <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                            ประเภทShipment
+                          </Table.Td>
 
                           <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
-
+                            เลข Shipment
                           </Table.Td>
                           <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                             Status
@@ -364,8 +367,12 @@ function Purchase() {
                                   {moment(data.createdAt).format('YYYY/MM/DD HH:mm')}  น.
                                 </Table.Td>
                                 <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-
+                                  {data.d_transport}
                                 </Table.Td>
+                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
+                                 {data.d_shipment_number ? data.d_shipment_number : '-'}
+                                </Table.Td>
+                                
 
                                 <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
                                   <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
