@@ -35,12 +35,14 @@ import Prepurchase from "@/components/Content/Prepurchase/prepurchase";
 import Link from "next/link";
 import App from "next/app";
 import purchase from '../../../../stores/purchase';
+import { useSession } from "next-auth/react";
 
 
 
 
 function Addpurchase() {
   const router = useRouter()
+  const { data: session }:any = useSession();
   const dispatch = useAppDispatch();
   const { customer_detail, formEditcustomer } = useAppSelector(customerData)
   const { purchase } = useAppSelector(purchaseData)
@@ -49,6 +51,12 @@ function Addpurchase() {
     id: string
   } = useParams();
 
+
+  useEffect(() => {
+    if(session?.role == 'Cs'){
+      router.push(`/cs/purchase/content/${id}`);
+    }
+  }, [session]);
 
   const handleTabClick = useCallback((tabName: any) => {
     if (tabName === 'purchase') {

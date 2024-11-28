@@ -3,15 +3,20 @@ import "@/assets/css/vendors/simplebar.css";
 import "@/assets/css/themes/hook.css";
 //lib
 import Link from 'next/link'
-
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 //
 
 //component
 import GroupPurchase from '@/components/CS/Content/GroupPurchase'
 
+//session
+
 
 function PurchaseDetail({ params }: { params: { id: string } }) {
+
+  const router = useRouter();
+ 
 
   const id = params.id;
   return (
