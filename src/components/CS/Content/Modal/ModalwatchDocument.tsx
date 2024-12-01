@@ -20,6 +20,7 @@ import DocumentUplaodComponent from "@/components/Uploadimage/document/DocumentU
 import Lucide from "@/components/Base/Lucide";
 import ModalPreviewImage from "@/components/CS/Content/Prepurchase/upload/ModalPreview";
 import classNames from "classnames";
+import ViewImageComponent from "@/components/Content/StatusPurchase/Modalstatus/ViewImagecomponent";
 
 const ModalwatchDocument = ({
   document,
@@ -113,62 +114,40 @@ const ModalwatchDocument = ({
             </button>
             {document?.length > 0 ? (
               <div className="p-1">
-                <h1 className="mb-5  text-2xl">เอกสารเพิ่มเติม</h1>
+                <h1 className="mb-5   text-2xl">เอกสารเพิ่มเติม</h1>
                 <div className="grid md:grid-cols-2  grid-cols-1 gap-4">
                   {document.map((item: any, index: number) => (
                     <Fragment key={index}>
                       <div key={index} className="border p-5">
                         <h1 className="text-xl">{item.d_document_name}</h1>
                         <label className="block mb-2 text-gray-700  text-sm font-semibold">
-                          รูปภาพ / ไฟล์
+                          รูปภาพ / ไฟล์เอกสาร
                         </label>
                         <div className="w-ful">
                           {item.d_document_file.map(
-                            (file: any, num: number) => (
-                              <Fragment key={num}>
-                                <div className="grid md:grid-cols-4 grid-cols-4  gap-1">
-                                <div className="relative  w-[150px]   h-[150px]   overflow-hidden">
-                                  <Image
-                                    src={
+                                (images: any, index: number) => {
+
+                                    const isExcel =
+                                      images.file_name?.endsWith(".xlsx") ||
+                                      images.file_name?.endsWith(".xls") ||
+                                      images.file_name?.endsWith(".csv");
+                                    const isPdf = images.file_name?.endsWith(".pdf");
+                                    const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                                    const url =
                                       process.env.NEXT_PUBLIC_URL_API +
-                                      file.file_path
-                                    }
-                                    alt={`Preview ${num}`}
-                                    width={200}
-                                    height={200}
-                                    className=" object-cover rounded"
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                      image
-                                    </span>
-                                  </div>
-                                  <div className="absolute bottom-1 right-0 flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        setFunction(
-                                          item.d_document_file[num],
-                                          index,
-                                          num
-                                        );
-                                      }} // Consider passing the  image (url, index, etc.)
-                                      type="button"
-                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                    >
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Eye"
-                                        className="w-5 h-5 m-auto"
-                                      />
-                                    </button>
-                                  </div>
-
-                                  {/* Pass data or URL to the ModalPreviewImage component */}
-                                  {/* <ModalPreviewImage ... /> */}
-                                </div>
-                                </div>
-
-                                <div className="flex flex-col mt-2 ">
+                                      images.file_path;
+            
+                                    return(
+                                    <>
+                                      <ViewImageComponent
+                                        isExcel={isExcel}
+                                        isPdf={isPdf}
+                                        isImage={isImage}
+                                        url={url}
+                                        images={images}
+                                        index={index}
+                                      ></ViewImageComponent>
+                                      <div className="flex flex-col mt-2 ">
                                   {item.d_document_key === "document_etc" && (
                                     <>
                                       <label className="block mb-2 text-gray-700  text-sm font-bold">
@@ -177,11 +156,13 @@ const ModalwatchDocument = ({
                                       </label>
                                       {item.d_document_etc}
                                     </>
-                                  )}
-                                </div>
-                              </Fragment>
+                                      )}
+                                    </div>
+                                     
+                                    </>)
+                                  }
                             )
-                          )}
+                        }
                         </div>
                       </div>
                     </Fragment>
