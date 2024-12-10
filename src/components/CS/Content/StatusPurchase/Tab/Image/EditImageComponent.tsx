@@ -155,10 +155,12 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
                 <div className="flex flex-wrap">
                     {/* Display Existing Images */}
                     {previewUrls.map((data, index) => {
-                        const isExcel = data.name?.endsWith('.xlsx') || data.name?.endsWith('.xls') || data.name?.endsWith('.csv');
+                        console.log("previewUrls",data)
+                        const isExcel = data.name?.endsWith('.xlsx') || data.name?.endsWith('.xls') || data.name?.endsWith('.csv'); 
                         const isPdf = data.name?.endsWith('.pdf');
                         const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
                         const url = data.url;
+                        console.log("data",data)
 
                         return (
                             <div key={index} className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden">

@@ -160,7 +160,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                       name="date_receiving"
                       control={control}
                       defaultValue={data?.date_receiving}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -197,7 +197,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                       name="date_booking"
                       control={control}
                       defaultValue={data?.date_booking}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -259,7 +259,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                       name="date_entering"
                       control={control}
                       defaultValue={data.date_entering}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -297,7 +297,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                       name="time_entering"
                       control={control}
                       defaultValue={data.time_entering}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"

@@ -328,7 +328,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
     });
 
     useEffect(() => {
-      data.Contain_product.forEach((item: any) => append(item));
+      data?.Contain_product?.forEach((item: any) => append(item));
     }, [append]);
 
     const handleDeleteRow = (index: number) => {

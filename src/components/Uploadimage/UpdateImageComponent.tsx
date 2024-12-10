@@ -15,6 +15,7 @@ import { Document, Page } from "react-pdf";
 import ModalPreviewImage from "@/components/Content/Prepurchase/upload/ModalPreview";
 
 const UploadImageComponent = ({
+  name,
   setValue,
   control,
 }: {

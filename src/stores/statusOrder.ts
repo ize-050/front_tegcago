@@ -7,8 +7,11 @@ import { icons } from "@/components/Base/Lucide";
 import { tab, TabStatus } from "@/utils/statusOrder"
 
 //service
-import { serviceCreateBookcabinet ,serviceCreateReceive ,serviceCreateContain , serviceEditContain , serviceReturncabinet ,
-    serviceeditReturncabinet
+import { serviceCreateBookcabinet ,
+    serviceCreateReceive ,serviceCreateContain , serviceEditContain , serviceReturncabinet ,
+    serviceeditReturncabinet,
+    serviceUpdateBookcabinet,
+    serviceUpdateReceive
  } from "@/services/statusOrder"
 
 
@@ -39,6 +42,18 @@ export const createBookcabinet = createAsyncThunk(
             throw error;
         }
 
+    }
+);
+
+export const updateBookcabinet = createAsyncThunk(
+    "cs_purchase/updateBookcabinet",
+    async (action: any, { dispatch, getState }) => {
+        try {
+            const response: any = await serviceUpdateBookcabinet(action);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     }
 );
 
@@ -89,6 +104,18 @@ export const createReceive = createAsyncThunk(
             throw error;
         }
 
+    }
+);
+
+export const updateReceive = createAsyncThunk(
+    "cs_purchase/updateReceive",
+    async (action: any, { dispatch, getState }) => {
+        try {
+            const response: any = await serviceUpdateReceive(action);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     }
 );
 

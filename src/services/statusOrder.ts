@@ -116,6 +116,48 @@ export const serviceCreateBookcabinet = async (data: any) => {
   });
 };
 
+export const serviceUpdateBookcabinet = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    const id = data.id;
+    delete data.id;
+
+
+    const formData = new FormData();
+    if (data.files.length > 0) {
+      for (let i = 0; i < data.files.length; i++) {
+
+        if (data.files[i].status === "added" || data.files[i].status === "edited") {
+          formData.append("book_picture", data.files[i].originalFile, data.files[i].name);
+        } else if (data.files[i].status === "unchanged" && data.files[i].id) {
+          formData.append("existingImageIds[]", data.files[i].id.toString());
+        }
+      }
+    }
+
+    
+
+    
+    delete data.files;
+    for (const key in data) {
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
+    }
+    
+
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateBookcabinet/${id}`;
+    await axios.put(url, formData).then((res) => {
+      if (res.status === 200) {
+        resolve(res);
+      }
+    }).catch((err) => {
+      reject(err);
+    });
+
+
+  });
+};
+
 export const serviceCreateReceive = async (data: any) => {
   return new Promise(async (resolve, reject) => {
     const d_purchase_id = data.d_purchase_id;
@@ -146,6 +188,39 @@ export const serviceCreateReceive = async (data: any) => {
       .catch((err) => {
         reject(err);
       });
+  });
+};
+
+export const serviceUpdateReceive = async (data: any) => {
+  return new Promise(async (resolve, reject) => {
+    const id = data.id;
+    delete data.id;
+
+    const formData = new FormData();
+    if (data.files.length > 0) {
+      for (let i = 0; i < data.files.length; i++) {
+        if (data.files[i].status === "added" || data.files[i].status === "edited") {  
+          formData.append("receive_picture", data.files[i].originalFile, data.files[i].name);
+        } else if (data.files[i].status === "unchanged" && data.files[i].id) {
+          formData.append("existingImageIds[]", data.files[i].id.toString());
+        }
+      }
+    }
+    delete data.files;
+
+    for (const key in data) {
+      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+        formData.append(key, data[key]);
+      }
+    }
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateReceive/${id}`;
+    await axios.put(url, formData).then((res) => {
+      if (res.status === 200) {
+        resolve(res);
+      }
+    }).catch((err) => {
+      reject(err);
+    });
   });
 };
 
@@ -931,6 +1006,8 @@ export const getSuccessRelease = async (id: any) => {
   });
 };
 
+
+
 export const createDestination = async (data: Partial<any>): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     const id = data.d_purchase_id;
@@ -956,6 +1033,42 @@ export const createDestination = async (data: Partial<any>): Promise<any> => {
         if (res.status === 200) {
           resolve(res.data);
         }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+export const updateDestination = async (data: Partial<any>): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateDestination/${data.id}`;
+
+    const formData = new FormData();
+
+    if (data.files.length > 0) {
+      for (let i = 0; i < data.files.length; i++) {
+        if(data.files[i].status === "added" || data.files[i].status === "edited"){
+          formData.append("files", data.files[i].originalFile, data.files[i].name);
+        }
+        else if(data.files[i].status === "unchanged" && data.files[i].id){
+          formData.append("existingImageIds[]", data.files[i].id.toString());
+        }
+      }
+    }
+    delete data.files;
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+
+    await axios
+      .put(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        resolve(res.data);
       })
       .catch((err) => {
         reject(err);
@@ -1004,6 +1117,41 @@ export const createSendSuccess = async (data: Partial<any>): Promise<any> => {
         if (res.status === 200) {
           resolve(res.data);
         }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+export const updateSendSuccess = async (data: Partial<any>): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    const url = `${process.env.NEXT_PUBLIC_URL_API}/cs_status/updateSendSuccess/${data.id}`;
+    const formData = new FormData();
+
+    if (data.files.length > 0) {
+      for (let i = 0; i < data.files.length; i++) {
+        if(data.files[i].status === "added" || data.files[i].status === "edited"){
+          formData.append("files", data.files[i].originalFile, data.files[i].name);
+        }
+        if(data.files[i].status === "unchanged" && data.files[i].id){
+          formData.append("existingImageIds[]", data.files[i].id.toString());
+        }
+      }
+    }
+    delete data.files;
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+
+    await axios
+      .put(url, formData, {
+        headers: {
+          Accept: "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        resolve(res.data);
       })
       .catch((err) => {
         reject(err);

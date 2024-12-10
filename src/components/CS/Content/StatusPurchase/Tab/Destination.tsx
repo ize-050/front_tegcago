@@ -14,8 +14,9 @@ import Table from "@/components/Base/Table";
 import { setOpenToast } from "@/stores/util";
 
 //service
-import { createDestination, getDestination } from "@/services/statusOrder";
+import { createDestination, getDestination, updateDestination } from "@/services/statusOrder";
 import ViewImageComponent from "../Image/ViewImageComponent";
+import EdituploadComponent from "./Image/EditImageNotkeyComponent";
 
 const DestinationComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
@@ -42,7 +43,8 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
   });
 
   const [data, setData] = useState<any>({});
-
+  const [des_id, setdesId] = useState<any>("")
+ 
   const fetchData = async (id: any) => {
     try {
       const response: any = await getDestination(id);
@@ -62,6 +64,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Destination") {
       fetchData(checkCreate.id);
+      setdesId(checkCreate.id)
       dispatch(
         setForm({
           id: "9",
@@ -84,13 +87,15 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
       const formData = {
-        ...data,
+        ...dataForm,
+        id: data.id,
         d_purchase_id: purchase?.id,
       };
-      //   if (dataStatus.type === "create") {
+       if (dataStatus.type === "create") {
+        delete formData.id;
       const response: any = await createDestination(formData);
       if (response.statusCode == 200) {
         dispatch(setEditForm("view"));
@@ -102,7 +107,20 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
         );
         fetchData(response.id);
       }
-      //   }
+     }
+     else if(dataStatus.type == "edit") {
+      const response: any = await updateDestination(formData);
+      if (response.statusCode == 200) {
+        dispatch(setEditForm("view"));
+        dispatch(
+          setOpenToast({
+            type: "success",
+            message: response.message,
+          })
+        );
+        fetchData(des_id)
+      }
+     }
     } catch (err: any) {
       console.log(err);
       dispatch(
@@ -111,7 +129,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
           message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
-      location.reload()
+      // location.reload()
     }
   };
 
@@ -202,7 +220,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
                       name="date_receiving_cabinet"
                       control={control}
                       defaultValue={data?.date_receiving_cabinet}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -234,42 +252,54 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
                     แนบรูปรับตู้ออกจากท่าเรือ
                   </label>
 
-                  {dataStatus.type !== "view" ? (
-                    <>
-                      <UploadImageComponent
+                  {dataStatus.type == "create" ? (
+                  <>
+                    <div className="">
+                     <UploadImageComponent
                         setValue={setValue}
                         control={control}
                       ></UploadImageComponent>
-                    </>
-                  ) : (
-                    <div className="flex  flex-wrap ">
-                      {data?.cs_wait_destination_file?.map(
-                        (images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
-
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        }
-                      )}
                     </div>
-                  )}
+                  </>
+                ) : dataStatus.type == "edit" ? (
+                  <>
+                    <div className="">
+                      <EdituploadComponent
+                        name="files"
+                        setValue={setValue}
+                        image={data.cs_wait_destination_file}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex  flex-wrap ">
+                    {data?.cs_wait_destination_file?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.file_name?.endsWith(".xlsx") ||
+                        images.file_name?.endsWith(".xls") ||
+                        images.file_name?.endsWith(".csv");
+                      const isPdf = images.file_name?.endsWith(".pdf");
+                      const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.file_path;
+
+                      return (
+                        <>
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                        </>
+                      );
+                    })}
+                  </div>
+                )}
+
                 </div>
               </div>
             </div>

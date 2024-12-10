@@ -13,13 +13,20 @@ import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent"
 import { setOpenToast } from "@/stores/util";
 
 //service
-import { getSendsuccess, createSendSuccess } from "@/services/statusOrder";
+import {
+  getSendsuccess,
+  createSendSuccess,
+  updateSendSuccess,
+} from "@/services/statusOrder";
 import ViewImageComponent from "../Image/ViewImageComponent";
+import EdituploadComponent from "./Image/EditImageNotkeyComponent";
 
 const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
+
+  const [sentSuccessId, setSentSuccessId] = useState<string>("");
 
   const {
     handleSubmit,
@@ -61,6 +68,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "SentSuccess") {
       fetchData(checkCreate.id);
+      setSentSuccessId(checkCreate.id);
       dispatch(
         setForm({
           id: "10",
@@ -83,25 +91,39 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
       const formData = {
-        ...data,
+        ...dataForm,
+        id: data.id,
         d_purchase_id: purchase?.id,
       };
-      //   if (dataStatus.type === "create") {
-      const response: any = await createSendSuccess(formData);
-      if (response.statusCode == 200) {
-        dispatch(setEditForm("view"));
-        dispatch(
-          setOpenToast({
-            type: "success",
-            message: response.message,
-          })
-        );
-        fetchData(response.id);
+      if (dataStatus.type === "create") {
+        delete formData.id;
+        const response: any = await createSendSuccess(formData);
+        if (response.statusCode == 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: response.message,
+            })
+          );
+          fetchData(response.id);
+        }
+      } else if (dataStatus.type == "edit") {
+        const response: any = await updateSendSuccess(formData);
+        if (response.statusCode == 200) {
+          dispatch(setEditForm("view"));
+          dispatch(
+            setOpenToast({
+              type: "success",
+              message: response.message,
+            })
+          );
+          fetchData(sentSuccessId);
+        }
       }
-      //   }
     } catch (err: any) {
       console.log(err);
       dispatch(
@@ -110,7 +132,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
           message: err.message,
         })
       );
-      location.reload();
+      // location.reload();
     }
   };
 
@@ -178,7 +200,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
                       name="date_out_arrival"
                       control={control}
                       defaultValue={data?.date_out_arrival}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -209,13 +231,25 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                     แนบรูปรถถึงปลายทาง
                   </label>
-
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
-                      <UploadImageComponent
-                        setValue={setValue}
-                        control={control}
-                      ></UploadImageComponent>
+                      <div className="">
+                        <UploadImageComponent
+                          setValue={setValue}
+                          control={control}
+                        ></UploadImageComponent>
+                      </div>
+                    </>
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <div className="">
+                        <EdituploadComponent
+                          name="files"
+                          setValue={setValue}
+                          image={data?.cs_already_sent_file}
+                          control={control}
+                        ></EdituploadComponent>
+                      </div>
                     </>
                   ) : (
                     <div className="flex  flex-wrap ">
@@ -226,7 +260,11 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
                             images.file_name?.endsWith(".xls") ||
                             images.file_name?.endsWith(".csv");
                           const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
 

@@ -57,13 +57,8 @@ const initialState: SideMenuState = {
     },
     {
       icon: "Book",
-      pathname: "/AllCs",
+      pathname: "/cs/allcs",
       title: "รายการสถานะการขนส่ง",
-    },
-    {
-      icon: "Boxes",
-      pathname: "/allcustomer",
-      title: "ข้อมูลลูกค้า",
     },
     {
       icon: "Proportions",

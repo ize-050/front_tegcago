@@ -13,6 +13,7 @@ import {
   statusOrderData,
   setEditForm,
   setStoreTabActive,
+  updateBookcabinet,
 } from "@/stores/statusOrder";
 
 import { useRouter } from "next/navigation";
@@ -31,10 +32,13 @@ import { getBookcabinet } from "@/services/statusOrder";
 import { setModalImage } from "@/stores/purchase";
 import ModalPreviewImage from "../../Prepurchase/upload/ModalPreview";
 import moment from "moment";
+import EdituploadComponent from "./Image/EditImageNotkeyComponent";
+import ViewImageComponent from "../Image/ViewImageComponent";
 
 const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
+  const [bookId, setBookId] = useState<string>("");
   const { modalImage } = useAppSelector(purchaseData);
   const {
     handleSubmit,
@@ -62,8 +66,11 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
   const fetchData = useCallback(
     async (id_get: string) => {
       try {
-        const response = await getBookcabinet(id_get);
+        const response :any = await getBookcabinet(id_get);
+
+        console.log("responseEiei", response);
         setData(response);
+       
       } catch (error) {
         console.log(error);
       }
@@ -77,6 +84,8 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Bookcabinet") {
       fetchData(checkCreate.id);
+      setBookId(checkCreate.id);
+      
       dispatch(
         setForm({
           id: "1",
@@ -99,16 +108,19 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
     }
   }, [dataCspurchase]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (dataForm: any) => {
     try {
+      
       const formData = {
-        ...data,
+        ...dataForm,
+        id:data.id,
         d_purchase_id: purchase?.id,
         agentcy_id: purchase?.d_sale_agentcy[0]?.d_agentcy?.agentcy_id,
         agent_boat: purchase?.d_sale_agentcy[0]?.d_agentcy?.agent_boat,
       };
-      console.log("status", status);
+      console.log("formData", formData);
       if (status.type === "create") {
+        delete formData.id;
         dispatch(createBookcabinet(formData)).then((response: any) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
@@ -123,6 +135,20 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
           }
         });
       } else {
+        dispatch(updateBookcabinet(formData)).then((response: any) => {
+          console.log("response", response);
+          if (response.payload.data.statusCode == 200) {
+            dispatch(setEditForm("view"));
+            dispatch(
+              setOpenToast({
+                type: "success",
+                message: "บันทึกข้อมูลเรียบร้อย"
+              })
+            );
+            fetchData(bookId);
+          }
+        });
+    
       }
     } catch (err: any) {
       dispatch(
@@ -195,7 +221,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                       name="date_receiving"
                       control={control}
                       defaultValue={data?.date_receiving}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -232,7 +258,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                       name="date_booking"
                       control={control}
                       defaultValue={data?.date_booking}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -294,7 +320,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                       name="date_entering"
                       control={control}
                       defaultValue={data.date_entering}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -332,7 +358,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                       name="time_entering"
                       control={control}
                       defaultValue={data.time_entering}
-                      rules={{ required: true }}
+                      rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input
                           placeholder="กรุณากรอกข้อมูล"
@@ -361,170 +387,59 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
             </div>
 
             <div className="">
-              <div className="p-5">
+              <div className="p-5 w-1/2">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                   รูปภาพ
                 </label>
-                {dataStatus.type !== "view" ? (
+
+                {dataStatus.type == "create" ? (
                   <>
-                    <div className="w-1/2">
-                      <UploadImageComponent
+                    <div className="">
+                    <UploadImageComponent
                         setValue={setValue}
                         control={control}
                       ></UploadImageComponent>
                     </div>
                   </>
-                ) : (
+                ) : dataStatus.type == "edit" ? (
                   <>
-                    {data?.bookcabinet_picture?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.picture_name?.endsWith(".xlsx") ||
-                          images.picture_name?.endsWith(".xls") ||
-                          images.picture_name?.endsWith(".csv");
-                        const isPdf = images.picture_name?.endsWith(".pdf");
-                        const isImage = images.picture_name?.endsWith('.jpg') || images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');;
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          "/" +
-                          images.picture_path;
-
-                        console.log("url", url);
-                        return (
-                          <div
-                            key={index}
-                            className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden"
-                          >
-                            {isPdf && (
-                              <>
-                                <div className="relative w-full h-full   overflow-hidden">
-                                  <object
-                                    data={url}
-                                    type="application/pdf"
-                                    height={"100%"}
-                                    width={"100%"}
-                                  >
-                                    <div className="flex items-center justify-center h-full">
-                                      <p className="text-gray-500">
-                                        PDF Viewer not available
-                                      </p>
-                                    </div>
-                                  </object>
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                      PDF
-                                    </span>
-                                  </div>
-
-                                  <div className="absolute bottom-1 right-0 flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        window.open(url);
-                                      }}
-                                      type="button"
-                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                    >
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Eye"
-                                        className="w-5 h-5 m-auto"
-                                      />
-                                    </button>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-
-                            {isImage && (
-                              <>
-                                <div className="relative w-full h-full   overflow-hidden">
-                                  <Image
-                                    src={url}
-                                    alt={`Preview ${index}`}
-                                    fill
-                                    className="w-full h-full object-cover rounded"
-                                    onError={(e) => {
-                                      // Placeholder or error message on image load failure
-                                      e.currentTarget.src =
-                                        "/images/placeholder.jpg";
-                                    }}
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                      image
-                                    </span>
-                                  </div>
-                                  <div className="absolute bottom-1 right-0 flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        dispatch(setModalImage(true));
-                                        setSelectedImageIndex(index);
-                                      }} // Consider passing the  image (url, index, etc.)
-                                      type="button"
-                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                    >
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Eye"
-                                        className="w-5 h-5 m-auto"
-                                      />
-                                    </button>
-                                  </div>
-                                  {/* Pass data or URL to the ModalPreviewImage component */}
-                                  {/* <ModalPreviewImage ... /> */}
-                                </div>
-                                {modalImage && selectIndex === index && (
-                                  <ModalPreviewImage
-                                    isOpen={modalImage}
-                                    onClose={() =>
-                                      dispatch(setModalImage(false))
-                                    }
-                                    startIndex={index}
-                                    images={data?.bookcabinet_picture}
-                                  />
-                                )}
-                              </>
-                            )}
-
-                            {isExcel && (
-                              <div>
-                                <div className="relative w-full h-32  border-2   overflow-hidden">
-                                  <Lucide
-                                    icon="Sheet"
-                                    className="absolute top-10 left-6 w-8 h-8 mx-auto text-green-500"
-                                  />
-                                  <h3 className="text-sm font-semibold mb-2">
-                                    {images.picture_name}
-                                  </h3>
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                      Excel
-                                    </span>
-                                  </div>
-                                  <div className="absolute bottom-1 right-0 flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        window.open(url);
-                                      }}
-                                      type="button"
-                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                    >
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Eye"
-                                        className="w-5 h-5 m-auto"
-                                      />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-                    )}
+                    <div className="">
+                      <EdituploadComponent
+                        name="files"
+                        setValue={setValue}
+                        image={data?.bookcabinet_picture}
+                        control={control}
+                      ></EdituploadComponent>
+                    </div>
                   </>
+                ) : (
+                  <div className="flex    flex-wrap ">
+                    {data?.bookcabinet_picture?.map((images: any, index: number) => {
+                      const isExcel =
+                        images.picture_name?.endsWith(".xlsx") ||
+                        images.picture_name?.endsWith(".xls") ||
+                        images.picture_name?.endsWith(".csv");
+                      const isPdf = images.picture_name?.endsWith(".pdf");
+                      const isImage = images.picture_name?.endsWith('.jpg') ||images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');
+                      const url =
+                        process.env.NEXT_PUBLIC_URL_API + images.picture_path;
+
+                      return (
+                        <>
+                          <ViewImageComponent
+                            isExcel={isExcel}
+                            isPdf={isPdf}
+                            isImage={isImage}
+                            url={url}
+                            images={images}
+                            index={index}
+                          ></ViewImageComponent>
+                        </>
+                      );
+                    })}
+                  </div>
                 )}
+
               </div>
             </div>
 
