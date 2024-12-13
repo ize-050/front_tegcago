@@ -15,7 +15,7 @@ function ModalViewmage({ isOpen, onClose, images, startIndex = 0 }: PreviewModal
   
     return (
         <div className="fixed inset-0 z-50  flex items-center justify-center bg-black bg-opacity-60">
-            <div className="relative max-w-lg bg-white rounded-lg p-4 ">
+            <div className="relative bg-white rounded-lg p-4 ">
                 <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
                     onClick={onClose}
@@ -34,12 +34,16 @@ function ModalViewmage({ isOpen, onClose, images, startIndex = 0 }: PreviewModal
 
                 {/* Image Display */}
                 {/* {images.length === 0 && <p className="text-center text-gray-500">No images to display</p>} */}
-                <Image
-                    src={images}
-                    alt={'Image'}
-                    width={800}
-                    height={600}
-                    className="w-full  object-contain"
+                <img
+          src={images}
+          alt="Image"
+          className="object-contain"
+          style={{
+            maxHeight: '90vh', // Limit the height to 90% of the viewport
+            maxWidth: '90vw',  // Limit the width to 90% of the viewport
+            width: 'auto',
+            height: 'auto',
+                    }}
                 />
 
             </div>

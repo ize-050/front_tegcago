@@ -372,7 +372,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                     ไฟล์แนบแลกการ์ดรับตู้
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_card"
@@ -462,7 +462,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                     ไฟล์แนบเอกสารคืนตู้
                   </label>
 
-                  {dataStatus.type !== "view" ? (
+                  {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
                         name="file_return_document"

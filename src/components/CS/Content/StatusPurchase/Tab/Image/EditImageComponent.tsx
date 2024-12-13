@@ -57,7 +57,7 @@ const EdituploadComponent = ({ name, setValue, control ,image}: {
           } else {
             return {
               id: file.id,
-              url: `${process.env.NEXT_PUBLIC_URL_API}${file.file_path ? file.file_path : file.picture_path}`,
+              url: `${file.file_path ? process.env.NEXT_PUBLIC_URL_API + file.file_path : process.env.NEXT_PUBLIC_URL_API + file.picture_path}`,
               type: "image/png",
               name: file.file_name ? file.file_name : file.picture_name,
               status: 'unchanged',

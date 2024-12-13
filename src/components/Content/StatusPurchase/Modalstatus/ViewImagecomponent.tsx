@@ -10,21 +10,35 @@ import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import ModalViewmage from '@/components/CS/Content/StatusPurchase/Image/ModalViewImage';
 
 const ViewImageComponent = ({
+    key,
     isExcel,
     isPdf,
     isImage,
     url,
     images,
     index
-}:any) => {
+}:{
+    key?:number,
+    isExcel:boolean,
+    isPdf:boolean,
+    isImage:boolean,
+    url:string,
+    images:any,
+    index:number
+}) => {
     const { modalImage } = useAppSelector(purchaseData);
     const dispatch = useAppDispatch();
-    const [selectIndex, setSelectedImageIndex] = useState<number>(0);
+    const [selectIndex, setSelectedImageIndex] = useState<number | null>(null);
     const openModal = (index: number) => {
-        console.log("dd",index)
+        
         setSelectedImageIndex(index);
         dispatch(setModalImage(true))
       };
+
+      const closeModal = () => {
+        setSelectedImageIndex(null);
+        dispatch(setModalImage(false));
+    };
     return (
 
         
@@ -32,7 +46,7 @@ const ViewImageComponent = ({
         <Fragment>
              <div
                             key={index}
-                            className="relative w-32 h-32 m-2 basis-2/4 overflow-hidden"
+                            className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden"
                           >
                             {isPdf && (
                               <>
@@ -74,52 +88,44 @@ const ViewImageComponent = ({
                               </>
                             )}
 
-                            {isImage && (
-                              <>
-                                <div className="relative w-full h-full   overflow-hidden">
-                                  <Image
-                                    src={url}
-                                    alt={`Preview ${index}`}
-                                    fill
-                                    className="w-full h-full object-cover rounded"
-                                    onError={(e) => {
-                                      // Placeholder or error message on image load failure
-                                      e.currentTarget.src =
-                                        "/images/placeholder.jpg";
-                                    }}
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                      image
-                                    </span>
-                                  </div>
-                                  <div className="absolute bottom-1 right-0 flex gap-2">
-                                    <button
-                                    onClick={() => openModal(index)}
-                                      type="button"
-                                      className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                                    >
-                                      <Lucide
-                                        color="#6C9AB5"
-                                        icon="Eye"
-                                        className="w-5 h-5 m-auto"
-                                      />
-                                    </button>
-                                  </div>
-                                  {/* Pass data or URL to the ModalPreviewImage component */}
-                                  {/* <ModalPreviewImage ... /> */}
-                                </div>
-                                {modalImage && selectIndex === index && (
-                                  <ModalViewmage
-                                    isOpen={modalImage}
-                                    onClose={() =>
-                                      dispatch(setModalImage(false))
-                                    }
-                                    images={url}
-                                  />
-                                )}
-                              </>
-                            )}
+{isImage && (
+                    <div className="relative w-full h-full overflow-hidden">
+                        <Image
+                            src={url}
+                            alt={`Preview ${index}`}
+                            fill
+                            className="w-full h-full object-cover rounded"
+                            onError={(e) => {
+                                e.currentTarget.src = "/images/placeholder.jpg";
+                            }}
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <span className="text-white text-lg font-medium">
+                                image
+                            </span>
+                        </div>
+                        <div className="absolute bottom-1 right-0 flex gap-2">
+                            <button
+                                onClick={() => openModal(index)}
+                                type="button"
+                                className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                            >
+                                <Lucide
+                                    color="#6C9AB5"
+                                    icon="Eye"
+                                    className="w-5 h-5 m-auto"
+                                />
+                            </button>
+                        </div>
+                        {modalImage && selectIndex === index && (
+                            <ModalViewmage
+                                isOpen={modalImage}
+                                onClose={closeModal}
+                                images={url}
+                            />
+                        )}
+                    </div>
+                )}
 
                             {isExcel && (
                               <div>

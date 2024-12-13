@@ -378,18 +378,19 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
+                            if (isImage) {
+                              return (
+                                <ViewImageComponent
+                                  key="file_original_fe"
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                />
+                              );
+                            }
                         })}
                       </div>
                     </>
@@ -752,6 +753,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           return (
                             <>
                               <ViewImageComponent
+                                key="file_amount_payment_do"
                                 isExcel={isExcel}
                                 isPdf={isPdf}
                                 isImage={isImage}
@@ -877,6 +879,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           return (
                             <>
                               <ViewImageComponent
+                                key={index}                              
                                 isExcel={isExcel}
                                 isPdf={isPdf}
                                 isImage={isImage}
