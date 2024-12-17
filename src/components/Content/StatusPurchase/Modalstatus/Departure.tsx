@@ -229,36 +229,39 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_hbl";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "file_hbl";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
                           </div>
                         </>
                       )}
@@ -304,55 +307,46 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                     )}
                   </div>
                   <div className="w-1/2">
+                   
                     <div className="p-5">
                       <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                         อัพโหลดเอกสาร Original F/E *
                       </label>
 
-                      {dataStatus.type !== "view" ? (
-                        <>
-                          <UploadImageComponent
-                            name="file_original_fe"
-                            setValue={setValue}
-                            control={control}
-                          ></UploadImageComponent>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_original_fe";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                      <div className="w-full flex  flex-wrap">
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_original_fe";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
-                          </div>
-                        </>
-                      )}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -411,36 +405,39 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_surrender";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "file_surrender";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
                           </div>
                         </>
                       )}
@@ -502,36 +499,39 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_enter_doc";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "file_enter_doc";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
                           </div>
                         </>
                       )}
@@ -593,36 +593,39 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_payment_do";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "file_payment_do";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
                           </div>
                         </>
                       )}
@@ -684,36 +687,39 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                       ) : (
                         <>
                           <div className="flex  flex-wrap ">
-                            {data?.leavefile?.filter((res: { key: string }) => {
-                              return res.key === "file_amount_payment_do";
-                            })?.map((images: any, index: number) => {
-                              const isExcel =
-                                images.file_name?.endsWith(".xlsx") ||
-                                images.file_name?.endsWith(".xls") ||
-                                images.file_name?.endsWith(".csv");
-                              const isPdf = images.file_name?.endsWith(".pdf");
-                              const isImage =
-                                images.file_name?.endsWith(".jpg") ||
-                                images.file_name?.endsWith(".png") ||
-                                images.file_name?.endsWith(".jpeg") ||
-                                images.file_name?.endsWith(".webp");
-                              const url =
-                                process.env.NEXT_PUBLIC_URL_API +
-                                images.file_path;
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "file_amount_payment_do";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                              return (
-                                <>
-                                  <ViewImageComponent
-                                    isExcel={isExcel}
-                                    isPdf={isPdf}
-                                    isImage={isImage}
-                                    url={url}
-                                    images={images}
-                                    index={index}
-                                  ></ViewImageComponent>
-                                </>
-                              );
-                            })}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
                           </div>
                         </>
                       )}
@@ -731,15 +737,11 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                   </div>
                 </div>
 
-
-             
                 <div className="flex">
-
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       วันที่ Payment *
                     </label>
-
 
                     {dataStatus.type !== "view" ? (
                       <>
@@ -771,56 +773,55 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                     )}
                   </div>
 
-
                   <div className="w-1/2">
-                <div className="p-5">
-                  <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    ไฟล์แนบสลิป
-                  </label>
+                    <div className="p-5">
+                      <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                        ไฟล์แนบสลิป
+                      </label>
 
-   
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "payment_date_file";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "payment_date_file";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
-                    
-                
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-                  
-                </div>
-
 
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       ราคามัดจำตู้ *
                     </label>
-
 
                     {dataStatus.type !== "view" ? (
                       <>
@@ -855,7 +856,7 @@ const ModalDepartureComponents: React.FC<ModalDepartureProps> = ({
                     )}
                   </div>
                 </div>
-           {/* <div className="flex">
+                {/* <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       ราคามัดจำตู้ *

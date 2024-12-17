@@ -15,7 +15,6 @@ import { Document, Page } from "react-pdf";
 import ModalPreviewImage from "@/components/Content/Prepurchase/upload/ModalPreview";
 
 const UploadImageComponent = ({
-  name,
   setValue,
   control,
 }: {
@@ -74,9 +73,7 @@ const UploadImageComponent = ({
     <>
       {files.length < 1 ? (
         <div
-          className="flex flex-col flex-wrap items-center justify-center
-               
-                "
+          className="flex flex-col flex-wrap items-center justify-center"
         >
           <div
             {...getRootProps()}

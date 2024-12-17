@@ -94,7 +94,7 @@ export const serviceCreateBookcabinet = async (data: any) => {
     }
     delete data.files;
     for (const key in data) {
-      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+      if (data[key] !== undefined) {  // Check for undefined before appending
         formData.append(key, data[key]);
       }
     }
@@ -139,7 +139,7 @@ export const serviceUpdateBookcabinet = async (data: any) => {
     
     delete data.files;
     for (const key in data) {
-      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+      if (data[key] !== undefined) {  // Check for undefined before appending
         formData.append(key, data[key]);
       }
     }
@@ -170,7 +170,7 @@ export const serviceCreateReceive = async (data: any) => {
     }
     delete data.files;
     for (const key in data) {
-      if (data[key] !== undefined) {  // ตรวจสอบ undefined ก่อนเพิ่ม
+      if (data[key] !== undefined) {  // Check for undefined before appending
         formData.append(key, data[key]);
       }
     }
@@ -807,8 +807,10 @@ export const CreateWaitrelease = async (data: any) => {
       }
     }
     delete data.files;
-    for (const key in data) {
-      formData.append(key, data[key]);
+   for (const key in data) {
+      if (data[key] !== undefined) {  // Check for undefined before appending
+        formData.append(key, data[key]);
+      }
     }
     await axios
       .post(url, formData, {
