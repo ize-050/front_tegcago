@@ -81,23 +81,6 @@ const FormEdit = ({ purchase }: {
     <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
-
-          {/* <div className="h-auto flex flex-col ">
-            <div
-              className="bg-[#D2D6E1] bg-opacity-30 p-2   flex items-center">
-              <Lucide
-                color="#6C9AB5"
-                icon="Info"
-                className="inset-y-0 bg-secondary-400  pr-1  justify-center  text-slate-500"></Lucide>
-
-              <label className={"pr-5"}>เลือกรายชื่อลูกค้า11 </label>
-
-              <div className="relative ">
-               
-              </div>
-
-            </div>
-          </div> */}
           <div className=" flex  flex-col  md:flex-row  mt-5">
             <div className="w-full md:w-1/3 flex flex-col">
               <label className="block mb-2  text-gray-700  text-sm font-semibold">เลขตีราคา</label>
