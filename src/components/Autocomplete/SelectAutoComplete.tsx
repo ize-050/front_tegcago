@@ -40,8 +40,8 @@ function SelectAutocomplete({ options, onSelect }:{
         placeholder={"ค้นหารายชื่อลูกค้า"}
         className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base w-full"
       />
-      {isOpen && filteredOptions.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white border rounded shadow-md mt-1">
+     {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white border rounded shadow-md mt-1 max-h-60 overflow-y-auto">
           {filteredOptions.map((option, index) => (
             <li
               key={index}

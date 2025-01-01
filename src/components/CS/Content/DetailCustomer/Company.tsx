@@ -66,7 +66,7 @@ const CompanyComponent = ({ control, errors }: any) => {
 
             <div className="flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mb-5">
                 <div className="w-full md:w-1/2 flex flex-col">
-                    <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ช่องทางการจัดหน่าย</label>
+                    <label className="block mb-2 text-lg text-gray-700  text-sm font-semibold">ช่องทางการจัดจำหน่าย</label>
                     <Controller
                         name="cd_channels"
                         control={control}
