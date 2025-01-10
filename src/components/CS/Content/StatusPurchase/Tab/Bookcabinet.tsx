@@ -128,7 +128,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
             dispatch(
               setOpenToast({
                 type: "success",
-                message: response.payload.message,
+                message: 'บันทึกข้อมูลเรียบร้อย',
               })
             );
             fetchData(response.payload.data.id);

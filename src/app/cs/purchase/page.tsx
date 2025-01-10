@@ -352,6 +352,9 @@ function Purchase() {
                             || row?.d_transport.toString()
                             .toLowerCase()
                             .includes(searchedVal.toString().toLowerCase())
+                            || row?.d_shipment_number?.toString()
+                            .toLowerCase()
+                            .includes(searchedVal.toString().toLowerCase())
                         )
                         .map((data: any, key: number) => {
                           return (
