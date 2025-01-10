@@ -67,11 +67,10 @@ const ApproveComponent = () => {
             message: "บันทึกข้อมูลสำเร็จ",
           })
         );
-
-        // await setTimeout(() => {
-        //   location.reload();
-        // }, 3000);
-        //router.push('/purchase')
+        await setTimeout(() => {
+          location.reload();
+        }, 2000);
+        router.push('/purchase')
       }
     } catch (e: any) {
       dispatch(
