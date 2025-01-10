@@ -68,9 +68,9 @@ const ApproveComponent = () => {
           })
         );
 
-        await setTimeout(() => {
-          location.reload();
-        }, 3000);
+        // await setTimeout(() => {
+        //   location.reload();
+        // }, 3000);
         //router.push('/purchase')
       }
     } catch (e: any) {

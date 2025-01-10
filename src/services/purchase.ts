@@ -202,24 +202,22 @@ export const updateAgency = async (data:Partial<any>,id:string):Promise<any> => 
                 }
             });
         }
-    
+    ``
 
         if (data.type.length > 0) {
             console.log('data.ty11pe',data.type)
            for (let i = 0; i < data.type.length; i++) {
-            formData.append('type[]', JSON.stringify(data.type[i])); // Append as JSON string
+            formData.append('type', JSON.stringify(data.type[i])); // Append as JSON string
            }
         }
         delete data.type
         delete data.d_image
       
-       for (const key in data) {
-        formData.append(key, data[key]);
-       }
+    
 
 
         const url = `${process.env.NEXT_PUBLIC_URL_API}/cs/updateAgency/${id}`;
-        await axios.put(url,formData,{
+        await axios.put(url,data,{
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -493,16 +491,31 @@ export const Submitpayment = async (data: any) => {
         const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/submitpayment/${data.d_purchase_id}`;
         const formData = new FormData();
 
-        console.log('data', data)
-        const type = data.type.filter((item: any) => {
-            return item.change === true
-        })
-  
-        formData.append('type[]', JSON.stringify(type));
-        for (let i = 0; i < type.length; i++) {
-                formData.append('type_images', type[i]?.image);
-        }
 
+        console.log("data.type", data.type)
+        if(data.type.length > 0){
+            data.type.forEach((item: any, index: number) => {
+                const typeData = { ...item };
+                delete typeData.image;
+                formData.append(`type[${index}]`, JSON.stringify(typeData));
+
+                // จัดการกับ image ตามสถานะ
+                if (item.image) {
+                    console.log("item.image", item.image)
+                    if(item.id){
+                        formData.append(`type_images[${index}]`, item.image);
+                    }else{
+                        formData.append(`type_images[${index}]`, item.image);
+                    }
+                }
+            });
+        }
+  
+        // แยกส่ง type data และ images
+    
+
+
+        
         if (data?.purchase_etc?.length > 0) {
             for (let i = 0; i < data.purchase_etc.length; i++) {
                 formData.append('purchase_etc', data.purchase_etc[i]);

@@ -131,7 +131,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-        await  fetchData(id);
+          fetchData(id);
         }
       }
     } catch (err: any) {

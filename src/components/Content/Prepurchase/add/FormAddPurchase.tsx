@@ -22,6 +22,7 @@ import { getSelectCustomer } from "@/services/customer";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import SelectAutocomplete from "@/components/Autocomplete/SelectAutoComplete";
 import Lucide from "@/components/Base/Lucide";
+import Swal from "sweetalert2";
 
 const AddPurchase = ({ BookingId }: any) => {
   const dispatch = useAppDispatch();
@@ -45,6 +46,14 @@ const AddPurchase = ({ BookingId }: any) => {
 
   async function onSubmit(request: any) {
     try {
+      if(request.customer_id == null || request.customer_id == undefined || request.customer_id == ''){
+        Swal.fire({
+         title: 'กรุณาเลือกรายชื่อลูกค้า',
+         icon: 'info',
+         confirmButtonText: 'ตกลง'
+        })
+         return
+       }
       request.book_number = BookingId;
       request.d_truck = request.d_truck.join(",");
       dispatch(submitPrePurchase(request)).then((response:any) => {
@@ -53,7 +62,13 @@ const AddPurchase = ({ BookingId }: any) => {
         } 
       })
     } catch (err) {
-      console.log(err);
+      console.log("errorSubmit",err);
+
+      Swal.fire({
+        title: 'ไม่สามารถสร้างตีราคาได้ กรุณาลองใหม่อีกครั้ง',
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
+      })
     }
   }
 

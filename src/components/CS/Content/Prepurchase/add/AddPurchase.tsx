@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 
 import moment from 'moment'
 import { customerData } from '@/stores/customer'
-
+import Swal from "sweetalert2";
 
 import {
     submitPrePurchase,
@@ -33,6 +33,7 @@ import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent'
 import SelectAutocomplete from '@/components/Autocomplete/SelectAutoComplete'
 import Lucide from "@/components/Base/Lucide";
 
+
 const  AddPurchase = ({BookingId}:any) => {
     const { customer_detail } = useAppSelector(customerData)
     const dispatch = useAppDispatch()
@@ -50,15 +51,30 @@ const  AddPurchase = ({BookingId}:any) => {
     const router = useRouter();
     const [data, setData] = useState<Partial<any>>({})
     const [Bookdate ,SetBookingDate] = useState<string>(moment().format('DD/MM/DD HH:mm'))
+    
     async function onSubmit(request: any) {
         try{
+          console.log('request',request)
+          if(request.customer_id == null || request.customer_id == undefined || request.customer_id == ''){
+           Swal.fire({
+            title: 'กรุณาเลือกรายชื่อลูกค้า',
+            icon: 'error',
+            confirmButtonText: 'ตกลง'
+           })
+            return
+          }
           request.book_number = BookingId;
 
           console.log('request',request.files)
           dispatch(submitPrePurchase(request));
         }
         catch(err) {
-          console.log(err)
+          console.log("errorSubmit",err)
+          Swal.fire({
+            title: 'ไม่สามารถสร้างตีราคาได้ กรุณาลองใหม่อีกครั้ง',
+            icon: 'error',
+            confirmButtonText: 'ตกลง'
+           })
         }
       }
 

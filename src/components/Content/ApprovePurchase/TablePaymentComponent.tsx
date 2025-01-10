@@ -115,28 +115,6 @@ const TablePaymentComponent = () => {
                         </Table.Tbody>
 
                     </Table>
-                    {/* {data?.d_agentcy_detail?.map((item: any, index: number) => (
-                                                
-                                                <Fragment key={index}>
-                                                    <div className="flex justify-between">
-                                                        <p className="text-gray-600">{item.d_type}</p>
-                                                        <p className="text-gray-600">{NumberFormat(item.d_net_balance)} {item.d_currency}</p>
-                                                    </div>
-                                                </Fragment>
-                                                 )}
-                                            ))} */}
-                    {/* <div className="flex  justify-between">
-                                                <p className="mt-10 flex text-lg  font-semibold">
-                                                    สรุปยอดค่าใช้จ่าย ทั้งหมด
-                                                </p>
-                                                <p className="mt-10  flex">
-                                                    ส่วนลด : {discountPrice}
-                                                </p>
-                                            </div>
-                                            <div className="flex flex-col items-end">
-                                                <p className="flex text-gray-600">ทั้งหมด {NumberFormat(totalPrice)}</p>
-
-                                            </div> */}
 
 
 

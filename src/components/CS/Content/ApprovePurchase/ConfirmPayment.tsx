@@ -48,6 +48,7 @@ const ConfirmPayment = ({
                 setValue(`type[${num}].price`, purchase.d_purchase_customer_payment[num].payment_price);
                 setValue(`type[${num}].change`, false);
                 setValue(`type[${num}].image`, null);
+                setValue(`type[${num}].id`, purchase.d_purchase_customer_payment[num].id);
                 setPreviewUrls((prevUrls:any) => ({
                     ...prevUrls,
                     [num]: process.env.NEXT_PUBLIC_URL_API + purchase.d_purchase_customer_payment[num].payment_path,
