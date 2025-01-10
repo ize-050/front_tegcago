@@ -70,7 +70,7 @@ const ApproveComponent = () => {
         await setTimeout(() => {
           location.reload();
         }, 2000);
-        router.push('/purchase')
+        // router.push('/purchase')
       }
     } catch (e: any) {
       dispatch(
