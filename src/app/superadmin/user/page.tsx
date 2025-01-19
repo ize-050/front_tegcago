@@ -6,12 +6,12 @@ import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
 
 
 //component
-import TableComponent from "@/components/Superadmin/user/TableComponent";
+// import TableComponent from "@/components/Superadmin/user/TableComponent";
 
 export default async function UserPage() {
-  const user = await getUser();
+  // const user = await getUser();
 
-  console.log("user", user);
+  // console.log("user", user);
 
 
   return (
@@ -94,7 +94,7 @@ export default async function UserPage() {
 
             <div className="relative"></div>
           </div>
-          <TableComponent user={user} />
+          {/* <TableComponent user={user} /> */}
         </div>
       </div>
     </Fragment>
