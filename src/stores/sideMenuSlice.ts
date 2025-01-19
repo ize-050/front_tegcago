@@ -14,6 +14,7 @@ export interface Menu {
 export interface SideMenuState {
   menuSale: Array<Menu | string>;
   menuCs: Array<Menu | string>;
+  menuSuperadmin: Array<Menu | string>;
 }
 
 const initialState: SideMenuState = {
@@ -59,6 +60,13 @@ const initialState: SideMenuState = {
       icon: "Book",
       pathname: "/cs/allcs",
       title: "รายการสถานะการขนส่ง",
+    },
+  ],
+  menuSuperadmin: [
+    {
+      icon: "Users",
+      pathname: "/dataUser",
+      title: "AllUser",
     },
     {
       icon: "Proportions",

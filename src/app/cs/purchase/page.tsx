@@ -104,7 +104,7 @@ function Purchase() {
     router.push('/purchase/add')
   }
 
-
+  
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -352,9 +352,7 @@ function Purchase() {
                             || row?.d_transport.toString()
                             .toLowerCase()
                             .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_shipment_number?.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
+                            || (row?.d_shipment_number && row.d_shipment_number.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()))
                         )
                         .map((data: any, key: number) => {
                           return (

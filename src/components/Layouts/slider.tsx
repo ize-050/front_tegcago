@@ -63,7 +63,7 @@ function Slider() {
   const pathname = usePathname()
 
 
-  const { menuSale, menuCs } = useAppSelector(selectSideMenu);
+  const { menuSale, menuCs  ,menuSuperadmin} = useAppSelector(selectSideMenu);
 
   const [sideMenuStore, setSideMenuStore] = useState<any>();
 
@@ -100,12 +100,17 @@ function Slider() {
     if (session?.data?.role == "Sales") {
       setSideMenuStore(menuSale)
     }
-    else {
+   
+    else if(session?.data?.role == "Cs") {
       setSideMenuStore(menuCs)
     }
-
-
+    else if(session?.data?.role == "SuperAdmin") {
+      setSideMenuStore(menuSuperadmin)
+    }
+    console.log("session", session?.data?.role)
   }, [session]);
+
+  console.log("formattedMenu", formattedMenu)
   return (
     <>
       <div
@@ -189,7 +194,7 @@ function Slider() {
                     // "side-menu__link",
                     // { "side-menu__link--active": menu.active },
                     // { "side-menu__link--active-dropdown": menu.activeDropdown },
-                    "bg-white text-white hover:text-gray-900",
+                    "bg-white  text-white hover:text-gray-900",
 
                   ])}
                   onClick={menu?.subMenu?.length > 0 ? toggleSubMenu : handleItemClick(menu.pathname)}

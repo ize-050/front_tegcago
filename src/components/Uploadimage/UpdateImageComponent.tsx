@@ -32,7 +32,7 @@ const UploadImageComponent = ({
     const urls = files.map((file) => {
       let Datafile: Partial<any> = {};
       if (file.type === "application/pdf") {
-        console.log("urlrlrl", URL.createObjectURL(file));
+
         Datafile = {
           url: URL.createObjectURL(file),
           type: file.type,
@@ -101,6 +101,7 @@ const UploadImageComponent = ({
               data.name?.endsWith(".jpeg") ||
               data.name?.endsWith(".webp");
             const url = data.url;
+
 
             return (
               <div
@@ -211,11 +212,12 @@ const UploadImageComponent = ({
                         isOpen={modalImage}
                         onClose={() => dispatch(setModalImage(false))}
                         startIndex={index}
-                        images={previewUrls}
+                        images={url}
                       />
                     )}
                   </>
                 )}
+                
 
                 {isExcel && (
                   <div>

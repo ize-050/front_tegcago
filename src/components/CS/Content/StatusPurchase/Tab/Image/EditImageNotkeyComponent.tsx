@@ -49,27 +49,26 @@ const EdituploadNotkeyComponent = ({
   useEffect(() => {
     if (image) {
       console.log("image", image);
-      let newFiles = image
-        .map((file: any) => {
-          if (file instanceof File) {
-            return {
-              url: URL.createObjectURL(file),
-              type: file.type,
-              name: file.name,
-              status: "added",
-            } as FileData;
-          } else {
-            return {
-              id: file.id,
-              url: `${process.env.NEXT_PUBLIC_URL_API}${
-                file.file_path ? file.file_path : file.picture_path
-              }`,
-              type: "image/png",
-              name: file.file_name ? file.file_name : file.picture_name,
-              status: "unchanged",
-            } as FileData;
-          }
-        });
+      let newFiles = image.map((file: any) => {
+        if (file instanceof File) {
+          return {
+            url: URL.createObjectURL(file),
+            type: file.type,
+            name: file.name,
+            status: "added",
+          } as FileData;
+        } else {
+          return {
+            id: file.id,
+            url: `${process.env.NEXT_PUBLIC_URL_API}${
+              file.file_path ? file.file_path : file.picture_path
+            }`,
+            type: "image/png",
+            name: file.file_name ? file.file_name : file.picture_name,
+            status: "unchanged",
+          } as FileData;
+        }
+      });
 
       setPreviewUrls(newFiles);
       setFiles(newFiles);
@@ -126,7 +125,7 @@ const EdituploadNotkeyComponent = ({
         }
       })
       .filter(Boolean) as FileData[];
-    console.log('updatedFiles',updatedFiles)
+    console.log("updatedFiles", updatedFiles);
     setPreviewUrls(updatedFiles);
     setValue(name, updatedFiles);
   }, [files, name, setValue]);
@@ -170,7 +169,11 @@ const EdituploadNotkeyComponent = ({
               data.name?.endsWith(".xls") ||
               data.name?.endsWith(".csv");
             const isPdf = data.name?.endsWith(".pdf");
-            const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
+            const isImage =
+              data.name?.endsWith(".jpg") ||
+              data.name?.endsWith(".png") ||
+              data.name?.endsWith(".jpeg") ||
+              data.name?.endsWith(".webp");
             const url = data.url;
 
             return (
@@ -282,60 +285,60 @@ const EdituploadNotkeyComponent = ({
                         isOpen={modalImage}
                         onClose={() => dispatch(setModalImage(false))}
                         startIndex={index}
-                        images={previewUrls}
+                        images={url}
                       />
                     )}
                   </>
                 )}
 
                 {isExcel && (
-                   <div>
-                   <div className="relative w-full h-32 border-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-                     <div className="absolute inset-0 flex items-center justify-center">
-                       <img
-                         src="/excel-dowload.png"
-                         alt="excel"
-                         className="w-10 h-10 m-auto"
-                       />
-                     </div>
-                     <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-70 transition-opacity duration-300 flex items-center justify-center">
-                       <p className="text-center text-white text-sm font-medium">
-                         {data.name}
-                       </p>
-                     </div>
+                  <div>
+                    <div className="relative w-full h-32 border-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <img
+                          src="/excel-dowload.png"
+                          alt="excel"
+                          className="w-10 h-10 m-auto"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-70 transition-opacity duration-300 flex items-center justify-center">
+                        <p className="text-center text-white text-sm font-medium">
+                          {data.name}
+                        </p>
+                      </div>
 
-                     <div className="absolute bottom-2 right-2 flex gap-2">
-                       <button
-                         type="button"
-                         onClick={() => DeleteImage(index)}
-                         className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg "
-                       >
-                         <Lucide
-                           color="#6C9AB5"
-                           icon="Trash"
-                           className="w-5 h-5 m-auto"
-                         />
-                       </button>
-                       <a
-                         href={data.url}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
-                       >
-                         <Lucide
-                           color="#6C9AB5"
-                           icon="Download"
-                           className="w-5 h-5"
-                         />
-                       </a>
-                     </div>
-                     <div className="absolute bottom-2 left-2">
-                       {/* <h3 className="text-sm font-semibold text-gray-800">
+                      <div className="absolute bottom-2 right-2 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => DeleteImage(index)}
+                          className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg "
+                        >
+                          <Lucide
+                            color="#6C9AB5"
+                            icon="Trash"
+                            className="w-5 h-5 m-auto"
+                          />
+                        </button>
+                        <a
+                          href={data.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                        >
+                          <Lucide
+                            color="#6C9AB5"
+                            icon="Download"
+                            className="w-5 h-5"
+                          />
+                        </a>
+                      </div>
+                      <div className="absolute bottom-2 left-2">
+                        {/* <h3 className="text-sm font-semibold text-gray-800">
                          {data.name}
                        </h3> */}
-                     </div>
-                   </div>
-                 </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             );

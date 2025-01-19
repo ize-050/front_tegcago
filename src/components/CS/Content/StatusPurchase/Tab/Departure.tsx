@@ -369,6 +369,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         {data?.leavefile?.filter((res: { key: string }) => {
                           return res.key === "file_original_fe";
                         })?.map((images: any, index: number) => {
+                          console.log("imagesfile_original_fe", images)
                           const isExcel =
                             images.file_name?.endsWith(".xlsx") ||
                             images.file_name?.endsWith(".xls") ||
@@ -377,11 +378,9 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
                           const url =
                             process.env.NEXT_PUBLIC_URL_API + images.file_path;
-
-                            if (isImage) {
+                          console.log("url", url)
                               return (
                                 <ViewImageComponent
-                                  key="file_original_fe"
                                   isExcel={isExcel}
                                   isPdf={isPdf}
                                   isImage={isImage}
@@ -390,7 +389,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                                   index={index}
                                 />
                               );
-                            }
+                            
                         })}
                       </div>
                     </>

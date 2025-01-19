@@ -446,7 +446,7 @@ const ModalBookcabinet: React.FC<ModalBookcabinetProps> = ({
                                       dispatch(setModalImage(false))
                                     }
                                     startIndex={index}
-                                    images={data?.bookcabinet_picture}
+                                    images={url}
                                   />
                                 )}
                               </>
