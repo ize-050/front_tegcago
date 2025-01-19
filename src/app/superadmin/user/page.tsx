@@ -69,9 +69,6 @@ export default async function UserPage() {
           </Button>
           <Button
             className="text-white  border-blue-800"
-            onClick={() => {
-              AddFormCustomer();
-            }}
             style={{
               background: "#273A6F",
             }}

@@ -752,7 +752,6 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                           return (
                             <>
                               <ViewImageComponent
-                                key="file_amount_payment_do"
                                 isExcel={isExcel}
                                 isPdf={isPdf}
                                 isImage={isImage}
