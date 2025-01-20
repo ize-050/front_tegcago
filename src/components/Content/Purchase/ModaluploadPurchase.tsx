@@ -120,7 +120,7 @@ const ModaluploadPurchase = (props: any) => {
 
 
     function NumberFormat(number: number) {
-        return number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
+        return number?.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
     }
 
     return (
@@ -188,7 +188,7 @@ const ModaluploadPurchase = (props: any) => {
                                                     <Fragment key={index}>
                                                         <div className="flex justify-between">
                                                             <p className="text-gray-600">- {item.d_type_text}</p>
-                                                            <p className="text-gray-600">{NumberFormat(item.d_net_balance)} {item.d_currency}</p>
+                                                            <p className="text-gray-600">{NumberFormat(item?.d_net_balance)} {item.d_currency}</p>
                                                         </div>
                                                     </Fragment>
                                                 ))}

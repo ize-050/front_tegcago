@@ -25,16 +25,33 @@ const EditimageComponent = ({
   setValue,
   control,
   image,
+  name, 
+  item
 }: {
   setValue: any;
   control: any;
   image: any;
+  name:string,
+  item:any
 }) => {
   const [files, setFiles] = useState<any[]>([]);
   const dispatch = useAppDispatch();
+  const [keyName, setKeyName] = useState<string>(name);
   const [selectIndex, setSelectedImageIndex] = useState<number>(0);
   const { modalImage } = useAppSelector(purchaseData);
   const [previewUrls, setPreviewUrls] = useState<any[]>([]);
+  const [filteredImages, setFilteredImages] = useState<any[]>([]);
+
+  useEffect(()=>{
+    const filteredImages = item?.filter((img: any) => img.type_confirm === name) || [];
+    setFilteredImages(filteredImages)
+  },[item])
+
+
+  useEffect(() => {
+    setKeyName(name);
+    console.log('name',name)
+  }, [name]);
   // useEffect(() => {
 
   //     const urls = files.map((file) => {
@@ -103,8 +120,8 @@ const EditimageComponent = ({
   }, [files]);
 
   useEffect(() => {
-    if (image) {
-      const newFiles = image.map((file: any) => {
+    if (filteredImages.length > 0) {
+      const newFiles = filteredImages[0]?.d_confirm_purchase_file.map((file: any) => {
         let fullpath = process.env.NEXT_PUBLIC_URL_API + file.file_path;
         if (file instanceof File) {
           return {
@@ -127,8 +144,7 @@ const EditimageComponent = ({
       setPreviewUrls([...previewUrls, ...newFiles]);
       setFiles([...files, ...newFiles]); // Update files state
     }
-    console.log("image", image);
-  }, [image]);
+  }, [filteredImages]);
 
   const onDrop = useCallback((acceptedFiles: any) => {
     const newFiles = acceptedFiles.map((file: any) => ({
@@ -278,6 +294,7 @@ const EditimageComponent = ({
                           onClick={() => {
                             dispatch(setModalImage(true));
                             setSelectedImageIndex(index);
+                            setKeyName(name)
                           }} // Consider passing the image data (url, index, etc.)
                           type="button"
                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
@@ -292,12 +309,12 @@ const EditimageComponent = ({
                       {/* Pass data or URL to the ModalPreviewImage component */}
                       {/* <ModalPreviewImage ... /> */}
                     </div>
-                    {modalImage && selectIndex === index && (
+                    {modalImage && selectIndex === index && keyName === name && (
                       <ModalPreviewImage
                         isOpen={modalImage}
                         onClose={() => dispatch(setModalImage(false))}
                         startIndex={index}
-                        images={previewUrls}
+                        images={url}
                       />
                     )}
                   </>

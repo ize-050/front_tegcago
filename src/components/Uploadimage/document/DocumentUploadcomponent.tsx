@@ -171,6 +171,7 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                         const isPdf = data.name?.endsWith('.pdf');
                         const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
                         const url = data.url;
+                        console.log('sdsfsdfsd',data.url)
 
                         return (
                             <div key={index} className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden">
@@ -270,7 +271,7 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                                             <ModalPreviewImage isOpen={modalImage}
                                                 onClose={() => dispatch(setModalImage(false))}
                                                 startIndex={index}
-                                                images={previewUrls} />
+                                                images={url} />
                                         )}
                                     </>
                                 )}

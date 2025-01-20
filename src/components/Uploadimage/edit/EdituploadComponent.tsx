@@ -280,7 +280,7 @@ const EdituploadComponent = ({ setValue, control ,image}: {
                                             <ModalPreviewImage isOpen={modalImage}
                                                 onClose={() => dispatch(setModalImage(false))}
                                                 startIndex={index}
-                                                images={previewUrls} />
+                                                images={url} />
                                         )}
                                     </>
                                 )}

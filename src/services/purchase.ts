@@ -202,22 +202,25 @@ export const updateAgency = async (data:Partial<any>,id:string):Promise<any> => 
                 }
             });
         }
-    ``
+        
+     
 
         if (data.type.length > 0) {
-            console.log('data.ty11pe',data.type)
-           for (let i = 0; i < data.type.length; i++) {
-            formData.append('type', JSON.stringify(data.type[i])); // Append as JSON string
-           }
+            console.log('data.type',data.type)
+            formData.append('type', JSON.stringify(data.type)); // Send entire array as single JSON string
         }
         delete data.type
         delete data.d_image
+
+        for (const key in data) {
+            formData.append(key, data[key]);
+          }
       
     
 
 
         const url = `${process.env.NEXT_PUBLIC_URL_API}/cs/updateAgency/${id}`;
-        await axios.put(url,data,{
+        await axios.put(url,formData,{
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

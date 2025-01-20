@@ -122,9 +122,11 @@ const ModalEditAgentCy = () => {
     setValue("agentcy_etd", AgentCyDetail?.agentcy_etd);
     setValue("agentcy_eta", AgentCyDetail?.agentcy_eta);
     setValue("agentcy_etc", AgentCyDetail?.agentcy_etc);
+
+    console.log("AgentCyDetail", AgentCyDetail)
+
     if (AgentCyDetail?.d_agentcy_detail?.length > 0) {
         console.log("AgentCyDetail?.d_agentcy_detail", AgentCyDetail?.d_agentcy_detail);
-
         AgentCyDetail?.d_agentcy_detail.forEach((item: any, index: number) => {
             console.log("item", item);
             setValue(`type[${index}].d_nettotal`, item.d_nettotal);

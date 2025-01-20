@@ -214,7 +214,7 @@ const UploadpaymentComponent = ({
                         isOpen={modalImage}
                         onClose={() => dispatch(setModalImage(false))}
                         startIndex={index}
-                        images={previewUrls}
+                        images={url}
                       />
                     )}
                   </>
