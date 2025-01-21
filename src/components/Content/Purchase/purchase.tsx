@@ -88,7 +88,7 @@ const Purchase = () => {
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              router.push("/purchase");
+              window.location.reload();
             });
           } else {
             Swal.fire({
@@ -97,7 +97,7 @@ const Purchase = () => {
               showConfirmButton: false,
               timer: 1500,
             });
-            router.push("/purchase");
+            window.location.reload();
           }
         }
       })
@@ -433,7 +433,7 @@ const Purchase = () => {
             }}
             className="border-secondary-500  bg-white   font-bold uppercase px-6 py-2 rounded text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
             type="button"
-            onClick={() => router.push("/purchase")}
+            onClick={() => router.push("/cs/purchase")}
           >
             ยกเลิก
           </button>

@@ -16,6 +16,7 @@ import { set } from "lodash";
 
 
 
+
 export interface internalCustomer {
     purchase: Partial<any>;
     modalImage :boolean;
@@ -64,8 +65,11 @@ export const submitAddpayment = createAsyncThunk(
             type: "success",
             message: "บันทึกข้อมูลสำเร็จ",
           })
-        );
-
+        )
+      
+        setTimeout(() => {
+          window.location.reload();
+        }, 2500);
       }
 
     } catch (error) {

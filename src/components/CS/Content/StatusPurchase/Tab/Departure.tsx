@@ -15,8 +15,8 @@ import { createLeave, editLeave, getLeave } from "@/services/statusOrder";
 import ViewImageComponent from "../Image/ViewImageComponent";
 
 import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
-import EditImageComponent from '@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent'
-
+//import EditImageComponent from '@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent'
+import EditImageComponent from "@/components/Content/ApprovePurchase/EditImagecomponent";
 const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
 
@@ -53,8 +53,8 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   const fetchData = async (id: any) => {
     try {
       const response: any = await getLeave(id);
-      if(response?.check_price_deposit){
-       setIsChecked(response?.check_price_deposit)
+      if (response?.check_price_deposit) {
+        setIsChecked(response?.check_price_deposit);
       }
       setData(response);
     } catch (err: any) {
@@ -68,7 +68,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
     });
     if (checkCreate?.status_key == "Leave") {
       fetchData(checkCreate.id);
-      setDepartureId(checkCreate.id)
+      setDepartureId(checkCreate.id);
       dispatch(
         setForm({
           id: "6",
@@ -96,21 +96,21 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
   };
 
   const onSubmit = async (dataForm: any) => {
-    if (isLoading) return; 
+    if (isLoading) return;
     setIsLoading(true);
     try {
-      dataForm.check_price_deposit =   isChecked;
+      dataForm.check_price_deposit = isChecked;
 
       let formData = {
         ...dataForm,
         d_purchase_id: purchase?.id,
       };
-     
+
       if (dataStatus.type === "create") {
         const res: any = await createLeave(formData);
         if (res.statusCode === 200) {
           await fetchData(res.id);
-          setDepartureId(res.id)
+          setDepartureId(res.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -118,15 +118,13 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-          
         }
-      }
-      else if(dataStatus.type === "edit"){
-        let id = departureId
-        formData.id = data.id
+      } else if (dataStatus.type === "edit") {
+        let id = departureId;
+        formData.id = data.id;
         const res: any = await editLeave(formData);
         if (res.statusCode === 200) {
-          await  fetchData(id);
+          await fetchData(id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -134,7 +132,6 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-         
         }
       }
     } catch (err: any) {
@@ -146,8 +143,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
       );
       //location.reload();
       //dispatch(setEditForm("view"));
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -201,7 +197,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                   </p>
                 </Button>
               )}
-              </div>
+            </div>
           </div>
         </div>
 
@@ -258,45 +254,51 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="file_hbl"
-                         control={control}
-                         image={data?.leavefile}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_hbl"
+                        control={control}
+                        image={data?.leavefile}
+                        item={data?.leavefile}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_hbl";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_hbl";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -355,45 +357,50 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                   ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="file_original_fe"
-                         control={control}
-                         image={data?.leavefile}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_original_fe"
+                        control={control}
+                        image={data?.leavefile}
+                        item={data?.leavefile}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_original_fe";
-                        })?.map((images: any, index: number) => {
-                          console.log("imagesfile_original_fe", images)
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
-                          console.log("url", url)
-                              return (
-                                <ViewImageComponent
-                                  isExcel={isExcel}
-                                  isPdf={isPdf}
-                                  isImage={isImage}
-                                  url={url}
-                                  images={images}
-                                  index={index}
-                                />
-                              );
-                            
-                        })}
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_original_fe";
+                          })
+                          ?.map((images: any, index: number) => {
+                            console.log("imagesfile_original_fe", images);
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
+                            console.log("url", url);
+                            return (
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              />
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -452,45 +459,51 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="file_surrender"
-                         control={control}
-                         image={data?.leavefile}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        item={data?.leavefile}
+                        name="file_surrender"
+                        control={control}
+                        image={data?.leavefile}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_surrender";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_surrender";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -549,45 +562,51 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="file_enter_doc"
-                         control={control}
-                         image={data?.leavefile}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_enter_doc"
+                        control={control}
+                        image={data?.leavefile}
+                        item={data?.leavefile}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_enter_doc";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_enter_doc";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -637,45 +656,51 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="file_payment_do"
-                         control={control}
-                         image={data?.leavefile}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_payment_do"
+                        control={control}
+                        item={data?.leavefile}
+                        image={data?.leavefile}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_payment_do";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_payment_do";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -706,7 +731,6 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         />
                       )}
                     />
-
                   </>
                 ) : (
                   <p>{data?.amount_payment_do}</p>
@@ -726,45 +750,51 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                 ) : dataStatus.type == "edit"? (
-                  <>
-                   <EditImageComponent
-                       setValue={setValue}
-                       name="file_amount_payment_do"
-                       control={control}
-                       image={data?.leavefile}
-                     ></EditImageComponent>
-
-                     
-                  </>
-                 ) : (
+                  ) : dataStatus.type == "edit" ? (
+                    <>
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="file_amount_payment_do"
+                        control={control}
+                        item={data?.leavefile}
+                        image={data?.leavefile}
+                      ></EditImageComponent>
+                    </>
+                  ) : (
                     <>
                       <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "file_amount_payment_do";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
+                        {data?.leavefile
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "file_amount_payment_do";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   )}
@@ -799,12 +829,10 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
             {isChecked && (
               <>
                 <div className="flex">
-
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       วันที่ Payment *
                     </label>
-
 
                     {dataStatus.type !== "view" ? (
                       <>
@@ -836,77 +864,79 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
                     )}
                   </div>
 
-
                   <div className="w-1/2">
-                <div className="p-5">
-                  <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    ไฟล์แนบสลิป
-                  </label>
+                    <div className="p-5">
+                      <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                        ไฟล์แนบสลิป
+                      </label>
 
-                  {dataStatus.type == "create" ? (
-                    <>
-                      <UploadImageComponent
-                        name="payment_date_file"
-                        setValue={setValue}
-                        control={control}
-                      ></UploadImageComponent>
-                    </>
-                 ) : dataStatus.type == "edit"? (
-                  <>
-                   <EditImageComponent
-                       setValue={setValue}
-                       name="payment_date_file"
-                       control={control}
-                       image={data?.leavefile}
-                     ></EditImageComponent>
+                      {dataStatus.type == "create" ? (
+                        <>
+                          <UploadImageComponent
+                            name="payment_date_file"
+                            setValue={setValue}
+                            control={control}
+                          ></UploadImageComponent>
+                        </>
+                      ) : dataStatus.type == "edit" ? (
+                        <>
+                          <EditImageComponent
+                            setValue={setValue}
+                            item={data?.leavefile}
+                            name="payment_date_file"
+                            control={control}
+                            image={data?.leavefile}
+                          ></EditImageComponent>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex  flex-wrap ">
+                            {data?.leavefile
+                              ?.filter((res: { key: string }) => {
+                                return res.key === "payment_date_file";
+                              })
+                              ?.map((images: any, index: number) => {
+                                const isExcel =
+                                  images.file_name?.endsWith(".xlsx") ||
+                                  images.file_name?.endsWith(".xls") ||
+                                  images.file_name?.endsWith(".csv");
+                                const isPdf =
+                                  images.file_name?.endsWith(".pdf");
+                                const isImage =
+                                  images.file_name?.endsWith(".jpg") ||
+                                  images.file_name?.endsWith(".png") ||
+                                  images.file_name?.endsWith(".jpeg") ||
+                                  images.file_name?.endsWith(".webp");
+                                const url =
+                                  process.env.NEXT_PUBLIC_URL_API +
+                                  images.file_path;
 
-                     
-                  </>
-                 ) : (
-                    <>
-                      <div className="flex  flex-wrap ">
-                        {data?.leavefile?.filter((res: { key: string }) => {
-                          return res.key === "payment_date_file";
-                        })?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
-
-                          return (
-                            <>
-                              <ViewImageComponent
-                                key={index}                              
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
+                                return (
+                                  <>
+                                    <ViewImageComponent
+                                      key={index}
+                                      isExcel={isExcel}
+                                      isPdf={isPdf}
+                                      isImage={isImage}
+                                      url={url}
+                                      images={images}
+                                      index={index}
+                                    ></ViewImageComponent>
+                                  </>
+                                );
+                              })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-                  
-                </div>
-
 
                 <div className="flex">
                   <div className="w-1/2 p-5">
                     <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                       ราคามัดจำตู้ *
                     </label>
-
 
                     {dataStatus.type !== "view" ? (
                       <>

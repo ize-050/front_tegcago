@@ -12,7 +12,8 @@ import Lucide from "@/components/Base/Lucide";
 
 //formcreateImage
 import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
-import EditImageComponent from '@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent'
+// import EditImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
+import EditImageComponent from "@/components/Content/ApprovePurchase/EditImagecomponent";
 
 // viewImage
 import ViewImageComponent from "@/components/CS/Content/StatusPurchase/Image/ViewImageComponent";
@@ -29,12 +30,12 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
   const [data, setData] = useState<any>({});
   const { status, dataCspurchase } = useAppSelector(statusOrderData);
-  const [document_id,setDocumentId] = useState<any>(null);
+  const [document_id, setDocumentId] = useState<any>(null);
   const {
     handleSubmit,
     formState: { errors },
     setValue,
-    control
+    control,
   } = methods;
 
   const dispatch = useAppDispatch();
@@ -97,10 +98,10 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
         d_purchase_id: purchase?.id,
       };
       if (dataStatus.type === "create") {
-        const res :any = await createDocumentStatus(formData);
-        if(res.statusCode === 200){
+        const res: any = await createDocumentStatus(formData);
+        if (res.statusCode === 200) {
           await fetchData(res.id);
-          setDocumentId(res.id)
+          setDocumentId(res.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -108,15 +109,13 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-         
         }
-      }
-      else{
+      } else {
         formData.id = data.id;
-        const res :any = await editDocumentStatus(formData);
-        if(res.statusCode === 200){
-           await  fetchData(document_id);
-           
+        const res: any = await editDocumentStatus(formData);
+        if (res.statusCode === 200) {
+          await fetchData(document_id);
+
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -124,7 +123,6 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               message: "แก้ไขข้อมูลสำเร็จ",
             })
           );
-         
         }
       }
     } catch (err: any) {
@@ -136,7 +134,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
       );
       // location.reload();
       dispatch(setEditForm("view"));
-    } 
+    }
   };
 
   const PurchaseData = useMemo(() => {
@@ -162,28 +160,28 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             {dataStatus.type == "view" && (
-            <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            </div>
+              <div className="flex-end justify-center mt-1">
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -230,9 +228,9 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               <div className="w-1/2">
                 <div className="p-5">
                   <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                    อัพโหลดเอกสาร  Invoice Doc
+                    อัพโหลดเอกสาร Invoice Doc
                   </label>
-                
+
                   {dataStatus.type == "create" ? (
                     <>
                       <UploadImageComponent
@@ -241,48 +239,52 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_file_invoice"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_file_invoice"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <>
-                     <div className="flex  flex-wrap ">
-                      {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_invoice"}))?.map(
-                        (images: any, index: number) => {
-                          const isExcel =
-                            images.file_name?.endsWith(".xlsx") ||
-                            images.file_name?.endsWith(".xls") ||
-                            images.file_name?.endsWith(".csv");
-                          const isPdf = images.file_name?.endsWith(".pdf");
-                          const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API +
-                            images.file_path;
-                          console.log("url",url)
-                          return(
-                          <>
-                         
-                            <ViewImageComponent
-                              isExcel={isExcel}
-                              isPdf={isPdf}
-                              isImage={isImage}
-                              url={url}
-                              images={images}
-                              index={index}
-                            ></ViewImageComponent>
-                           
-                          </>)
-                        }
-                      )}
-                     </div>
+                      <div className="flex  flex-wrap ">
+                        {data?.cs_document_file
+                          ?.filter((res: { key: string }) => {
+                            return res.key === "document_file_invoice";
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.file_name?.endsWith(".xlsx") ||
+                              images.file_name?.endsWith(".xls") ||
+                              images.file_name?.endsWith(".csv");
+                            const isPdf = images.file_name?.endsWith(".pdf");
+                            const isImage =
+                              images.file_name?.endsWith(".jpg") ||
+                              images.file_name?.endsWith(".png") ||
+                              images.file_name?.endsWith(".jpeg") ||
+                              images.file_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.file_path;
+                            console.log("url", url);
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
+                      </div>
                     </>
                   )}
                 </div>
@@ -338,47 +340,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_file_packing"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_file_packing"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_packing"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "document_file_packing";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                       
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>
@@ -434,47 +439,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  )  : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_FE"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_FE"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_FE"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "document_FE";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                       
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>
@@ -531,50 +539,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_file_etc"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_file_etc"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
-                 
-                        <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_etc"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                  ) : (
+                    <div className="flex  flex-wrap ">
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "document_file_etc";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                       
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
-
-                   
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>
@@ -631,46 +639,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
                       <EditImageComponent
-                         setValue={setValue}
-                         name="file_draft_invoice"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
+                        setValue={setValue}
+                        name="file_draft_invoice"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "file_draft_invoice"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') ||images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "file_draft_invoice";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                       
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
-
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>
@@ -727,47 +739,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  ) : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_BL"
-                         control={control}
-                         image={data?.cs_document_file}
-                       ></EditImageComponent>
-
-                       
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_BL"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
+                      ></EditImageComponent>
                     </>
-                   ) : (
+                  ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_BL"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "document_BL";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                       
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>
@@ -776,7 +791,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
             <div className="flex">
               <div className="w-1/2 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
-                เอกสารอื่นๆ
+                  เอกสารอื่นๆ
                 </label>
                 {dataStatus.type !== "view" ? (
                   <>
@@ -824,46 +839,50 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                         control={control}
                       ></UploadImageComponent>
                     </>
-                  )  : dataStatus.type == "edit"? (
+                  ) : dataStatus.type == "edit" ? (
                     <>
-                     <EditImageComponent
-                         setValue={setValue}
-                         name="document_file_master_BL"
-                         control={control}
-                         image={data?.cs_document_file}
+                      <EditImageComponent
+                        setValue={setValue}
+                        name="document_file_master_BL"
+                        control={control}
+                        image={data?.cs_document_file}
+                        item={data?.cs_document_file}
                       ></EditImageComponent>
-
-                       
                     </>
-                   ) : (
+                  ) : (
                     <div className="flex  flex-wrap ">
-                    {data?.cs_document_file?.filter(((res: { key: string; })=>{return res.key === "document_file_master_BL"}))?.map(
-                      (images: any, index: number) => {
-                        const isExcel =
-                          images.file_name?.endsWith(".xlsx") ||
-                          images.file_name?.endsWith(".xls") ||
-                          images.file_name?.endsWith(".csv");
-                        const isPdf = images.file_name?.endsWith(".pdf");
-                        const isImage = images.file_name?.endsWith('.jpg') || images.file_name?.endsWith('.png') || images.file_name?.endsWith('.jpeg') || images.file_name?.endsWith('.webp');
-                        const url =
-                          process.env.NEXT_PUBLIC_URL_API +
-                          images.file_path;
+                      {data?.cs_document_file
+                        ?.filter((res: { key: string }) => {
+                          return res.key === "document_file_master_BL";
+                        })
+                        ?.map((images: any, index: number) => {
+                          const isExcel =
+                            images.file_name?.endsWith(".xlsx") ||
+                            images.file_name?.endsWith(".xls") ||
+                            images.file_name?.endsWith(".csv");
+                          const isPdf = images.file_name?.endsWith(".pdf");
+                          const isImage =
+                            images.file_name?.endsWith(".jpg") ||
+                            images.file_name?.endsWith(".png") ||
+                            images.file_name?.endsWith(".jpeg") ||
+                            images.file_name?.endsWith(".webp");
+                          const url =
+                            process.env.NEXT_PUBLIC_URL_API + images.file_path;
 
-                        return(
-                        <>
-                          <ViewImageComponent
-                            isExcel={isExcel}
-                            isPdf={isPdf}
-                            isImage={isImage}
-                            url={url}
-                            images={images}
-                            index={index}
-                          ></ViewImageComponent>
-                         
-                        </>)
-                      }
-                    )}
-                   </div>
+                          return (
+                            <>
+                              <ViewImageComponent
+                                isExcel={isExcel}
+                                isPdf={isPdf}
+                                isImage={isImage}
+                                url={url}
+                                images={images}
+                                index={index}
+                              ></ViewImageComponent>
+                            </>
+                          );
+                        })}
+                    </div>
                   )}
                 </div>
               </div>

@@ -22,51 +22,19 @@ interface FileData {
     document_id: string;
   }
 
-const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
+const DocumentUplaodComponent = ({ setValue, control ,image ,document_id,name}: {
     setValue: any,
     control: any
     image:any[],
-    document_id:string
+    document_id:string,
+    name:string
 }) => {
     const [files, setFiles] = useState<File[]>([]);
     const dispatch = useAppDispatch();
     const [selectIndex, setSelectedImageIndex] = useState<number>(0);
     const { modalImage } = useAppSelector(purchaseData)
     const [previewUrls, setPreviewUrls] = useState<any[]>([]);
-    // useEffect(() => {
-
-    //     const urls = files.map((file) => {
-    //         let Datafile: Partial<any> = {}
-    //         if (file.type === 'application/pdf') {
-    //             console.log('urlrlrl', URL.createObjectURL(file))
-    //             Datafile = {
-    //                 url: URL.createObjectURL(file),
-    //                 type: file.type,
-    //                 name: file.name
-    //             }
-    //         }
-    //         else if (file.type === 'image/jpeg' || file.type === 'image/png') {
-    //             Datafile = {
-    //                 url: URL.createObjectURL(file),
-    //                 type: file.type,
-    //                 name: file.name
-    //             }
-    //         }
-    //         else {
-    //             Datafile = {
-    //                 url: URL.createObjectURL(file),
-    //                 type: file.type,
-    //                 name: file.name
-    //             }
-    //         }
-
-    //         return Datafile
-
-    //     });
-    //     console.log('urls', urls)
-    //     setPreviewUrls(urls);
-    //     setValue('files', files);
-    // }, [files]);
+    const [modalData, setModalData] = useState<{ index: number; url: string; name: string } | null>(null);
 
     useEffect(() => {
         const urls = files.map((file:any) => {
@@ -171,7 +139,7 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                         const isPdf = data.name?.endsWith('.pdf');
                         const isImage = data.name?.endsWith('.jpg') || data.name?.endsWith('.png') || data.name?.endsWith('.jpeg') || data.name?.endsWith('.webp');
                         const url = data.url;
-                        console.log('sdsfsdfsd',data.url)
+                        console.log('data',data)
 
                         return (
                             <div key={index} className="relative w-32 h-32 m-2 basis-1/4 overflow-hidden">
@@ -250,9 +218,9 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                                                 </button>
                                                 <button
                                                     onClick={() => {
-                                                        dispatch(setModalImage(true))
-                                                        setSelectedImageIndex(index);
-                                                    }} // Consider passing the image data (url, index, etc.)
+                                                        dispatch(setModalImage(true));
+                                                        setModalData({ index, url, name: data.name });
+                                                    }}
                                                     type="button"
                                                     className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
                                                 >
@@ -263,15 +231,18 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id}: {
                                                     />
                                                 </button>
                                             </div>
-                                            {/* Pass data or URL to the ModalPreviewImage component */}
-                                            {/* <ModalPreviewImage ... /> */}
-
                                         </div>
-                                        {modalImage && selectIndex === index && (
-                                            <ModalPreviewImage isOpen={modalImage}
-                                                onClose={() => dispatch(setModalImage(false))}
+                                        {modalImage && modalData?.index === index && (
+                                            <ModalPreviewImage 
+                                                isOpen={modalImage}
+                                                onClose={() => {
+                                                    dispatch(setModalImage(false));
+                                                    setModalData(null);
+                                                }}
                                                 startIndex={index}
-                                                images={url} />
+                                                images={modalData.url}
+                                                imageName={modalData.name} 
+                                            />
                                         )}
                                     </>
                                 )}

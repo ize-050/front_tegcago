@@ -22,7 +22,8 @@ import { Button } from "@headlessui/react";
 import Lucide from "@/components/Base/Lucide";
 //image
 import UploadImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/UploadImageTab";
-import EditImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
+//import EditImageComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
+import EditImageComponent from "@/components/Content/ApprovePurchase/EditImagecomponent";
 import { setOpenToast } from "@/stores/util";
 
 import { createReturn } from "@/stores/statusOrder";
@@ -376,6 +377,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                             setValue={setValue}
                             name="file_document_cabinet"
                             control={control}
+                            item={data?.cs_return_cabinet_file}
                             image={data?.cs_return_cabinet_file}
                           ></EditImageComponent>
                         </>
@@ -475,6 +477,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                             setValue={setValue}
                             name="file_repair_cabinet"
                             control={control}
+                            item={data?.cs_return_cabinet_file}
                             image={data?.cs_return_cabinet_file}
                           ></EditImageComponent>
                         </>
@@ -600,6 +603,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                         <>
                           <EditImageComponent
                             setValue={setValue}
+                            item={data?.cs_return_cabinet_file}
                             name="file_request_document_cabinet"
                             control={control}
                             image={data?.cs_return_cabinet_file}
@@ -699,6 +703,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                         <>
                           <EditImageComponent
                             setValue={setValue}
+                            item={data?.cs_return_cabinet_file}
                             name="file_request_deposit_cabinet"
                             control={control}
                             image={data?.cs_return_cabinet_file}
@@ -826,6 +831,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                           <EditImageComponent
                             setValue={setValue}
                             name="file_price_deposit"
+                            item={data?.cs_return_cabinet_file}
                             control={control}
                             image={data?.cs_return_cabinet_file}
                           ></EditImageComponent>
@@ -922,6 +928,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                         <>
                           <EditImageComponent
                             setValue={setValue}
+                            item={data?.cs_return_cabinet_file}
                             name="file_return_deposit_cabinet"
                             control={control}
                             image={data?.cs_return_cabinet_file}

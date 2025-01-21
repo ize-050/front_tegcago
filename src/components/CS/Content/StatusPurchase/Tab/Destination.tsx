@@ -186,9 +186,10 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
+              {dataStatus.type == "view" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
                 style={{
                   background: "#C8D9E3",
                   color: "#417CA0",
@@ -206,6 +207,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
                   แก้ไขข้อมูล
                 </p>
               </Button>
+              )}
             </div>
           </div>
         </div>

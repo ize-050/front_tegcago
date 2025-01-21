@@ -187,6 +187,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
               </h1>
             </div>
             <div className="flex-end justify-center mt-1">
+              {dataStatus.type === "view" && (
               <Button
                 onClick={() => changeEdit(true)}
                 // onClick={() => changeEdit(!formEditcustomer)}
@@ -207,6 +208,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                   แก้ไขข้อมูล
                 </p>
               </Button>
+              )}
             </div>
           </div>
         </div>

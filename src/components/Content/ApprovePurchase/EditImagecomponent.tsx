@@ -40,52 +40,69 @@ const EditimageComponent = ({
   const [selectIndex, setSelectedImageIndex] = useState<number>(0);
   const { modalImage } = useAppSelector(purchaseData);
   const [previewUrls, setPreviewUrls] = useState<any[]>([]);
+  const [activeModalId, setActiveModalId] = useState<string | null>(null);
   const [filteredImages, setFilteredImages] = useState<any[]>([]);
 
+  // สร้าง unique identifier สำหรับแต่ละ instance ของ component
+  const modalId = React.useMemo(() => `${name}-${Math.random().toString(36).substr(2, 9)}`, [name]);
+
   useEffect(()=>{
-    const filteredImages = item?.filter((img: any) => img.type_confirm === name) || [];
+    const filteredImages = item?.filter((img: any) => img?.type_confirm ? img?.type_confirm : img?.key === name) || [];
+    console.log('filteredImages1111',filteredImages)
     setFilteredImages(filteredImages)
   },[item])
+  
+  
 
 
   useEffect(() => {
     setKeyName(name);
     console.log('name',name)
   }, [name]);
-  // useEffect(() => {
 
-  //     const urls = files.map((file) => {
-  //         let Datafile: Partial<any> = {}
-  //         if (file.type === 'application/pdf') {
-  //             console.log('urlrlrl', URL.createObjectURL(file))
-  //             Datafile = {
-  //                 url: URL.createObjectURL(file),
-  //                 type: file.type,
-  //                 name: file.name
-  //             }
-  //         }
-  //         else if (file.type === 'image/jpeg' || file.type === 'image/png') {
-  //             Datafile = {
-  //                 url: URL.createObjectURL(file),
-  //                 type: file.type,
-  //                 name: file.name
-  //             }
-  //         }
-  //         else {
-  //             Datafile = {
-  //                 url: URL.createObjectURL(file),
-  //                 type: file.type,
-  //                 name: file.name
-  //             }
-  //         }
 
-  //         return Datafile
+  useEffect(() => {
+    const updatedFiles = files
+      .map((file: any, index: number) => {
+        if (
+          file.type === "application/pdf" ||
+          file.type === "image/jpeg" ||
+          file.type === "image/png" ||
+          file.type ===
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+          let status;
+          if (file.type === "image/jpeg" || file.type === "image/png") {
+            const originalIndex = image.findIndex((img:any) => img.id === file.id);
+            if (originalIndex !== -1 && !file.originalFile) {
+              status = "unchanged";
+            } else if (originalIndex !== -1) {
+              status = "edited";
+            } else {
+              status = "added";
+            }
+          } else {
+            status = file.id
+              ? file.originalFile
+                ? "edited"
+                : "unchanged"
+              : "added";
+          }
 
-  //     });
-  //     console.log('urls', urls)
-  //     setPreviewUrls(urls);
-  //     setValue('files', files);
-  // }, [files]);
+          return {
+            ...file,
+            status: status,
+          } as FileData;
+        } else {
+          console.error("Unsupported file type:", file.type);
+          return null;
+        }
+      })
+      .filter(Boolean) as FileData[];
+
+    setPreviewUrls(updatedFiles);
+    setValue(name, updatedFiles);
+  }, [files, name, setValue]);
 
   useEffect(() => {
     const urls = files
@@ -119,10 +136,14 @@ const EditimageComponent = ({
     setValue("files", files);
   }, [files]);
 
+
+
   useEffect(() => {
     if (filteredImages.length > 0) {
+      if(filteredImages[0]?.d_confirm_purchase_file?.length > 0){
       const newFiles = filteredImages[0]?.d_confirm_purchase_file.map((file: any) => {
         let fullpath = process.env.NEXT_PUBLIC_URL_API + file.file_path;
+        console.log('fullpath',fullpath)
         if (file instanceof File) {
           return {
             url: URL.createObjectURL(file),
@@ -135,15 +156,44 @@ const EditimageComponent = ({
             id: file.id,
             url: fullpath,
             type: "image/png", // Adjust if needed
-            name: file.file_name,
+            name: file.file_name ? file.file_name : file.picture_name,
             status: "unchanged", // Existing file from database
           };
         }
       });
 
       setPreviewUrls([...previewUrls, ...newFiles]);
-      setFiles([...files, ...newFiles]); // Update files state
+        setFiles([...files, ...newFiles]); // Update files state
     }
+    else{
+      const newFiles = filteredImages?.map((file: any) => {
+        let fullpath = `${process.env.NEXT_PUBLIC_URL_API}${
+          file.file_path ? file.file_path : file.picture_path
+        }`;
+        console.log('fullpath',fullpath)
+        if (file instanceof File) {
+          return {
+            url: URL.createObjectURL(file),
+            type: file.type,
+            name: file.name,
+            status: "added",
+          };
+        } else {
+          return {
+            id: file.id,
+            url: fullpath,
+            type: "image/png", // Adjust if needed
+            name: file.file_name ? file.file_name : file.picture_name,
+            status: "unchanged", // Existing file from database
+          };
+        }
+      });
+
+      setPreviewUrls([...previewUrls, ...newFiles]);
+        setFiles([...files, ...newFiles]); // Update files state
+    }
+  }
+
   }, [filteredImages]);
 
   const onDrop = useCallback((acceptedFiles: any) => {
@@ -173,9 +223,7 @@ const EditimageComponent = ({
     <>
       {files.length < 1 ? (
         <div
-          className="flex flex-col flex-wrap items-center justify-center
-                 
-                  "
+          className="flex flex-col flex-wrap items-center justify-center "
         >
           <div
             {...getRootProps()}
@@ -292,10 +340,9 @@ const EditimageComponent = ({
                         </button>
                         <button
                           onClick={() => {
-                            dispatch(setModalImage(true));
+                            setActiveModalId(modalId);
                             setSelectedImageIndex(index);
-                            setKeyName(name)
-                          }} // Consider passing the image data (url, index, etc.)
+                          }}
                           type="button"
                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
                         >
@@ -306,17 +353,19 @@ const EditimageComponent = ({
                           />
                         </button>
                       </div>
-                      {/* Pass data or URL to the ModalPreviewImage component */}
-                      {/* <ModalPreviewImage ... /> */}
+                      
+                      {activeModalId === modalId && selectIndex === index && (
+                        <ModalPreviewImage
+                          isOpen={true}
+                          onClose={() => {
+                            setActiveModalId(null);
+                            setSelectedImageIndex(0);
+                          }}
+                          startIndex={index}
+                          images={url}
+                        />
+                      )}
                     </div>
-                    {modalImage && selectIndex === index && keyName === name && (
-                      <ModalPreviewImage
-                        isOpen={modalImage}
-                        onClose={() => dispatch(setModalImage(false))}
-                        startIndex={index}
-                        images={url}
-                      />
-                    )}
                   </>
                 )}
 
@@ -397,3 +446,4 @@ const EditimageComponent = ({
 };
 
 export default EditimageComponent;
+

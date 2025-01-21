@@ -26,7 +26,20 @@ const UploadpaymentComponent = ({
   const [selectIndex, setSelectedImageIndex] = useState<number>(0);
   const { modalImage } = useAppSelector(purchaseData);
 
+  const [names, setName] = useState<string>("");
   const [previewUrls, setPreviewUrls] = useState<any[]>([]);
+
+  const [selectedPreview, setSelectedPreview] = useState<{
+    isOpen: boolean;
+    url: string | null;
+    index: number;
+    componentName: string;
+  }>({
+    isOpen: false,
+    url: null,
+    index: -1,
+    componentName: ''
+  });
 
   useEffect(() => {
     const urls = files.map((file) => {
@@ -193,9 +206,13 @@ const UploadpaymentComponent = ({
                         </button>
                         <button
                           onClick={() => {
-                            dispatch(setModalImage(true));
-                            setSelectedImageIndex(index);
-                          }} // Consider passing the image data (url, index, etc.)
+                            setSelectedPreview({
+                              isOpen: true,
+                              url: url,
+                              index: index,
+                              componentName: name
+                            });
+                          }}
                           type="button"
                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
                         >
@@ -206,15 +223,19 @@ const UploadpaymentComponent = ({
                           />
                         </button>
                       </div>
-                      {/* Pass data or URL to the ModalPreviewImage component */}
-                      {/* <ModalPreviewImage ... /> */}
                     </div>
-                    {modalImage && selectIndex === index && (
+                    
+                    {selectedPreview.isOpen && selectedPreview.componentName === name && (
                       <ModalPreviewImage
-                        isOpen={modalImage}
-                        onClose={() => dispatch(setModalImage(false))}
-                        startIndex={index}
-                        images={url}
+                        isOpen={selectedPreview.isOpen}
+                        onClose={() => setSelectedPreview({
+                          isOpen: false,
+                          url: null,
+                          index: -1,
+                          componentName: ''
+                        })}
+                        startIndex={selectedPreview.index}
+                        images={selectedPreview.url}
                       />
                     )}
                   </>

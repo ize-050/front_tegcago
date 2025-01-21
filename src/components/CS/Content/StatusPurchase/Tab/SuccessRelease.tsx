@@ -19,7 +19,8 @@ import {
 } from "@/services/statusOrder";
 import { setOpenToast } from "@/stores/util";
 import ViewImageComponent from "../Image/ViewImageComponent";
-import EditImageComponent from "./Image/EditImageComponent";
+//import EditImageComponent from "./Image/EditImageComponent";
+import EditImageComponent from "@/components/Content/ApprovePurchase/EditImagecomponent";
 
 const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
@@ -297,6 +298,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                         name="file_do"
                         control={control}
                         image={data?.cs_inspection_file}
+                        item={data?.cs_inspection_file}
                       ></EditImageComponent>
                     </>
                   ) : (
@@ -390,6 +392,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                         name="file_card"
                         control={control}
                         image={data?.cs_inspection_file}
+                        item={data?.cs_inspection_file}
                       ></EditImageComponent>
                     </>
                   ) : (
@@ -478,6 +481,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
                       <EditImageComponent
                         setValue={setValue}
                         name="file_return_document"
+                        item={data?.cs_inspection_file}
                         control={control}
                         image={data?.cs_inspection_file}
                       ></EditImageComponent>

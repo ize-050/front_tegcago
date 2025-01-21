@@ -93,9 +93,13 @@ const PaymentComponent = (props: any) => {
         purchase_id: props.id,
       };
       await  dispatch(submitAddpayment(RequestData));
-      await   getPurchaseById(props.id)
+      // await   getPurchaseById(props.id)
+
+      // Force re-render of the page
       
-      await router.push(`/cs/purchase/content/${props.id}`);
+  
+
+   
     
       
 

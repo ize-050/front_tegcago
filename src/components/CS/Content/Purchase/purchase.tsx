@@ -72,7 +72,7 @@ const Purchase = () => {
     if (listCheck.length > 0) {
       dispatch(updateAgencytoSale(listCheck));
 
-      router.push("/cs/purchase");
+      router.push(`/cs/purchase/content/${data.id}`);
     } else {
       Swal.fire({
         icon: "info",

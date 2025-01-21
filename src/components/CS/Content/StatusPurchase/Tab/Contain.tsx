@@ -37,8 +37,10 @@ import { setOpenToast } from "@/stores/util";
 
 //image
 import ViewImageComponent from "../Image/ViewImageComponent";
-import EdituploadComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
+//import EdituploadComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
 
+
+import EditimageComponent from "@/components/Content/ApprovePurchase/EditImagecomponent";
 
 
 const ContainComponent = ({ purchase }: { purchase: any }) => {
@@ -747,12 +749,13 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 ) : dataStatus.type == "edit" ? (
                   <>
                     <div className="">
-                      <EdituploadComponent
+                      <EditimageComponent
                         name="cabinet"
                         setValue={setValue}
                         image={data.contain_picture}
                         control={control}
-                      ></EdituploadComponent>
+                        item={data.contain_picture}
+                      ></EditimageComponent>
                     </div>
                   </>
                 ) : (
@@ -804,12 +807,13 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 ) : dataStatus.type == "edit" ? (
                   <>
                     <div className="">
-                      <EdituploadComponent
+                      <EditimageComponent
                         name="purchase_file"
                         setValue={setValue}
                         image={data.contain_picture}
                         control={control}
-                      ></EdituploadComponent>
+                        item={data.contain_picture}
+                      ></EditimageComponent>
 
                       
                     </div>
@@ -865,12 +869,13 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 ) : dataStatus.type == "edit" ? (
                   <>
                     <div className="">
-                      <EdituploadComponent
+                      <EditimageComponent
                         name="close_cabinet"
                         setValue={setValue}
                         image={data.contain_picture}
                         control={control}
-                      ></EdituploadComponent>
+                        item={data.contain_picture}
+                      ></EditimageComponent>
                     </div>
                   </>
                 ) : (
@@ -922,12 +927,13 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 ) : dataStatus.type == "edit" ? (
                   <>
                     <div className="">
-                      <EdituploadComponent
+                      <EditimageComponent
                         name="etc"
                         setValue={setValue}
                         image={data.contain_picture}
                         control={control}
-                      ></EdituploadComponent>
+                        item={data.contain_picture}
+                      ></EditimageComponent>
                     </div>
                   </>
                 ) : (
