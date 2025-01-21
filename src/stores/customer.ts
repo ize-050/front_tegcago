@@ -88,12 +88,22 @@ export const submitFormAddcustomer = createAsyncThunk(
       console.log("action", action);
       const response: any = await submitAddcustomer(action);
       if (response.status === 200) {
-        await dispatch(
-          setOpenToast({
-            type: "success",
-            message: "สร้างข้อมูลลูกค้าสำเร็จ",
-          })
-        );
+
+        if(response.data.statusCode === 202){
+          await dispatch(
+            setOpenToast({
+              type: "info",
+              message: "รหัสลูกค้านี้มีอยู่ในระบบ",
+            })
+          );
+        }else{
+          await dispatch(
+            setOpenToast({
+              type: "success",
+              message: "สร้างข้อมูลลูกค้าสำเร็จ",
+            })
+          );
+        }
         await dispatch(setFormAddCustomer(false));
         await dispatch(resetFormAddcustomer(true));
 
