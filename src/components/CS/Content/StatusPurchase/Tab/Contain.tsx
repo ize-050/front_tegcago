@@ -38,7 +38,8 @@ import { setOpenToast } from "@/stores/util";
 //image
 import ViewImageComponent from "../Image/ViewImageComponent";
 import EdituploadComponent from "@/components/CS/Content/StatusPurchase/Tab/Image/EditImageComponent";
-import { set } from "lodash";
+
+
 
 const ContainComponent = ({ purchase }: { purchase: any }) => {
   const methods = useForm();
@@ -120,8 +121,9 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
         d_purchase_id: purchase?.id,
       };
       if (status.type === "create") {
-        dispatch(createContain(formData)).then((response: any) => {
+        dispatch(createContain(formData)).then(async (response: any) => {
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -129,15 +131,16 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 message: response.payload.message,
               })
             );
-            fetchData(response.payload.data.id);
+            
           }
         });
       } else {
         console.log("data.id", data.id);
         formData.id = data.id;
-        dispatch(editContain(formData)).then((response: any) => {
+        dispatch(editContain(formData)).then(async (response: any) => {
           console.log("responseedit", response);
           if (response.payload.data.statusCode == 200) {
+            await  fetchData(id_contains);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -145,7 +148,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                 message: "แก้ไขข้อมูลสำเร็จ",
               })
             );
-            fetchData(id_contains);
+         
           }
         });
       }
@@ -806,6 +809,8 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                         image={data.contain_picture}
                         control={control}
                       ></EdituploadComponent>
+
+                      
                     </div>
                   </>
                 ) : (

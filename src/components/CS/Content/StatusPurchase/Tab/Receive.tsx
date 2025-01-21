@@ -119,9 +119,10 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
       };
       if (status.type === "create") {
         delete formData.id;
-        dispatch(createReceive(formData)).then((response: any) => {
+        dispatch(createReceive(formData)).then(async (response: any) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -129,13 +130,14 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
                 message: response.payload.data.message,
               })
             );
-            fetchData(response.payload.data.id);
+           
           }
         });
       } else if(status.type === "edit") {
         console.log("editna")
-        dispatch(updateReceive(formData)).then((response: any) => {
+        dispatch(updateReceive(formData)).then(async (response: any) => {
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({

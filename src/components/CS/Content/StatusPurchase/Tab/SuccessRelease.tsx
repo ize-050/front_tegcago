@@ -100,6 +100,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
       if (dataStatus.type === "create") {
         const response: any = await createSuccessRelease(formData);
         if (response.statusCode == 200) {
+          await  fetchData(response.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -107,13 +108,14 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(response.id);
+         
         }
       } else if (dataStatus.type === "edit") {
         let id = successReleaseId;
         formData.id = data.id;
         const response: any = await updateSuccessRelease(formData);
         if (response.statusCode == 200) {
+          await fetchData(id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -121,7 +123,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          await fetchData(id);
+         
         }
       }
 

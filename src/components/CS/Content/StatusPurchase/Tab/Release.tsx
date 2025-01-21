@@ -104,6 +104,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
       if (dataStatus.type === "create") {
         const response: any = await CreateWaitrelease(requeset);
         if (response.statusCode == 200) {
+          await  fetchData(response.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -111,12 +112,13 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(response.id);
+         
         }
       } else if (dataStatus.type === "edit") {
         requeset.id = data.id;
         const response: any = await EditWaitrelease(requeset);
         if (response.statusCode == 200) {
+          await fetchData(releaseId);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -124,7 +126,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(releaseId);
+         
         }
       }
     } catch (err) {

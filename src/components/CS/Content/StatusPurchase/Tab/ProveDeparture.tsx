@@ -95,6 +95,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
       if (dataStatus.type === "create") {
         const response: any = await CreateDeparture(requeset);
         if (response.statusCode == 200) {
+          await fetchData(response.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -102,12 +103,13 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(response.id);
+         
         }
       } else if (dataStatus.type === "edit") {
         requeset.id = data.id;
         const response: any = await UpdateDeparture(requeset);
         if (response.statusCode == 200) {
+          await fetchData(departureId);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -115,7 +117,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(departureId);
+         
         }
      
       }

@@ -149,9 +149,10 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
       };
       if (status.type === "create") {
         console.log("dddd");
-        dispatch(createReturn(formData)).then((response: any) => {
+        dispatch(createReturn(formData)).then(async(response: any) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -159,15 +160,16 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 message: response.payload.data.message,
               })
             );
-            fetchData(response.payload.data.id);
+           
           }
         });
       } else {
         console.log("data.id", data.id);
         formData.id = data.id;
-        dispatch(editReturn(formData)).then((response: any) => {
+        dispatch(editReturn(formData)).then(async (response: any) => {
           console.log("responseedit", response);
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({

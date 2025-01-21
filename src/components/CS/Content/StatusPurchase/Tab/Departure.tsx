@@ -109,6 +109,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
       if (dataStatus.type === "create") {
         const res: any = await createLeave(formData);
         if (res.statusCode === 200) {
+          await fetchData(res.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -116,7 +117,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-          fetchData(res.id);
+          
         }
       }
       else if(dataStatus.type === "edit"){
@@ -124,6 +125,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
         formData.id = data.id
         const res: any = await editLeave(formData);
         if (res.statusCode === 200) {
+          await  fetchData(id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -131,7 +133,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-          fetchData(id);
+         
         }
       }
     } catch (err: any) {

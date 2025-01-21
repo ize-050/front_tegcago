@@ -102,6 +102,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
         delete formData.id;
         const response: any = await createSendSuccess(formData);
         if (response.statusCode == 200) {
+          await fetchData(response.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -109,11 +110,12 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(response.id);
+          
         }
       } else if (dataStatus.type == "edit") {
         const response: any = await updateSendSuccess(formData);
         if (response.statusCode == 200) {
+          await fetchData(sentSuccessId);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -121,7 +123,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-          fetchData(sentSuccessId);
+          
         }
       }
     } catch (err: any) {
@@ -249,6 +251,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
                           image={data?.cs_already_sent_file}
                           control={control}
                         ></EdituploadComponent>
+                        
                       </div>
                     </>
                   ) : (

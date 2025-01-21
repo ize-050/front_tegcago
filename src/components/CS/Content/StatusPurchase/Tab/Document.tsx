@@ -113,6 +113,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
         formData.id = data.id;
         const res :any = await editDocumentStatus(formData);
         if(res.statusCode === 200){
+           await  fetchData(document_id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -120,7 +121,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               message: "แก้ไขข้อมูลสำเร็จ",
             })
           );
-          fetchData(document_id);
+         
         }
       }
     } catch (err: any) {
@@ -827,7 +828,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
                          name="document_file_master_BL"
                          control={control}
                          image={data?.cs_document_file}
-                       ></EditImageComponent>
+                      ></EditImageComponent>
 
                        
                     </>

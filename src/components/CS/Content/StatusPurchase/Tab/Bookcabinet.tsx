@@ -121,9 +121,10 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
       console.log("formData", formData);
       if (status.type === "create") {
         delete formData.id;
-        dispatch(createBookcabinet(formData)).then((response: any) => {
+        dispatch(createBookcabinet(formData)).then(async (response: any) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
+            await fetchData(response.payload.data.id);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -131,13 +132,14 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                 message: 'บันทึกข้อมูลเรียบร้อย',
               })
             );
-            fetchData(response.payload.data.id);
+          
           }
         });
       } else {
-        dispatch(updateBookcabinet(formData)).then((response: any) => {
+        dispatch(updateBookcabinet(formData)).then(async (response: any) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
+            await fetchData(bookId);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -145,7 +147,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                 message: "บันทึกข้อมูลเรียบร้อย"
               })
             );
-            fetchData(bookId);
+            
           }
         });
     
