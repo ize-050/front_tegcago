@@ -99,6 +99,8 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
       if (dataStatus.type === "create") {
         const res :any = await createDocumentStatus(formData);
         if(res.statusCode === 200){
+          await fetchData(res.id);
+          setDocumentId(res.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -106,7 +108,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
               message: res.message,
             })
           );
-          fetchData(res.id);
+         
         }
       }
       else{
@@ -114,6 +116,7 @@ const DocumentComponent = ({ purchase }: { purchase: any }) => {
         const res :any = await editDocumentStatus(formData);
         if(res.statusCode === 200){
            await  fetchData(document_id);
+           
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({

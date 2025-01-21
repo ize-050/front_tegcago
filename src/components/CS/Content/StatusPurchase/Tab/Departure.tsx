@@ -110,6 +110,7 @@ const DepartureComponent = ({ purchase }: { purchase: any }) => {
         const res: any = await createLeave(formData);
         if (res.statusCode === 200) {
           await fetchData(res.id);
+          setDepartureId(res.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({

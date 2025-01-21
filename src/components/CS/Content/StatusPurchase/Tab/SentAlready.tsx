@@ -103,6 +103,7 @@ const SentAlreadyComponent = ({ purchase }: { purchase: any }) => {
         const response: any = await createSendSuccess(formData);
         if (response.statusCode == 200) {
           await fetchData(response.id);
+          setSentSuccessId(response.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({

@@ -96,6 +96,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
         const response: any = await CreateDeparture(requeset);
         if (response.statusCode == 200) {
           await fetchData(response.id);
+          setDepartureId(response.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({

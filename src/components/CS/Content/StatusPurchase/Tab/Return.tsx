@@ -153,6 +153,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
             await fetchData(response.payload.data.id);
+            setIdreturn(response.payload.data.id)
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -169,7 +170,7 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
         dispatch(editReturn(formData)).then(async (response: any) => {
           console.log("responseedit", response);
           if (response.payload.data.statusCode == 200) {
-            await fetchData(response.payload.data.id);
+            await fetchData(id_return);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -177,7 +178,6 @@ const ReturnComponent = ({ purchase }: { purchase: any }) => {
                 message: "แก้ไขข้อมูลสำเร็จ",
               })
             );
-            fetchData(id_return);
           }
         });
       }

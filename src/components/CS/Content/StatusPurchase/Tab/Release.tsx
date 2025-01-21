@@ -105,6 +105,7 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
         const response: any = await CreateWaitrelease(requeset);
         if (response.statusCode == 200) {
           await  fetchData(response.id);
+          setReleaseId(response.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -766,7 +767,4 @@ const ReleaseComponent = ({ purchase }: { purchase: any }) => {
 };
 
 export default ReleaseComponent;
-function setReleaseId(id: any) {
-  throw new Error("Function not implemented.");
-}
 

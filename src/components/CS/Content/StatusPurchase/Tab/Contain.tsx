@@ -124,6 +124,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
         dispatch(createContain(formData)).then(async (response: any) => {
           if (response.payload.data.statusCode == 200) {
             await fetchData(response.payload.data.id);
+            setIdContains(response.payload.data.id)
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({

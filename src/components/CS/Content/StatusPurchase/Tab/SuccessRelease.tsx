@@ -101,6 +101,7 @@ const SuccessReleaseComponent = ({ purchase }: { purchase: any }) => {
         const response: any = await createSuccessRelease(formData);
         if (response.statusCode == 200) {
           await  fetchData(response.id);
+          setSuccessReleaseId(response.id)
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({

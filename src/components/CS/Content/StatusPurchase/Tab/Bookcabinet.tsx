@@ -125,6 +125,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
             await fetchData(response.payload.data.id);
+            setBookId(response.payload.data.id)
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({

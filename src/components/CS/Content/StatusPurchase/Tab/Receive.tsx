@@ -123,6 +123,7 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
           console.log("response", response);
           if (response.payload.data.statusCode == 200) {
             await fetchData(response.payload.data.id);
+            setReceiveId(response.payload.data.id)
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({
@@ -137,7 +138,7 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
         console.log("editna")
         dispatch(updateReceive(formData)).then(async (response: any) => {
           if (response.payload.data.statusCode == 200) {
-            await fetchData(response.payload.data.id);
+            await fetchData(ReceiveId);
             dispatch(setEditForm("view"));
             dispatch(
               setOpenToast({

@@ -99,6 +99,7 @@ const DestinationComponent = ({ purchase }: { purchase: any }) => {
       const response: any = await createDestination(formData);
       if (response.statusCode == 200) {
         await fetchData(response.id);
+        setdesId(response.id)
         dispatch(setEditForm("view"));
         dispatch(
           setOpenToast({

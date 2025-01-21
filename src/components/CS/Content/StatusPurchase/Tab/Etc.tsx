@@ -13,7 +13,7 @@ import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent"
 import { setOpenToast } from "@/stores/util";
 
 //service
-import { getEtc  ,createEtc} from "@/services/statusOrder";
+import { getEtc, createEtc } from "@/services/statusOrder";
 import ViewImageComponent from "../Image/ViewImageComponent";
 
 const EtcComponent = ({ purchase }: { purchase: any }) => {
@@ -46,8 +46,6 @@ const EtcComponent = ({ purchase }: { purchase: any }) => {
     setStatus(status);
   }, [status]);
 
-
-
   const fetchData = async (id: any) => {
     try {
       const response: any = await getEtc(id);
@@ -75,12 +73,12 @@ const EtcComponent = ({ purchase }: { purchase: any }) => {
     } else {
       dispatch(
         setForm({
-            id: "12",
-            tabName: "หมายเหตุ",
-            tabKey: "Etc",
-            active: true,
-            type: "create",
-          })
+          id: "12",
+          tabName: "หมายเหตุ",
+          tabKey: "Etc",
+          active: true,
+          type: "create",
+        })
       );
     }
   }, [dataCspurchase]);
@@ -112,7 +110,7 @@ const EtcComponent = ({ purchase }: { purchase: any }) => {
           message: err.message,
         })
       );
-    //   location.reload();
+      //   location.reload();
     }
   };
 
@@ -141,28 +139,28 @@ const EtcComponent = ({ purchase }: { purchase: any }) => {
               <h1 className="mb-5  text-1xl font-semibold">หมายเหตุ</h1>
             </div>
             <div className="flex-end justify-center mt-1">
-            {dataStatus.type == "view" && (
-              <Button
-                onClick={() => changeEdit(true)}
-                // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
-                </p>
-              </Button>
-            )}
+              {dataStatus.type == "view" && (
+                <Button
+                  onClick={() => changeEdit(true)}
+                  // onClick={() => changeEdit(!formEditcustomer)}
+                  style={{
+                    background: "#C8D9E3",
+                    color: "#417CA0",
+                    width: "119px",
+                    height: "36px",
+                  }}
+                  className="flex hover:bg-blue-700   mr-1"
+                >
+                  <Lucide
+                    color="#6C9AB5"
+                    icon="Pencil"
+                    className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                  ></Lucide>
+                  <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                    แก้ไขข้อมูล
+                  </p>
+                </Button>
+              )}
             </div>
           </div>
         </div>
