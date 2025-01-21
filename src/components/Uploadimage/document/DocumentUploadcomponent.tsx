@@ -241,7 +241,6 @@ const DocumentUplaodComponent = ({ setValue, control ,image ,document_id,name}: 
                                                 }}
                                                 startIndex={index}
                                                 images={modalData.url}
-                                                imageName={modalData.name} 
                                             />
                                         )}
                                     </>
