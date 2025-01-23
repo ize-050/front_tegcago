@@ -528,9 +528,15 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                           <option value="">กรุณาเลือกข้อมูล</option>
                           <option value="SEA">SEA</option>
                           <option value="CLG">CLG</option>
-                          <option value="MG">MG</option>
                           <option value="LCL">LCL</option>
+                          <option value="EK">EK</option>
+                          <option value="EKCIF">EKCIF</option>
+                          <option value="EKCT">EKCT</option>
                           <option value="AW">AW</option>
+                          <option value="RW">RW</option>
+                          <option value="EXSEA">EXSEA</option>
+                          <option value="EXEK">EXEK</option>
+                          <option value="EXRW">EXRW</option>
                         </select>
                       )}
                     />

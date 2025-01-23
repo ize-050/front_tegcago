@@ -288,10 +288,10 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
 
   return (
     <Fragment>
-     <div className="modal-overlay"></div>
-     <div className="text-black pt-16  justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+      <div className="modal-overlay"></div>
+      <div className="text-black pt-16  justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
         <div className="relative w-full my-6 mx-auto max-w-2xl">
-        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none max-h-[80vh] overflow-y-auto">
+          <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                 รายละเอียดบรรจุตู้
@@ -362,6 +362,46 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       <p>{data?.date_booking}</p>
                     )}
                   </div>
+
+
+                  <div className="w-1/2 p-5">
+                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                      SHIPMENT
+                    </label>
+                    {dataStatus.type !== "view" ? (
+                      <>
+                        <Controller
+                          name="type_contain"
+                          control={control}
+                          defaultValue={data?.type_contain}
+                          rules={{ required: true }}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <input
+                              placeholder="กรุณากรอกข้อมูล"
+                              value={value}
+                              onBlur={onBlur}
+                              onChange={onChange}
+                              type="date"
+                              className={`
+                                            ${
+                                              errors.type_contain
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                            />
+                          )}
+                        />
+                        {errors.type_contain && (
+                          <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>{data?.type_contain}</p>
+                    )}
+                  </div>
+
+
                 </div>
 
                 <div className="flex">
@@ -579,34 +619,38 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex">
-                        {data?.contain_picture?.filter(
-                          (res: { key: string }) => {
+                        {data?.contain_picture
+                          ?.filter((res: { key: string }) => {
                             return res.key === "cabinet";
-                          }
-                        )?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.picture_name?.endsWith(".xlsx") ||
-                            images.picture_name?.endsWith(".xls") ||
-                            images.picture_name?.endsWith(".csv");
-                          const isPdf = images.picture_name?.endsWith(".pdf");
-                          const isImage = images.picture_name?.endsWith('.jpg') || images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');;
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API +
-                            images.picture_path;
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.picture_name?.endsWith(".xlsx") ||
+                              images.picture_name?.endsWith(".xls") ||
+                              images.picture_name?.endsWith(".csv");
+                            const isPdf = images.picture_name?.endsWith(".pdf");
+                            const isImage =
+                              images.picture_name?.endsWith(".jpg") ||
+                              images.picture_name?.endsWith(".png") ||
+                              images.picture_name?.endsWith(".jpeg") ||
+                              images.picture_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.picture_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
@@ -628,34 +672,38 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.contain_picture?.filter(
-                          (res: { key: string }) => {
+                        {data?.contain_picture
+                          ?.filter((res: { key: string }) => {
                             return res.key === "purchase_file";
-                          }
-                        )?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.picture_name?.endsWith(".xlsx") ||
-                            images.picture_name?.endsWith(".xls") ||
-                            images.picture_name?.endsWith(".csv");
-                          const isPdf = images.picture_name?.endsWith(".pdf");
-                          const isImage = images.picture_name?.endsWith('.jpg') || images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');;
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API +
-                            images.picture_path;
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.picture_name?.endsWith(".xlsx") ||
+                              images.picture_name?.endsWith(".xls") ||
+                              images.picture_name?.endsWith(".csv");
+                            const isPdf = images.picture_name?.endsWith(".pdf");
+                            const isImage =
+                              images.picture_name?.endsWith(".jpg") ||
+                              images.picture_name?.endsWith(".png") ||
+                              images.picture_name?.endsWith(".jpeg") ||
+                              images.picture_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.picture_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
@@ -679,34 +727,38 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.contain_picture?.filter(
-                          (res: { key: string }) => {
+                        {data?.contain_picture
+                          ?.filter((res: { key: string }) => {
                             return res.key === "close_cabinet";
-                          }
-                        )?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.picture_name?.endsWith(".xlsx") ||
-                            images.picture_name?.endsWith(".xls") ||
-                            images.picture_name?.endsWith(".csv");
-                          const isPdf = images.picture_name?.endsWith(".pdf");
-                          const isImage = images.picture_name?.endsWith('.jpg') || images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');;
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API +
-                            images.picture_path;
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.picture_name?.endsWith(".xlsx") ||
+                              images.picture_name?.endsWith(".xls") ||
+                              images.picture_name?.endsWith(".csv");
+                            const isPdf = images.picture_name?.endsWith(".pdf");
+                            const isImage =
+                              images.picture_name?.endsWith(".jpg") ||
+                              images.picture_name?.endsWith(".png") ||
+                              images.picture_name?.endsWith(".jpeg") ||
+                              images.picture_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.picture_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
@@ -728,34 +780,38 @@ const ModalContainComponent: React.FC<ModalContainProps> = ({
                       </>
                     ) : (
                       <div className="flex  flex-wrap ">
-                        {data?.contain_picture?.filter(
-                          (res: { key: string }) => {
+                        {data?.contain_picture
+                          ?.filter((res: { key: string }) => {
                             return res.key === "etc";
-                          }
-                        )?.map((images: any, index: number) => {
-                          const isExcel =
-                            images.picture_name?.endsWith(".xlsx") ||
-                            images.picture_name?.endsWith(".xls") ||
-                            images.picture_name?.endsWith(".csv");
-                          const isPdf = images.picture_name?.endsWith(".pdf");
-                          const isImage = images.picture_name?.endsWith('.jpg') || images.picture_name?.endsWith('.png') || images.picture_name?.endsWith('.jpeg') || images.picture_name?.endsWith('.webp');;
-                          const url =
-                            process.env.NEXT_PUBLIC_URL_API +
-                            images.picture_path;
+                          })
+                          ?.map((images: any, index: number) => {
+                            const isExcel =
+                              images.picture_name?.endsWith(".xlsx") ||
+                              images.picture_name?.endsWith(".xls") ||
+                              images.picture_name?.endsWith(".csv");
+                            const isPdf = images.picture_name?.endsWith(".pdf");
+                            const isImage =
+                              images.picture_name?.endsWith(".jpg") ||
+                              images.picture_name?.endsWith(".png") ||
+                              images.picture_name?.endsWith(".jpeg") ||
+                              images.picture_name?.endsWith(".webp");
+                            const url =
+                              process.env.NEXT_PUBLIC_URL_API +
+                              images.picture_path;
 
-                          return (
-                            <>
-                              <ViewImageComponent
-                                isExcel={isExcel}
-                                isPdf={isPdf}
-                                isImage={isImage}
-                                url={url}
-                                images={images}
-                                index={index}
-                              ></ViewImageComponent>
-                            </>
-                          );
-                        })}
+                            return (
+                              <>
+                                <ViewImageComponent
+                                  isExcel={isExcel}
+                                  isPdf={isPdf}
+                                  isImage={isImage}
+                                  url={url}
+                                  images={images}
+                                  index={index}
+                                ></ViewImageComponent>
+                              </>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
