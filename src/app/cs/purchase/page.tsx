@@ -289,6 +289,7 @@ function Purchase() {
               <option value="ปิดการขาย">ปิดการขาย</option>
               <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
               <option value="ลูกค้าเครดิต">ลูกค้าเครดิต</option>
+              <option value="ยกเลิกคำสั่งซื้อ">ยกเลิกคำสั่งซื้อ</option>
             </select>
             
           </div>

@@ -449,7 +449,7 @@ const AddPurchase = ({ BookingId }: any) => {
               <Controller
                 name="d_truck"
                 control={control}
-                rules={{ required: true }}
+                rules={{ required: false }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <>
                     <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 ">
