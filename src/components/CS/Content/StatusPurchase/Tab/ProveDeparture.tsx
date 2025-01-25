@@ -49,8 +49,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
     try {
       const response: any = await getDeparture(id);
       setData(response);
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   useEffect(() => {
@@ -96,7 +95,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
         const response: any = await CreateDeparture(requeset);
         if (response.statusCode == 200) {
           await fetchData(response.id);
-          setDepartureId(response.id)
+          setDepartureId(response.id);
           dispatch(setEditForm("view"));
           dispatch(
             setOpenToast({
@@ -104,7 +103,6 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-         
         }
       } else if (dataStatus.type === "edit") {
         requeset.id = data.id;
@@ -118,9 +116,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
               message: response.message,
             })
           );
-         
         }
-     
       }
     } catch (err) {
       dispatch(
@@ -129,7 +125,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
           message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         })
       );
-    //   location.reload();
+      //   location.reload();
     }
   };
 
@@ -165,26 +161,26 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                   <Button
                     onClick={() => changeEdit(true)}
                     // onClick={() => changeEdit(!formEditcustomer)}
-                style={{
-                  background: "#C8D9E3",
-                  color: "#417CA0",
-                  width: "119px",
-                  height: "36px",
-                }}
-                className="flex hover:bg-blue-700   mr-1"
-              >
-                <Lucide
-                  color="#6C9AB5"
-                  icon="Pencil"
-                  className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
-                ></Lucide>
-                <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
-                  แก้ไขข้อมูล
+                    style={{
+                      background: "#C8D9E3",
+                      color: "#417CA0",
+                      width: "119px",
+                      height: "36px",
+                    }}
+                    className="flex hover:bg-blue-700   mr-1"
+                  >
+                    <Lucide
+                      color="#6C9AB5"
+                      icon="Pencil"
+                      className="inset-y-0 bg-secondary-400   justify-center m-auto mr-1  text-slate-500"
+                    ></Lucide>
+                    <p className="text-[#417CA0] text-14px tracking-[0.1em] text-center uppercase mx-auto mt-1">
+                      แก้ไขข้อมูล
                     </p>
                   </Button>
                 </>
               ) : (
-               <></>
+                <></>
               )}
             </div>
           </div>
@@ -383,6 +379,45 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                   </>
                 ) : (
                   <p>{data?.vessel_name}</p>
+                )}
+              </div>
+
+
+              <div className="w-1/2 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                  BL NO *
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="bl_no"
+                      control={control}
+                      defaultValue={data?.bl_no}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรุณากรอกข้อมูล"
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          type="text"
+                          className={`
+                                                    ${
+                                                      errors.bl_no
+                                                        ? "border-red-500"
+                                                        : "border-gray-200"
+                                                    }
+                                                     px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                    {errors.bl_no && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.bl_no}</p>
                 )}
               </div>
             </div>

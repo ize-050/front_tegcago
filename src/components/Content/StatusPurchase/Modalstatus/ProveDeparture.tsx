@@ -365,6 +365,44 @@ interface ModalDepartureProps {
                       <p>{data?.vessel_name}</p>
                     )}
                   </div>
+
+                  <div className="w-1/2 p-5">
+                    <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                      BL NO *
+                    </label>
+
+                    {dataStatus.type !== "view" ? (
+                      <>
+                        <Controller
+                          name="bl_no"
+                          control={control}
+                          defaultValue={data?.bl_no}
+                          rules={{ required: true }}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <input
+                              placeholder="กรุณากรอกข้อมูล"
+                              value={value}
+                              onBlur={onBlur}
+                              onChange={onChange}
+                              type="text"
+                              className={`
+                                                    ${
+                                                      errors.bl_no
+                                                        ? "border-red-500"
+                                                        : "border-gray-200"
+                                                    }
+                                                     px-4 py-2 outline-none rounded-md w-full`}
+                            />
+                          )}
+                        />
+                        {errors.bl_no && (
+                          <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>{data?.bl_no}</p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center justify-end  rounded-b">
                   <button

@@ -337,7 +337,7 @@ function AllcsPage() {
                                   {moment(data.createdAt).format('YYYY/MM/DD HH:mm')}  น.
                                 </Table.Td>
                                 <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                  {data.d_transport}
+                                  {data.d_shipment_number}
                                 </Table.Td>
                                 <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
                                  {data.d_shipment_number ? data.d_shipment_number : '-'}
