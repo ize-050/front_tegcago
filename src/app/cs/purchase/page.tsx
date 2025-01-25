@@ -283,6 +283,8 @@ function Purchase() {
               <option value="Sale แนบเอกสาร">Sale แนบเอกสาร</option>
               <option value="Cs รับงาน">Cs รับงาน</option>
               <option value="Cs เสนอราคา">Cs เสนอราคา</option>
+              <option value="Cs ร้องขอเอกสาร">Cs ร้องขอเอกสาร</option>
+              <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
               <option value="อยู่ระหว่างทำ Financial">อยู่ระหว่างทำ Financial</option>
               <option value="ปิดการขาย">ปิดการขาย</option>
               <option value="ค้างชำระเงิน">ค้างชำระเงิน</option>
