@@ -65,8 +65,8 @@ const initialState: SideMenuState = {
   menuSuperadmin: [
     {
       icon: "Users",
-      pathname: "/dataUser",
-      title: "AllUser",
+      pathname: "/superadmin/user",
+      title: "ข้อมูลพนักงาน",
     },
     {
       icon: "Proportions",

@@ -52,21 +52,9 @@ export default async function UserPage() {
       </nav>
       <div className="lg:flex md:flex ">
         <div className="flex-1 p-5">
-          <p className="text-black text-xl font-bold">ข้อมูลผู้ใช้งานทั้งหมด</p>
+          <p className="text-black text-xl font-bold">ข้อมูลพนักงาน</p>
         </div>
         <div className="justify-end p-5">
-          <Button
-            className="border-blue-500 mr-5"
-            style={{
-              color: "#305D79",
-            }}
-          >
-            <ArrowUpFromLine
-              color="#305D79"
-              className="inset-y-0 bg-secondary-400  mr-1  justify-center m-auto   w-5 h-5  text-slate-500"
-            ></ArrowUpFromLine>
-            Upload file
-          </Button>
           <Button
             className="text-white  border-blue-800"
             style={{

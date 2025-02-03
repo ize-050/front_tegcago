@@ -167,27 +167,29 @@ const ViewPrePurchase = ({ purchase }: any) => {
             {/*))}*/}
 
             {data?.d_product?.d_product_image.map(
-               (images: any, index: number) => {
+              (images: any, index: number) => {
                 const isExcel =
                   images.name?.endsWith(".xlsx") ||
                   images.name?.endsWith(".xls") ||
                   images.name?.endsWith(".csv");
                 const isPdf = images.name?.endsWith(".pdf");
-                const isImage = images.name?.endsWith('.jpg') || images.name?.endsWith('.png') || images.name?.endsWith('.jpeg') || images.name?.endsWith('.webp');;
+                const isImage =
+                  images.name?.endsWith(".jpg") ||
+                  images.name?.endsWith(".png") ||
+                  images.name?.endsWith(".jpeg") ||
+                  images.name?.endsWith(".webp");
                 const url = images.url;
                 return (
                   <>
-                  <ViewImageComponent 
-                  
-                  url={url}
-                   isExcel={isExcel}
-                   isPdf={isPdf}
-                   isImage={isImage}
-                   images={images}
-                   index={index}
-                   key={index}
-                   
-                  />
+                    <ViewImageComponent
+                      url={url}
+                      isExcel={isExcel}
+                      isPdf={isPdf}
+                      isImage={isImage}
+                      images={images}
+                      index={index}
+                      key={index}
+                    />
                   </>
                 );
               }
@@ -254,7 +256,6 @@ const ViewPrePurchase = ({ purchase }: any) => {
         </div>
       </div>
 
-
       <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
         <div className="w-full md:w-1/2 flex flex-col">
           <label className="block mb-2  text-gray-500  text-sm font-semibold">
@@ -278,9 +279,7 @@ const ViewPrePurchase = ({ purchase }: any) => {
           <label className="block mb-2  text-gray-500  text-sm font-semibold">
             Refund Tax ต้นทาง
           </label>
-          <p>
-            {data?.d_refund_tax === "" ? "" : data?.d_refund_tax}
-            </p>
+          <p>{data?.d_refund_tax === "" ? "" : data?.d_refund_tax}</p>
         </div>
         <div className="w-full md:w-1/2 flex flex-col">
           <label className="block mb-2  text-gray-500  text-sm font-semibold">

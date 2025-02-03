@@ -172,18 +172,7 @@ function Main() {
           </p>
         </div>
         <div className="justify-end p-5">
-          <Button className="border-blue-500 mr-5"
-            style={{
-              color: "#305D79"
-            }}
-          >
-            <ArrowUpFromLine
-              color="#305D79"
-
-              className="inset-y-0 bg-secondary-400  mr-1  justify-center m-auto   w-5 h-5  text-slate-500"
-            ></ArrowUpFromLine>
-            Upload file
-          </Button>
+          
           <Button className="text-white  border-blue-800"
             onClick={() => {
               AddFormCustomer()

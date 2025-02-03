@@ -341,14 +341,6 @@ function Purchase() {
               </select>
             </div>
 
-            {/* <select
-              id="deliver"
-              className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option selected>ส่งมอบงาน</option>
-              <option value="delivered">Delivered</option>
-              <option value="pending">Pending</option>
-            </select> */}
           </div>
 
           <div className="grid grid-cols-12 gap-y-10 gap-x-6">
@@ -445,7 +437,7 @@ function Purchase() {
                                   <Table.Td className="text-center    border-slate-200/60  text-gray-900">
                                     {key + 1}
                                   </Table.Td>
-                                  <Table.Td className="text-center truncate truncate    border-slate-200/60  text-gray-900">
+                                  <Table.Td className="text-center  truncate    border-slate-200/60  text-gray-900">
                                     {moment(data.createdAt).format(
                                       "YYYY/MM/DD HH:mm"
                                     )}{" "}
@@ -454,7 +446,7 @@ function Purchase() {
                                   <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
                                     {data?.customer?.cus_fullname}
                                   </Table.Td>
-                                  <Table.Td className="text-center truncate  truncate border-slate-200/60  text-gray-900">
+                                  <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
                                     {data.book_number}
                                   </Table.Td>
 
