@@ -5,7 +5,7 @@ import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
 
 
 //service
-import { getPurchase } from "@/services/purchase";
+import { getPurchase } from "@/services/finance";
 
 //component
 import TableComponent from "@/components/finance/work/TableComponent";
@@ -13,18 +13,17 @@ import TableComponent from "@/components/finance/work/TableComponent";
 export default  function WorkPage() {
   
 
-  const [purchase, setPurchase] = useState([])
+  const [purchase, setPurchase] = useState<any>()
 
   useEffect(() => {
     const getData = async () => {
 
-      const currentPage:number = 1;
-      const status:string = "";
-      const tag:string = "";
+      const data_params ={
+        page:1,
+      }
 
-      const purchase : any = await getPurchase(currentPage, status, tag);
-      console.log("purchase", purchase);
-      setPurchase(purchase)
+      const finance_purchase : any = await getPurchase(data_params);
+      setPurchase(finance_purchase)
     }
     getData()
   }, [])
@@ -75,9 +74,7 @@ export default  function WorkPage() {
             border: "1px solid #D2D6E1",
           }}
         >
-
           <TableComponent purchase={purchase} />
-
       </div>
       </div>
 

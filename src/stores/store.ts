@@ -12,6 +12,7 @@ import purchaseRedurer from './purchase'
 import documentReducer from './document'
 import systemReducer from './system';
 import statusOrderReducer from './statusOrder'
+import financeReducer from './finance'
 
  const store = configureStore({
   reducer: {
@@ -25,7 +26,8 @@ import statusOrderReducer from './statusOrder'
     purchaseRedurer:purchaseRedurer,
     documentReducer:documentReducer,
     systemReducer:systemReducer,
-    statusOrderReducer:statusOrderReducer
+    statusOrderReducer:statusOrderReducer,
+    financeReducer:financeReducer
   },
 });
 
