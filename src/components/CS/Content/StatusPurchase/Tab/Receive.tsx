@@ -379,7 +379,7 @@ const ReceiveComponent = ({ purchase }: { purchase: any }) => {
                     <Controller
                       name="license_plate"
                       control={control}
-                      defaultValue={data?.phone_no}
+                      defaultValue={data?.license_plate}
                       rules={{ required: false }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <input

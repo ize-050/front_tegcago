@@ -8,8 +8,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 
 //services
-import { getCheckBooking } from "@/services/purchase";
-import { getCustomerDetail } from '@/services/customer'
+
+import {getPurchaseByid, getWorkByid} from "@/services/finance"
 //store
 
 import {
@@ -20,6 +20,7 @@ import {
 //component
 import Button from "@/components/Base/Button";
 
+
 import DetailCustomer from "@/components/Content/DetailCustomer/DetailCustomer";
 import ViewCustomer from "@/components/Content/DetailCustomer/ViewCustomer";
 import PurchaseComponent from "@/components/Content/Purchase/purchase"
@@ -29,6 +30,8 @@ import PrePurchase from "@/components/Content/Prepurchase/add/Addprepurchase";
 import { customerData, ChangeFormEdit } from '@/stores/customer'
 import { purchaseData, setPurchaseData } from "@/stores/purchase";
 
+import { setPurchaseFinanceDetail ,setPurchaseFinanceData } from "@/stores/finance"
+
 import { setOpenToast } from "@/stores/util"
 import FormFinanceComponent from "@/components/finance/work/FormpaymentComponent";
 
@@ -36,6 +39,7 @@ import FormFinanceComponent from "@/components/finance/work/FormpaymentComponent
 
 function Addfinance() {
   const router = useRouter()
+  const {id} = useParams()
   const dispatch = useAppDispatch();
   const { purchase } = useAppSelector(purchaseData)
   const [activeTab, setActiveTab] = useState('Prepurchase');
@@ -62,21 +66,31 @@ function Addfinance() {
 
 
 
-  useEffect(() => {
-    // const fetchCustomerDetail = async () => {
-    //   await getCustomerDetailByid(id);
-    // };
+ 
+
+  useEffect(()=>{
+
+    console.log("purchaseId",id)
     const getPurchase = async () => {
-      const  DataBooking : any =  await getCheckBooking()
-      setBookingId(DataBooking.book_number)
+      const  purchase_by_id : any =  await getPurchaseByid(id as string)  
+      if(purchase_by_id){
+        dispatch(setPurchaseFinanceDetail(purchase_by_id.cs_purchase))
+        dispatch(setPurchaseFinanceData(purchase_by_id))
+      }
+    }
+
+    const getWork = async () => {
+      const  work_by_id : any =  await getWorkByid(id as string);
+      
+      console.log("work_by_id",work_by_id)
+      if(work_by_id !=null){
+          
+      }
     }
 
     getPurchase()
-    dispatch(resetStore())
-  }, [])
-
-
-
+    getWork()
+  },[id])
 
 
 

@@ -35,11 +35,6 @@ function Slider() {
     localStorage.setItem("compactMenu", val.toString());
     dispatch(setCompactMenuStore(val));
   };
-  const [quickSearch, setQuickSearch] = useState(false);
-  const [switchAccount, setSwitchAccount] = useState(false);
-  const [notificationsPanel, setNotificationsPanel] = useState(false);
-  const [activitiesPanel, setActivitiesPanel] = useState(false);
-  const [compactMenuOnHover, setCompactMenuOnHover] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState(false);
 
   const router = useRouter();
@@ -63,7 +58,7 @@ function Slider() {
   const pathname = usePathname()
 
 
-  const { menuSale, menuCs  ,menuSuperadmin} = useAppSelector(selectSideMenu);
+  const { menuSale, menuCs  ,menuSuperadmin , menuFinance} = useAppSelector(selectSideMenu);
 
   const [sideMenuStore, setSideMenuStore] = useState<any>();
 
@@ -106,6 +101,9 @@ function Slider() {
     }
     else if(session?.data?.role == "SuperAdmin") {
       setSideMenuStore(menuSuperadmin)
+    }
+    else if(session?.data?.role == "Finance"){
+      setSideMenuStore(menuFinance)
     }
     console.log("session", session?.data?.role)
   }, [session]);

@@ -15,6 +15,7 @@ export interface SideMenuState {
   menuSale: Array<Menu | string>;
   menuCs: Array<Menu | string>;
   menuSuperadmin: Array<Menu | string>;
+  menuFinance: Array<Menu | string>;
 }
 
 const initialState: SideMenuState = {
@@ -91,6 +92,13 @@ const initialState: SideMenuState = {
       ]
     },
   ],
+  menuFinance:[
+    {
+      icon: "Users",
+      pathname: "/finance/work",
+      title: "ข้อมูลงานบัญชี",
+    },
+  ]
 };
 
 export const sideMenuSlice = createSlice({
