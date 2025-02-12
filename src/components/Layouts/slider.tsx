@@ -137,11 +137,11 @@ function Slider() {
         ])}
         onMouseOver={(event) => {
           event.preventDefault();
-          setCompactMenuOnHover(true);
+         // setCompactMenuOnHover(true);
         }}
         onMouseLeave={(event) => {
           event.preventDefault();
-          setCompactMenuOnHover(false);
+         // setCompactMenuOnHover(false);
         }}
       >
         <div
