@@ -33,7 +33,9 @@ import { purchaseData, setPurchaseData } from "@/stores/purchase";
 import { setPurchaseFinanceDetail ,setPurchaseFinanceData } from "@/stores/finance"
 
 import { setOpenToast } from "@/stores/util"
-import FormFinanceComponent from "@/components/finance/work/FormpaymentComponent";
+import FormFinanceComponent from "@/components/finance/work/formpaymentComponent/index";
+
+import FormFinance from "@/components/finance/work/FormpaymentComponent"
 
 
 
@@ -79,17 +81,10 @@ function Addfinance() {
       }
     }
 
-    const getWork = async () => {
-      const  work_by_id : any =  await getWorkByid(id as string);
-      
-      console.log("work_by_id",work_by_id)
-      if(work_by_id !=null){
-          
-      }
-    }
+  
 
     getPurchase()
-    getWork()
+   
   },[id])
 
 
@@ -149,7 +144,8 @@ function Addfinance() {
             </ul>
           </div>
 
-          <FormFinanceComponent></FormFinanceComponent>
+          <FormFinanceComponent BookingId={id}> </FormFinanceComponent>
+          {/* <FormFinance></FormFinance> */}
 
 
         </div>

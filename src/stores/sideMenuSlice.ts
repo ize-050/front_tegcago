@@ -98,6 +98,28 @@ const initialState: SideMenuState = {
       pathname: "/finance/work",
       title: "ข้อมูลงานบัญชี",
     },
+     {
+      icon: "Proportions",
+      pathname: "/finance/data",
+      title: "ข้อมูลงานบัญชี",
+      subMenu:[
+        {
+          icon: "Proportions",
+          pathname: "/finance/data/payment1",
+          title: "บันทึกข้อมูลการเบิกเงินแผนกชิป",
+        },
+        {
+          icon: "Proportions",
+          pathname: "/finance/data/paymen2",
+          title: "บันทึกข้อมูลการโอนเงิน",
+        },
+        {
+          icon: "Proportions",
+          pathname: "/cs/system/payme3",
+          title: "บันทึกข้อมูลรายจ่ายฝั่งจีน",
+        },
+      ]
+    },
   ]
 };
 

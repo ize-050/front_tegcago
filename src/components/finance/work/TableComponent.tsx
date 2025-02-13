@@ -15,7 +15,6 @@ import Table from "@/components/Base/Table";
 import Pagination from "@/components/Base/Pagination";
 import { FormCheck, FormInput, FormSelect } from "@/components/Base/Form";
 
-
 interface TableComponentProps {
     purchase: {
         purchase: any[],
@@ -29,6 +28,9 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     const [totalPage, setTotalPage] = useState<number>(1)
     const [searchedVal, setSearchedVal] = useState("")
     const [currentData, setCurrentData] = useState<any[]>([])
+    const [bookNumbers, setBookNumbers] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page)
     }
@@ -48,14 +50,32 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         console.log("currentData", currentData)
     }, [currentData])
 
+    useEffect(() => {
+        // Extract unique book numbers from purchaseData
+        if (purchase?.purchase) {
+            const uniqueBookNumbers = [...new Set(purchase?.purchase.map((item: any) => item.book_number))];
+            setBookNumbers(uniqueBookNumbers.filter(Boolean)); // Remove null/undefined values
+        }
+    }, [purchase])
+
+    const filteredSuggestions = bookNumbers.filter(number => 
+        number.toLowerCase().includes(searchedVal.toLowerCase())
+    );
+
     const handleSearch = (e: any) => {
-        setSearchedVal(e.target.value)
+        setSearchedVal(e.target.value);
+        setShowSuggestions(true);
     }
 
-    useEffect(() => {
-        const filteredData = currentData?.filter((item: any) => item.purchase_number.includes(searchedVal))
-        setCurrentData(filteredData)
-    }, [searchedVal])
+    const handleSelectSuggestion = (value: string) => {
+        setSearchedVal(value);
+        setShowSuggestions(false);
+    }
+
+    const filteredData = currentData?.filter((item: any) => {
+        if (!searchedVal) return true;
+        return item.book_number?.toLowerCase().includes(searchedVal.toLowerCase());
+    });
 
     const handleView = (id: number) => {
         router.push(`/cs/purchase/${id}`)
@@ -65,8 +85,6 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         router.push(`/cs/purchase/edit/${id}`)
     }
 
-
-
     return (
         <div>
             <div className="grid grid-cols-12 gap-y-10 gap-x-6">
@@ -74,6 +92,29 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                     <div className="mt-1">
                         <div className="flex p-4 flex-col box box--stacked">
                             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                                <div className="mb-5 relative">
+                                    <input
+                                        type="text"
+                                        placeholder="ค้นหาเลข PO"
+                                        value={searchedVal}
+                                        onChange={handleSearch}
+                                        onFocus={() => setShowSuggestions(true)}
+                                        className="w-1/6 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none  focus:border-transparent"
+                                    />
+                                    {showSuggestions && filteredSuggestions.length > 0 && (
+                                        <div className="absolute z-10 w-1/6  mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                                            {filteredSuggestions.map((suggestion, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => handleSelectSuggestion(suggestion)}
+                                                >
+                                                    {suggestion}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 <Table className="border-b border-gray-100  ">
                                     <Table.Thead>
                                         <Table.Tr
@@ -100,7 +141,10 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                 เลข Shipment
                                             </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
-                                                Status
+                                                สถานะใบจอง
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
+                                                สถานะทางบัญชี
                                             </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
 
@@ -108,8 +152,8 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                         </Table.Tr>
                                     </Table.Thead>
                                     <Table.Tbody>
-                                        {currentData?.length > 0 &&
-                                            currentData
+                                        {filteredData?.length > 0 &&
+                                            filteredData
                                                 .filter((row: any) =>
                                                     !searchedVal?.length
                                                     || row?.book_number.toString()
@@ -152,6 +196,15 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
 
                                                                 <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
                                                                     <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
+                                                                </Table.Td>
+
+                                                                <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
+                                                                    {data?.purchase_finance.length > 0 && 
+                                                                    <>
+                                                                     <div className={`truncate  rounded-md  p-1  w-auto text-black`}>{data?.purchase_finance[0]?.finance_status}</div>
+                                                                    </>
+                                                                    }
+                                                                   
                                                                 </Table.Td>
 
 

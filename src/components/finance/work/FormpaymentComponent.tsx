@@ -13,13 +13,9 @@ import { submitPrePurchase } from "@/stores/purchase";
 
 //utils
 import { numberFormatTh, numberFormatAllth, numberFormatcn, numberFormatTH_CN } from "@/utils/numberFormat"
-
-
-
 //service
 
 //moment
-
 
 import { getSelectCustomer } from "@/services/customer";
 
@@ -33,7 +29,7 @@ import { financeData } from "@/stores/finance";
 
 const FormfinanceComponent = ({ BookingId }: any) => {
     const dispatch = useAppDispatch();
-    const { purchaseFinanceDetail } = useAppSelector(financeData)
+    const { purchaseFinanceDetail, purchaseFinanceData } = useAppSelector(financeData)
     const methods = useForm();
     const [selectCustomer, SetSelectCustomer] = useState<any[]>([]);
 
@@ -162,14 +158,29 @@ const FormfinanceComponent = ({ BookingId }: any) => {
         calAllThandCn()
     }, [calAllThandCn]);
 
-
     useEffect(() => {
-        (async () => {
-            let customer: any = await getSelectCustomer();
-            console.log("customerSelect", customer);
-            SetSelectCustomer(customer);
-        })();
-    }, []);
+        if (purchaseFinanceData?.d_purchase_customer_payment?.length > 0) {
+
+            const TotalBeforeVat = purchaseFinanceData?.d_purchase_customer_payment.reduce((acc: number, item: any) => {
+                return acc += Number(item.payment_price);
+            }, 0);
+
+            console.log("TotalBeforeVat", TotalBeforeVat)
+
+            setValue('total_payment_all', TotalBeforeVat)
+
+
+        }
+
+    }, [purchaseFinanceData])
+
+
+    useEffect(()=>{
+
+        const miss_payment = watch('total_payment_all') - watch('billing_amount')
+        setValue('miss_payment', miss_payment)
+
+    },[watch('billing_amount')])
 
     useEffect(() => {
         console.log("purchaseFinanceDetail", purchaseFinanceDetail)
@@ -191,6 +202,18 @@ const FormfinanceComponent = ({ BookingId }: any) => {
         }
 
     }, [purchaseFinanceDetail])
+
+
+    useEffect(() => {
+        (async () => {
+            let customer: any = await getSelectCustomer();
+            console.log("customerSelect", customer);
+            SetSelectCustomer(customer);
+        })();
+    }, []);
+
+
+   
 
     return (
         <div className="flex flex-col p-5">
@@ -676,7 +699,7 @@ const FormfinanceComponent = ({ BookingId }: any) => {
                         </div>
                         <div className="w-full md:w-1/2 flex flex-col">
                             <label className="block mb-2  text-gray-700  text-sm font-semibold">
-                                ค่ามััดจำตู้
+                                ค่ามัดจำตู้
                             </label>
                             <Controller
                                 name="price_deposit"
@@ -1046,15 +1069,129 @@ const FormfinanceComponent = ({ BookingId }: any) => {
 
 
                     </div>
+                    <br></br>
 
-                
 
                     <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                        <FormTablePaymentComponent />
+
+
+
+                        <div className="w-full md:w-1/4 flex flex-col">
+                            ยอดเรียกเก็บ
+                            <Controller
+                                name="billing_amount"
+                                control={control}
+                                defaultValue={0}
+                                rules={{
+                                    required: true,
+                                    pattern: {
+                                        value: /^[0-9]*$/,
+                                        message: "กรุณากรอกตัวเลขเท่านั้น"
+                                    }
+                                }}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <>
+                                        <input type="number" onChange={(event) => {
+                                            onChange(event.target.value)
+                                        }} value={value} placeholder="กรอกรายละเอียด"
+                                            className={`${errors.billing_amount
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                                }  border   px-3 py-2  text-gray-700  rounded  w-full  focus:outline-none focus:ring-2 focus:ring-blue-400  focus:border-transparent`}
+                                        />
+                                    </>
+                                )}
+                            />
+                            {errors.billing_amount && <p className="text-red-500">กรุณาเลือกประเภทเรทเงิน.</p>}
+                        </div>
+
+                        <div className="w-full md:w-1/4 flex flex-col">
+                            ยอดชำระเงินรวม(ลูกค้า)    <Controller
+                                name="total_payment_all"
+                                control={control}
+                                defaultValue={0}
+                                rules={{
+                                    required: true,
+                                    pattern: {
+                                        value: /^[0-9]*$/,
+                                        message: "กรุณากรอกตัวเลขเท่านั้น"
+                                    }
+                                }}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <>
+                                        <input type="number" onChange={(event) => {
+                                            onChange(event.target.value)
+                                        }} value={value} placeholder="กรอกรายละเอียด"
+                                            className={`${errors.payment
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                                }  border   px-3 py-2  bg-gray-200  text-gray-700  rounded  w-full  focus:outline-none focus:ring-2 focus:ring-blue-400  focus:border-transparent`}
+                                        />
+                                    </>
+                                )}
+                            />
+                            {errors.payment && <p className="text-red-500">กรุณาเลือกประเภทเรทเงิน.</p>}
+                        </div>
+
+                        <div className="w-full md:w-1/4 flex flex-col">
+                            ขาดจ่าย
+                            <Controller
+                                name="miss_payment"
+                                control={control}
+                                defaultValue={0}
+                                rules={{
+                                    required: false,
+                                    pattern: {
+                                        value: /^[0-9]*$/,
+                                        message: "กรุณากรอกตัวเลขเท่านั้น"
+                                    }
+                                }}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <>
+                                        <input type="number" readOnly onChange={(event) => {
+                                            onChange(event.target.value)
+                                        }} value={value} placeholder="กรอกรายละเอียด"
+                                            className={`${errors.miss_payment
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                                }  border   px-3 py-2 bg-gray-200  text-gray-700  rounded  w-full  focus:outline-none focus:ring-2 focus:ring-blue-400  focus:border-transparent`}
+                                        />
+                                    </>
+                                )}
+                            />
+                            {errors.miss_payment && <p className="text-red-500">กรุณาเลือกประเภทเรทเงิน.</p>}
+                        </div>
+
+                        <div className="w-full md:w-1/4 flex flex-col">
+                            ยอดเรียกเก็บก่อน  Vat
+                            <Controller
+                                name="total_before_vat"
+                                control={control}
+                                defaultValue={0}
+                                rules={{
+                                    required: false,
+                                    pattern: {
+                                        value: /^[0-9]*$/,
+                                        message: "กรุณากรอกตัวเลขเท่านั้น"
+                                    }
+                                }}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <>
+                                        <input type="number" onChange={(event) => {
+                                            onChange(event.target.value)
+                                        }} value={value} placeholder="กรอกรายละเอียด"
+                                            className={`${errors.total_before_vat
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                                }  border   px-3 py-2   text-gray-700  rounded  w-full  focus:outline-none focus:ring-2 focus:ring-blue-400  focus:border-transparent`}
+                                        />
+                                    </>
+                                )}
+                            />
+                            {errors.total_before_vat && <p className="text-red-500">กรุณาเลือกประเภทเรทเงิน.</p>}
+                        </div>
+
                     </div>
-
-                  
-
 
 
                     <div className="flex items-center justify-end  rounded-b mt-5">
@@ -1085,4 +1222,3 @@ const FormfinanceComponent = ({ BookingId }: any) => {
 };
 
 export default FormfinanceComponent;
- 

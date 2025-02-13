@@ -26,10 +26,10 @@ const FormPaymentComponent = () => {
     }, [purchaseFinanceData])
 
     return (
-        <div className="p-5 flex flex-col">
+        <div className="p-0 flex flex-col">
         <div className="flex">
             <div className="flex-1 w-50">
-                <h1 className="mb-5  text-2xl font-semibold">ยอดชำระเงิน</h1>
+                <h1 className="mb-5  text-xl font-semibold">ยอดชำระเงิน</h1>
             </div>
 
 
