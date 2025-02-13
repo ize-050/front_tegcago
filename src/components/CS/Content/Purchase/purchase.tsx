@@ -109,7 +109,7 @@ const Purchase = () => {
             <label className="block mb-2  text-gray-500  text-sm font-semibold">
               วันที่/เวลา
             </label>
-            <p> {moment(data?.created_at).format("DD/MM/YYYY HH:mm")}</p>
+            <p> {moment(data?.createdAt).format("DD/MM/YYYY HH:mm")}</p>
           </div>
         </div>
 

@@ -54,7 +54,11 @@ const CsViewPrePurchase = () => {
           <label className="block mb-2  text-gray-500  text-sm font-semibold">
             วันที่/เวลา
           </label>
-          {moment(data?.created_at).format("DD/MM/YYYY HH:mm")}
+          {data?.createdAt && (
+            <>
+              <p>{moment(data?.createdAt).format("DD/MM/YYYY HH:mm")}</p>
+            </>
+          )}
           {/*<p>{customer_detail.cus_sex}</p>*/}
         </div>
       </div>

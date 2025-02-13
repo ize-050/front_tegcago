@@ -72,7 +72,11 @@ const ViewPrePurchase = ({ purchase }: any) => {
             วันที่/เวลา
           </label>
 
-          {moment(data?.createdAt).format("DD/MM/YYYY HH:mm")}
+          {data?.createdAt && (
+            <>
+              <p>{moment(data?.createdAt).format("DD/MM/YYYY HH:mm")}</p>
+            </>
+          )}
           {/*<p>{customer_detail.cus_sex}</p>*/}
         </div>
       </div>
