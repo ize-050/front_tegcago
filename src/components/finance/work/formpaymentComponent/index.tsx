@@ -347,13 +347,13 @@ const FormPaymentComponent = ({ BookingId }: any) => {
                             <label className="block mb-2 text-gray-700 text-sm font-semibold">
                                 เลขตีราคา
                             </label>
-                            <p>{BookingId}</p>
+                            <p>{purchaseFinanceData.book_number}</p>
                         </div>
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-gray-700 text-sm font-semibold">
                                 ชื่อเซลล์
                             </label>
-                            {session?.data?.fullname} ({session?.data?.role})
+                            {purchaseFinanceData.d_purchase_emp?.[0]?.user?.fullname}
                         </div>
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-gray-700 text-sm font-semibold">

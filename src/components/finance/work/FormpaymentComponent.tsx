@@ -165,9 +165,6 @@ const FormfinanceComponent = ({ BookingId }: any) => {
                 return acc += Number(item.payment_price);
             }, 0);
 
-            console.log("TotalBeforeVat", TotalBeforeVat)
-
-            setValue('total_payment_all', TotalBeforeVat)
 
 
         }
@@ -231,7 +228,7 @@ const FormfinanceComponent = ({ BookingId }: any) => {
                             <label className="block mb-2  text-gray-700  text-sm font-semibold">
                                 ชื่อเซลล์
                             </label>
-                            {session?.data?.fullname} ({session?.data?.role})
+                            
                         </div>
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2  text-gray-700  text-sm font-semibold">

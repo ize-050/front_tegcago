@@ -5,14 +5,18 @@ export interface internalFinance {
  form :Partial<any>,
  purchaseFinanceDetail:any[],
  purchaseFinanceData:any
+ formwithdrawal :Partial<any>
+ modalWithdrawal:boolean
 }
 
 const initialState: internalFinance = {
  form :{
  },
  purchaseFinanceDetail:[],
- purchaseFinanceData:{}
-
+ purchaseFinanceData:{},
+ modalWithdrawal:false,
+ formwithdrawal :{
+ }
 };
 
 
@@ -31,6 +35,15 @@ export const finance = createSlice({
         },
         setPurchaseFinanceData(state, action: any) {  
             state.purchaseFinanceData = action.payload
+        },
+       setModalWithdrawal(state, action: PayloadAction<boolean>) {
+            state.modalWithdrawal = action.payload
+        },
+        setFormWithdrawal(state, action: PayloadAction<Partial<any>>) {
+            state.formwithdrawal = {
+                ...state.formwithdrawal,
+                ...action.payload
+            }
         }
     }
 })
@@ -40,7 +53,9 @@ export const financeData = (state: RootState) => state.financeReducer;
 export const {
   setFormFinance,
   setPurchaseFinanceDetail,
-  setPurchaseFinanceData
+  setPurchaseFinanceData,
+  setModalWithdrawal,
+  setFormWithdrawal
   } = finance.actions;
 
 export default finance.reducer;

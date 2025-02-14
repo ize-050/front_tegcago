@@ -105,17 +105,17 @@ const initialState: SideMenuState = {
       subMenu:[
         {
           icon: "Proportions",
-          pathname: "/finance/data/payment1",
+          pathname: "/finance/data/withdrawal_information",
           title: "บันทึกข้อมูลการเบิกเงินแผนกชิป",
         },
         {
           icon: "Proportions",
-          pathname: "/finance/data/paymen2",
+          pathname: "/finance/data/record_money",
           title: "บันทึกข้อมูลการโอนเงิน",
         },
         {
           icon: "Proportions",
-          pathname: "/cs/system/payme3",
+          pathname: "/finance/data/record_chinese",
           title: "บันทึกข้อมูลรายจ่ายฝั่งจีน",
         },
       ]
