@@ -318,6 +318,9 @@ function Purchase() {
                             วันที่
                           </Table.Td>
                           <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                            ชื่อลูกค้า
+                          </Table.Td>
+                          <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                             ประเภทShipment
                           </Table.Td>
 
@@ -369,6 +372,9 @@ function Purchase() {
                                 </Table.Td>
                                 <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
                                   {moment(data.createdAt).format('YYYY/MM/DD HH:mm')}  น.
+                                </Table.Td>
+                                <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
+                                  {data?.customer?.cus_fullname}
                                 </Table.Td>
                                 <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
                                 {data.d_shipment_number ? data.d_shipment_number.match(/[A-Za-z]+/)[0] || data.d_shipment_number : '-'}

@@ -5,7 +5,7 @@ export interface internalFinance {
  form :Partial<any>,
  purchaseFinanceDetail:any[],
  purchaseFinanceData:any
- formwithdrawal :Partial<any>
+ formwithdrawal :any
  modalWithdrawal:boolean
 }
 
@@ -39,7 +39,7 @@ export const finance = createSlice({
        setModalWithdrawal(state, action: PayloadAction<boolean>) {
             state.modalWithdrawal = action.payload
         },
-        setFormWithdrawal(state, action: PayloadAction<Partial<any>>) {
+        setFormWithdrawal(state, action: PayloadAction<any>) {
             state.formwithdrawal = {
                 ...state.formwithdrawal,
                 ...action.payload

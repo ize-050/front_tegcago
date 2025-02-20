@@ -216,7 +216,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex">
-              <div className="w-1/2 p-5">
+              <div className="w-1/3 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                   วันที่รับเรื่อง
                 </label>
@@ -252,7 +252,7 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                   <p>{data?.date_receiving}</p>
                 )}
               </div>
-              <div className="w-1/2 p-5">
+              <div className="w-1/3 p-5">
                 <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
                   วันที่ Booking
                 </label>
@@ -287,6 +287,45 @@ const BookcabinetComponent = ({ purchase }: { purchase: any }) => {
                   </>
                 ) : (
                   <p>{data?.date_booking}</p>
+                )}
+              </div>
+
+
+              <div className="w-1/3 p-5">
+                <label className="block mb-2 text-lg text-gray-500  sm:text-sm font-semibold">
+                 Consignee
+                </label>
+
+                {dataStatus.type !== "view" ? (
+                  <>
+                    <Controller
+                      name="consignee"
+                      control={control}
+                      defaultValue={data?.consignee}
+                      rules={{ required: false }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          placeholder="กรุณากรอกข้อมูล"
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          type="text"
+                          className={`
+                                            ${
+                                              errors.consignee
+                                                ? "border-red-500"
+                                                : "border-gray-200"
+                                            }
+                                            px-4 py-2 outline-none rounded-md w-full`}
+                        />
+                      )}
+                    />
+                    {errors.consignee && (
+                      <p className="text-red-500">กรุณากรอกข้อมูล.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>{data?.consignee}</p>
                 )}
               </div>
             </div>

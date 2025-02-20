@@ -221,6 +221,38 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
           </div>
 
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-10 mt-5">
+
+          <div className="w-full md:w-1/3 flex flex-col">
+              <label className="block flex mb-1 text-gray-600 font-semibold">
+                รูปแบบงาน
+              </label>
+              <Controller
+                name="t_group_work"
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <select
+                    onChange={onChange}
+                    className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
+                  >
+                    <option value="EXW">EXW ขาเข้าทั้งเส้นทาง</option>
+                    <option value="CUSTOM_IN">CUSTOM ขาเข้า</option>
+                    <option value="CUSTOM_OUT">CUSTOM ขาออก</option>
+                    <option value="CIF">CIF</option>
+                    <option value="LCL">
+                      LCL
+                    </option>
+                    <option value="EXPORT_CH">
+                      EXPORT ขาออกฝั่งจีน
+                    </option>
+                  </select>
+                )}
+              />
+              {errors.d_group_work && (
+                <p className="text-red-500">กรุณากรอกประเภทงาน.</p>
+              )}
+            </div>
+
             <div className="w-full md:w-1/3 flex flex-col">
               <label className=" flex mb-1 text-gray-600 font-semibold">
                 เลือกประเภทงาน

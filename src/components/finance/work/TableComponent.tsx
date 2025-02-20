@@ -40,6 +40,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
 
     useEffect(() => {
         if(!purchase?.purchase) return
+    
         setCurrentData(purchase?.purchase)
         setTotalPage(Math.ceil(purchase?.total / 10))
         console.log("finance_purchase", purchase?.purchase)
@@ -154,7 +155,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                     <Table.Tbody>
                                         {filteredData?.length > 0 &&
                                             filteredData
-                                                .filter((row: any) =>
+                                                ?.filter((row: any) =>
                                                     !searchedVal?.length
                                                     || row?.book_number.toString()
                                                         .toLowerCase()
