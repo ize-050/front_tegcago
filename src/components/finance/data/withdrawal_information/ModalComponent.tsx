@@ -65,6 +65,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     const { modalWithdrawal, formwithdrawal } = useAppSelector(financeData)
     const [selectedInvoiceId, setSelectedInvoiceId] = useState("")
     const [withdrawalItems, setWithdrawalItems] = useState<WithdrawalItem[]>([defaultWithdrawalItem])
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // States for autocomplete
     const [queries, setQueries] = useState<string[]>([''])
@@ -76,6 +77,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         handleSubmit,
         setValue,
         watch,
+        reset,
         formState: { errors },
         register
     } = useForm<FormValues>({
@@ -99,7 +101,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             setValue('return_people', formwithdrawal.return_people || '')
             setValue('withdrawal_date', formwithdrawal.withdrawal_date || '')
             setValue('withdrawal_person', formwithdrawal.withdrawal_person || '')
-            
+
             if (formwithdrawal.withdrawalItems?.length > 0) {
                 setWithdrawalItems(formwithdrawal.withdrawalItems)
                 setQueries(new Array(formwithdrawal.withdrawalItems.length).fill(''))
@@ -113,8 +115,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/finance/purchase?search=${queries[activeIndex]}`)
                 const data = response.data.data;
-                
-                
+
                 // Get all selected invoice packages except the current row
                 const selectedInvoicePackages = withdrawalItems
                     .filter((item, idx) => idx !== activeIndex && item.invoice_package)
@@ -123,8 +124,8 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 console.log('Selected packages:', selectedInvoicePackages);
                 console.log('Current withdrawalItems:', withdrawalItems);
                 console.log('Active Index:', activeIndex);
-                
-                                                                        // Filter out options that are already selected in other rows
+
+                // Filter out options that are already selected in other rows
                 const filteredOptions = data.filter((item: any) => {
                     console.log('Checking item:', item.d_shipment_number);
                     console.log('Is selected?', selectedInvoicePackages.includes(item.d_shipment_number));
@@ -133,12 +134,12 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
 
                 console.log('Filtered options:', filteredOptions);
 
-                setOptions(filteredOptions.map((item: any) => ({ 
-                    id: item.id, 
+                setOptions(filteredOptions.map((item: any) => ({
+                    id: item.id,
                     invoice_package: item.d_shipment_number,
                     consignee: item.cs_purchase[0]?.bookcabinet?.consignee
                 })));
-                
+
             } catch (error) {
                 console.error('Error fetching invoice options:', error)
                 setOptions([]);
@@ -158,12 +159,12 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             // In edit mode, only check for duplicates if the selected value is different from the original
             const isEditMode = formwithdrawal?.id !== undefined;
             const originalValue = formwithdrawal?.withdrawalItems?.[index]?.invoice_package;
-            
+
             // Only check for duplicates if:
             // 1. We're in insert mode (not edit mode) OR
             // 2. We're in edit mode AND the selected value is different from the original value
             if (!isEditMode || (isEditMode && option.invoice_package !== originalValue)) {
-                const isAlreadySelected = withdrawalItems.some((item, idx) => 
+                const isAlreadySelected = withdrawalItems.some((item, idx) =>
                     idx !== index && item.invoice_package === option.invoice_package
                 );
 
@@ -177,7 +178,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                     return;
                 }
             }
-            
+
             // Update withdrawalItems with the selected invoice_package
             const newWithdrawalItems = [...withdrawalItems];
             newWithdrawalItems[index] = {
@@ -186,10 +187,10 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 consignee: option.consignee
             };
             setWithdrawalItems(newWithdrawalItems);
-            
+
             // Keep the selected value in the input
             const newQueries = [...queries];
-            
+
             newQueries[index] = option.invoice_package;
             setQueries(newQueries);
             setOptions([]);
@@ -215,7 +216,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         const newQueries = [...queries];
         newQueries[index] = '';
         setQueries(newQueries);
-        
+
         // Refresh options if this is the active row
         if (index === activeIndex && queries[activeIndex]?.length > 0) {
             fetchInvoiceOptions();
@@ -224,6 +225,18 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
 
     // Add new withdrawal item
     const handleAddItem = () => {
+        // Validate that the last item has an invoice_package before adding a new one
+        const lastItem = withdrawalItems[withdrawalItems.length - 1];
+        if (!lastItem.invoice_package) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณาระบุข้อมูล',
+                text: 'กรุณาเลือก Invoice & PackingList No. ในรายการปัจจุบันก่อนเพิ่มรายการใหม่',
+                confirmButtonText: 'ตกลง'
+            });
+            return;
+        }
+
         const newItem = {
             invoice_package: '',
             invoice_id: '',
@@ -233,8 +246,6 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             withdrawal_amount: '',
             withdrawal_company: '',
         };
-        console.log('Adding new item:', newItem);
-        console.log('Current withdrawalItems:', withdrawalItems);
         
         setWithdrawalItems([...withdrawalItems, newItem]);
         setQueries([...queries, '']);
@@ -263,8 +274,41 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         }
     }
 
+    useEffect(() => {
+        const totalWithdrawal = withdrawalItems.reduce((sum, item) => sum + (Number(item.withdrawal_amount) || 0), 0);
+        const gasoline = Number(watch('pay_gasoline')) || 0;
+        const price = Number(watch('pay_price')) || 0;
+        const transferAmount = Number(watch('transfer_amount')) || 0;
+        
+        const total = totalWithdrawal + gasoline + price - transferAmount;
+        setValue('pay_total', total);
+        
+        // Automatically set return_people based on pay_total value
+        if (total > 0) {
+            setValue('return_people', 'คืนบริษัท');
+        } else if (total < 0) {
+            setValue('return_people', 'คืนพี่เปิ้ล');
+        } else {
+            setValue('return_people', '');
+        }
+    }, [withdrawalItems, watch('pay_gasoline'), watch('pay_price'), watch('transfer_amount'), setValue]);
+
     const onSubmit = async (data: any) => {
         try {
+            // Validate that at least one withdrawal item has been added and has an invoice_package
+            const hasValidItems = withdrawalItems.some(item => item.invoice_package);
+            if (!hasValidItems) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณาเลือกอย่างน้อย 1 รายการ Invoice & PackingList No.',
+                    confirmButtonText: 'ตกลง'
+                });
+                return;
+            }
+
+            setIsSubmitting(true);
+            
             const endpoint = formwithdrawal?.id 
                 ? `${process.env.NEXT_PUBLIC_URL_API}/finance/updateWidhdrawalInformation`
                 : `${process.env.NEXT_PUBLIC_URL_API}/finance/submitwidhdrawalInformation`
@@ -284,6 +328,14 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                     showConfirmButton: false,
                     timer: 1500
                 })
+                
+                // Reset form and state
+                reset();
+                setWithdrawalItems([defaultWithdrawalItem]);
+                setQueries(['']);
+                setOptions([]);
+                setActiveIndex(null);
+                
                 dispatch(setModalWithdrawal(false))
                 dispatch(setFormWithdrawal(null))
                 onSuccess()
@@ -304,6 +356,8 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
                 confirmButtonText: 'ตกลง'
             })
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -346,12 +400,14 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                     <div className="bg-gray-50 p-4 rounded-lg mb-4">
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div>
+
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                                     วันที่เบิก
                                                                 </label>
                                                                 <Controller
                                                                     name="withdrawal_date"
                                                                     control={control}
+                                                                    rules={{ required: "กรุณาระบุวันที่เบิก" }}
                                                                     render={({ field }) => (
                                                                         <input
                                                                             type="date"
@@ -360,6 +416,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                         />
                                                                     )}
                                                                 />
+                                                                {errors.withdrawal_date && (
+                                                                    <p className="mt-1 text-sm text-red-600">{errors.withdrawal_date.message}</p>
+                                                                )}
                                                             </div>
 
                                                             <div>
@@ -369,6 +428,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                 <Controller
                                                                     name="withdrawal_person"
                                                                     control={control}
+                                                                    rules={{ required: "กรุณาระบุผู้เบิก" }}
                                                                     render={({ field }) => (
                                                                         <input
                                                                             type="text"
@@ -377,6 +437,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                         />
                                                                     )}
                                                                 />
+                                                                {errors.withdrawal_person && (
+                                                                    <p className="mt-1 text-sm text-red-600">{errors.withdrawal_person.message}</p>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -396,7 +459,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                         </button>
                                                                     )}
                                                                 </div>
-                                                                
+
                                                                 <div className="grid grid-cols-2 gap-4">
                                                                     <div>
                                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -463,8 +526,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                                                         key={option.id}
                                                                                                         value={option}
                                                                                                         className={({ active }) =>
-                                                                                                            `relative cursor-pointer select-none py-2 pl-3 pr-9 ${
-                                                                                                                active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                                                                            `relative cursor-pointer select-none py-2 pl-3 pr-9 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'
                                                                                                             }`
                                                                                                         }
                                                                                                     >
@@ -491,14 +553,14 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                                 <button
                                                                                     type="button"
                                                                                     onClick={() => handleClearInvoice(index)}
-                                                                                    className="ml-2 inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                                                    className="ml-2 inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                                                 >
                                                                                     <XMarkIcon className="h-4 w-4" aria-hidden="true" />
                                                                                 </button>
                                                                             )}
                                                                         </div>
                                                                     </div>
-                                                                    
+
                                                                     <div>
                                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                                                             Consignee
@@ -510,10 +572,6 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                             className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                                         />
                                                                     </div>
-
-                                                                   
-
-                                                                 
 
                                                                     <div>
                                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -562,14 +620,26 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                         <button
                                                             type="button"
                                                             onClick={handleAddItem}
-                                                            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                         >
                                                             + เพิ่มรายการเบิก
                                                         </button>
 
                                                         {/* Summary Section */}
                                                         <div className="mt-6 p-2 rounded-lg">
-                                                          
+                                                            <div className="bg-blue-50 p-4 mb-4 rounded-lg border border-blue-200">
+                                                                <h3 className="text-lg font-medium text-blue-800 mb-2">การคำนวณยอดเงิน</h3>
+                                                                <p className="text-sm text-blue-700 mb-2">
+                                                                    ค่าใช้จ่ายทั้งหมด (ค่าน้ำมันและค่าอื่นๆ) จะถูกหารเฉลี่ยให้กับทุกรายการเบิก
+                                                                </p>
+                                                                <ul className="list-disc list-inside text-sm text-blue-700 ml-2">
+                                                                    <li>ยอดเบิกรวม = ผลรวมของยอดเบิกทุกรายการ</li>
+                                                                    <li>ค่าน้ำมันต่อรายการ = ค่าน้ำมันทั้งหมด ÷ จำนวนรายการเบิก</li>
+                                                                    <li>ค่าอื่นๆต่อรายการ = ค่าอื่นๆทั้งหมด ÷ จำนวนรายการเบิก</li>
+                                                                    <li>ยอดสุทธิต่อรายการ = ยอดเบิก - ค่าน้ำมันต่อรายการ - ค่าอื่นๆต่อรายการ</li>
+                                                                </ul>
+                                                            </div>
+
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
                                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -607,9 +677,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                                 {...field}
                                                                                 onChange={(e) => {
                                                                                     field.onChange(e);
-                                                                                    const others = Number(e.target.value) || 0;
+                                                                                    const price = Number(e.target.value) || 0;
                                                                                     const gasoline = Number(watch('pay_gasoline')) || 0;
-                                                                                    setValue('pay_total', gasoline + others);
+                                                                                    setValue('pay_total', price + gasoline);
                                                                                 }}
                                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                                             />
@@ -652,8 +722,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             </div>
                                                         </div>
 
-                                                        {/* Other form fields */}
-                                                        <div className="grid grid-cols-2 gap-4">
+                                                    
+
+                                                        <div className="grid grid-cols-2 gap-4 mt-4">
                                                             <div>
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                                     วันที่โอน
@@ -699,7 +770,6 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                     render={({ field }) => (
                                                                         <input
                                                                             {...field}
-                                                                            type="text"
                                                                             readOnly
                                                                             className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                                         />
@@ -708,20 +778,69 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             </div>
                                                         </div>
 
-                                                        <div className="mt-5 flex justify-end space-x-3">
-                                                            <Button
+                                                            {/* Live calculation summary */}
+                                                            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                                            <h4 className="font-medium text-gray-700 mb-2">สรุปการคำนวณ (ตัวอย่าง)</h4>
+                                                            <div className="space-y-2 text-sm">
+                                                                <p>จำนวนรายการเบิก: <span className="font-medium">{withdrawalItems.length} รายการ</span></p>
+                                                                <p>ค่าน้ำมันทั้งหมด: <span className="font-medium">{watch('pay_gasoline') || 0} บาท</span></p>
+                                                                <p>ค่าอื่นๆทั้งหมด: <span className="font-medium">{watch('pay_price') || 0} บาท</span></p>
+                                                                <p>ค่าน้ำมันต่อรายการ: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_gasoline') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
+                                                                <p>ค่าอื่นๆต่อรายการ: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_price') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
+                                                                
+                                                           
+                                                                
+                                                                {withdrawalItems.length > 0 && withdrawalItems[0].withdrawal_amount && (
+                                                                    <div className="mt-2 pt-2 border-t border-gray-200">
+                                                                        <p className="font-medium">การคำนวณสำหรับรายการที่ 1 ของคุณ:</p>
+                                                                        <p>ยอดเบิก: <span className="font-medium">{withdrawalItems[0].withdrawal_amount} บาท</span></p>
+                                                                        <p>หัก ค่าน้ำมัน: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_gasoline') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
+                                                                        <p>หัก ค่าอื่นๆ: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_price') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
+                                                                        <p className="font-medium text-green-600">
+                                                                            ยอดสุทธิ: <span className="font-medium">{(
+                                                                                Number(withdrawalItems[0].withdrawal_amount || 0) - 
+                                                                                (withdrawalItems.length ? Number(watch('pay_gasoline') || 0) / withdrawalItems.length : 0) - 
+                                                                                (withdrawalItems.length ? Number(watch('pay_price') || 0) / withdrawalItems.length : 0)
+                                                                            ).toFixed(2)} บาท</span>
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex justify-end space-x-3 p-4 bg-gray-50 rounded-b-lg">
+                                                            <button
                                                                 type="button"
-                                                                className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                                                                onClick={() => dispatch(setModalWithdrawal(false))}
+                                                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                                                onClick={() => {
+                                                                    dispatch(setModalWithdrawal(false))
+                                                                    dispatch(setFormWithdrawal(null))
+                                                                }}
                                                             >
                                                                 ยกเลิก
-                                                            </Button>
-                                                            <Button
-                                                                type="submit"
-                                                                className="inline-flex justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleAddItem}
+                                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                             >
-                                                                บันทึก
-                                                            </Button>
+                                                                เพิ่มรายการ
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                disabled={isSubmitting}
+                                                                className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
+                                                            >
+                                                                {isSubmitting ? (
+                                                                    <>
+                                                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                        </svg>
+                                                                        กำลังบันทึก...
+                                                                    </>
+                                                                ) : formwithdrawal?.id ? 'บันทึกการแก้ไข' : 'บันทึกข้อมูล'}
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </form>

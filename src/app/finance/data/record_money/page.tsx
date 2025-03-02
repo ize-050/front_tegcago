@@ -1,60 +1,68 @@
-"use client"
-import React, { Fragment ,useEffect,useState} from "react";
+"use client";
+
+import React, { Fragment, useEffect, useState } from "react";
 
 import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
 
-
-//service
-import { getPurchase } from "@/services/finance";
+//store
+import { financeData, setModalRecordMoney } from "@/stores/finance";
 
 //component recode_money
+
+import { useAppDispatch } from "@/stores/hooks";
+
+//Modal
 import TableComponent from "@/components/finance/data/record_money/TableComponent";
+import ModalRecordMoney from "@/components/finance/data/record_money/ModalComponent";
 
-export default  function WorkPage() {
-  
+export default function WorkPage() {
+  const dispatch = useAppDispatch();
 
-  const [purchase, setPurchase] = useState<any>()
+  const handleOpenModal = () => {
+    dispatch(setModalRecordMoney(true));
+  };
 
-  useEffect(() => {
-    const getData = async () => {
-
-      const data_params ={
-        page:1,
-      }
-
-      const finance_purchase : any = await getPurchase(data_params);
-      setPurchase(finance_purchase)
-    }
-    getData()
-  }, [])
-
-
-  
   return (
-    <Fragment>
-   
-
+    <div className="w-full h-full">
       <div className="lg:flex md:flex ">
         <div className="flex-1 p-5">
           <p className="text-black text-xl font-bold">
-             บันทึกข้อมูลการโอนเงิน
+             บันทึกข้อมูลฝากสั่งและชำระ
           </p>
         </div>
        
+        <div className="flex-none p-5 flex gap-2">
+          <button
+            className="bg-green-600 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
+            onClick={handleOpenModal}
+            type="button"
+          >
+            + เพิ่มข้อมูล
+          </button>
+          <button
+            className="bg-blue-950 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
+            onClick={() => {
+              // Handle export functionality
+              console.log("Export");
+            }}
+            type="button"
+          >
+            ส่งออก Excel
+          </button>
+        </div>  
       </div>
 
-      <div className="container mx-auto px-5 ">
+      <div className="container mx-auto px-5">
         <div
-          className="bg-white  rounded-lg "
+          className="bg-white rounded-lg"
           style={{
             border: "1px solid #D2D6E1",
           }}
         >
-          <TableComponent purchase={purchase} />
+          <TableComponent />
+          <ModalRecordMoney />
+        </div>
       </div>
-      </div>
-
-
-    </Fragment>
+    </div>
   );
 }

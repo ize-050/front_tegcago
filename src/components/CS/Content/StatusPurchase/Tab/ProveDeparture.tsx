@@ -49,7 +49,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
     try {
       const response: any = await getDeparture(id);
       setData(response);
-    } catch (err: any) {}
+    } catch (err: any) { }
   };
 
   useEffect(() => {
@@ -208,11 +208,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="date"
                           className={`
-                                            ${
-                                              errors.date_etd
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.date_etd
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                             px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -246,11 +245,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="date"
                           className={`
-                                            ${
-                                              errors.date_eta
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.date_eta
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                             px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -286,11 +284,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="text"
                           className={`
-                                            ${
-                                              errors.post_origin
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.post_origin
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                             px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -324,11 +321,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="text"
                           className={`
-                                            ${
-                                              errors.post_destination
-                                                ? "border-red-500"
-                                                : "border-gray-200"
-                                            }
+                                            ${errors.post_destination
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                             px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -364,11 +360,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="text"
                           className={`
-                                                    ${
-                                                      errors.vessel_name
-                                                        ? "border-red-500"
-                                                        : "border-gray-200"
-                                                    }
+                                                    ${errors.vessel_name
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                                      px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -403,11 +398,10 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                           onChange={onChange}
                           type="text"
                           className={`
-                                                    ${
-                                                      errors.bl_no
-                                                        ? "border-red-500"
-                                                        : "border-gray-200"
-                                                    }
+                                                    ${errors.bl_no
+                              ? "border-red-500"
+                              : "border-gray-200"
+                            }
                                                      px-4 py-2 outline-none rounded-md w-full`}
                         />
                       )}
@@ -439,7 +433,7 @@ const ProveDepartureComponent = ({ purchase }: { purchase: any }) => {
                 <button
                   className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 "
                   type="submit"
-                  // onClick={() => setShowModal(false)}
+                // onClick={() => setShowModal(false)}
                 >
                   บันทึก
                 </button>

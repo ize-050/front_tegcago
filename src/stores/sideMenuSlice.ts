@@ -111,12 +111,12 @@ const initialState: SideMenuState = {
         {
           icon: "Proportions",
           pathname: "/finance/data/record_money",
-          title: "บันทึกข้อมูลการโอนเงิน",
+          title: "บันทึกข้อมูลฝากสั่งและชำระ",
         },
         {
           icon: "Proportions",
           pathname: "/finance/data/record_chinese",
-          title: "บันทึกข้อมูลรายจ่ายฝั่งจีน",
+          title: "บันทึกรับ-จ่ายฝั่งจีน คาร์โก้",
         },
       ]
     },

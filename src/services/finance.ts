@@ -1,4 +1,3 @@
-
 import axios from '../../axios';
 
 export const getPurchase = async (params:Partial<any>) => {
@@ -71,7 +70,7 @@ export const getWorkByid = async (id:string) => {
 export const getWidhdrawalInformation = async (params:Partial<any>) => {
     return new Promise(async (resolve, reject) => {
         const url = `${process.env.NEXT_PUBLIC_URL_API}/finance/getWidhdrawalInformation`;
-        const data_params ={
+        const data_params = {
            ...params
         }
         await axios.get(url,
@@ -79,9 +78,7 @@ export const getWidhdrawalInformation = async (params:Partial<any>) => {
                 headers: {
                     Accept: 'application/json',
                 },
-                params: {
-                    ...data_params,
-                }
+                params: data_params
             }).then(res => {
                 if (res.status === 200) {
                     resolve(res.data.data)
@@ -90,4 +87,23 @@ export const getWidhdrawalInformation = async (params:Partial<any>) => {
                 reject(err)
             })
     })
+}
+
+export const exportWithdrawalInformationToExcel = async (params: Partial<any>) => {
+    return new Promise(async (resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/finance/export-withdrawal-excel`;
+        const data_params = {
+            ...params
+        }
+        
+        try {
+            // Use window.open to trigger the download
+            const queryString = new URLSearchParams(data_params).toString();
+            const downloadUrl = `${url}?${queryString}`;
+            window.open(downloadUrl, '_blank');
+            resolve(true);
+        } catch (err) {
+            reject(err);
+        }
+    });
 }

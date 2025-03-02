@@ -1,10 +1,13 @@
 "use client"
-import axioss, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession, signOut } from "next-auth/react";
 
-const axios = axioss.create();
+// Create axios instance with baseURL
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_URL_API || 'http://localhost:3000/api', // Default to localhost if env var not set
+});
 
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     let session: Partial<any> | null;
     session = await getSession();
@@ -19,7 +22,7 @@ axios.interceptors.request.use(
   }
 );
 
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   function (response: any): AxiosResponse {
     if (response.status === 200) {
       if (response.data?.message == "Token Revoked") {
@@ -121,4 +124,4 @@ axios.interceptors.response.use(
   }
 );
 
-export default axios;
+export default axiosInstance;

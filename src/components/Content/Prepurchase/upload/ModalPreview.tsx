@@ -17,14 +17,22 @@ function ModalViewmage({
   startIndex = 0,
 }: PreviewModalProps) {
 
-
-
+  // Add a click handler for the background
+  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only close if clicking directly on the background (not on its children)
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50  flex items-center justify-center bg-black bg-opacity-60">
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-60"
+      onClick={handleBackgroundClick}
+    >
       <div className="relative bg-white rounded-lg p-4 ">
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 z-[10000]"
           onClick={onClose}
           type="button"
         >
@@ -51,8 +59,8 @@ function ModalViewmage({
           alt="Image"
           className="object-contain"
           style={{
-            maxHeight: "90vh", // Limit the height to 90% of the viewport
-            maxWidth: "90vw", // Limit the width to 90% of the viewport
+            maxHeight: "80vh", // Limit the height to 80% of the viewport
+            maxWidth: "80vw", // Limit the width to 80% of the viewport
             width: "auto",
             height: "auto",
           }}

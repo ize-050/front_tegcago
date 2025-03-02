@@ -33,19 +33,25 @@ export default function WorkPage() {
     try {
       const data_params = {
         page: 1,
-        limit: 10,
-        search: '',
+        limit: 10
+        // No search or date filters by default
       }
 
-      const widhdrawalInformation: any = await getWidhdrawalInformation(data_params);
-      console.log("widhdrawalInformation", widhdrawalInformation)
-      setwidhdrawalInformation(widhdrawalInformation.widhdrawalInformation)
+      const response: any = await getWidhdrawalInformation(data_params);
+      console.log("API Response:", response);
+      
+      // Make sure we're setting the data in the correct format expected by TableComponent
+      setwidhdrawalInformation({
+        widhdrawalInformation: response.widhdrawalInformation || response,
+        total: response.total || (response.widhdrawalInformation?.length || 0)
+      });
     } catch (err) {
       console.error("Error fetching data:", err)
     }
   }
 
   useEffect(() => {
+    // Always fetch data on load and when refreshKey changes
     getData()
   }, [refreshKey]) // Add refreshKey as dependency
 
@@ -88,7 +94,10 @@ export default function WorkPage() {
           </div>
           
               
-          <TableComponent datawidhdrawalInformation={datawidhdrawalInformation} onRefresh={handleRefresh} />
+          <TableComponent 
+            datawidhdrawalInformation={datawidhdrawalInformation} 
+            onRefresh={handleRefresh} 
+          />
 
           {modalWithdrawal && (
             <ModalWithdrawalInformation onSuccess={handleRefresh} />

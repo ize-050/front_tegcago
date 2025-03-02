@@ -4,7 +4,7 @@ import Button from "../Button";
 type PaginationProps = React.PropsWithChildren &
   React.ComponentPropsWithoutRef<"nav">;
 
-  function Pagination({ className, children }: PaginationProps) {
+  function Pagination({ className, children }: any) {
     return (
       <nav className={className}>
         <ul className="flex w-full mr-0 sm:w-auto sm:mr-auto">{children}</ul>

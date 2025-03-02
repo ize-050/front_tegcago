@@ -3,32 +3,24 @@ import React, { Fragment ,useEffect,useState} from "react";
 
 import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
 
-
-//service
-import { getPurchase } from "@/services/finance";
+//store
+import { financeData, setModalRecordMoney } from "@/stores/finance";
 
 //component recode_money
 import TableComponent from "@/components/finance/data/record_chinese/TableComponent";
-import Button from "@/components/Base/Button";
+import { useAppDispatch } from "@/stores/hooks";
+
+
+//Modal
+import ModalRecordMoney from "@/components/finance/data/record_chinese/ModalComponent";
 
 export default  function WorkPage() {
+  const dispatch = useAppDispatch();
   
 
-  const [purchase, setPurchase] = useState<any>()
-
-  useEffect(() => {
-    const getData = async () => {
-
-      const data_params ={
-        page:1,
-      }
-
-      const finance_purchase : any = await getPurchase(data_params);
-      setPurchase(finance_purchase)
-    }
-    getData()
-  }, [])
-
+ const handleAdd = () => {
+    dispatch(setModalRecordMoney(true))
+ }
 
   
   return (
@@ -38,12 +30,12 @@ export default  function WorkPage() {
       <div className="lg:flex md:flex ">
         <div className="flex-1 p-5">
           <p className="text-black text-xl font-bold">
-             บันทึกข้อมูลรายจ่ายฝั่งจีน
+             บันทึกรับ-รายจ่ายฝั่งจีน คาร์โก้
           </p>
         </div>
        
       </div>
-    
+
       <div className="container mx-auto px-5 ">
         <div
           className="bg-white  rounded-lg "
@@ -52,11 +44,23 @@ export default  function WorkPage() {
           }}
         >
 
-     
+        <div className="justify-between flex items-center p-5">
+          <button
+          className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 
+          "
+          onClick={handleAdd}
+          type="button"
+          >+ เพิ่มข้อมูลการโอนเงิน</button>
 
-          <TableComponent purchase={purchase} />
+        </div>  
+
+          <TableComponent  />
+
+          <ModalRecordMoney/>
       </div>
       </div>
+
+      
 
 
     </Fragment>

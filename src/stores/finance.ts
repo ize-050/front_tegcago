@@ -7,6 +7,27 @@ export interface internalFinance {
  purchaseFinanceData:any
  formwithdrawal :any
  modalWithdrawal:boolean
+ modalRecordMoney:boolean
+ editRecord: {
+   id: string | null;
+   type: 'PAYMENT' | 'RECEIPT' | 'deposit' | 'payment' | 'other' | null;
+   date?: string;
+   invoiceNumber?: string;
+   referenceNumber?: string;
+   customerName?: string;
+   productType?: string;
+   productDetail?: string;
+   amountRMB?: number;
+   exchangeRate?: number;
+   amountTHB?: number;
+   transferFee?: number;
+   exchangeRateFee?: number;
+   totalAmountTHB?: number;
+   transferDate?: string;
+   transferSlipUrl?: string;
+   recipientBank?: string;
+   notes?: string;
+ }
 }
 
 const initialState: internalFinance = {
@@ -15,7 +36,12 @@ const initialState: internalFinance = {
  purchaseFinanceDetail:[],
  purchaseFinanceData:{},
  modalWithdrawal:false,
+ modalRecordMoney:false,
  formwithdrawal :{
+ },
+ editRecord: {
+   id: null,
+   type: null
  }
 };
 
@@ -44,6 +70,15 @@ export const finance = createSlice({
                 ...state.formwithdrawal,
                 ...action.payload
             }
+        },
+        setModalRecordMoney(state, action: PayloadAction<boolean>) {
+            state.modalRecordMoney = action.payload
+        },
+        setEditRecord(state, action: PayloadAction<any>) {
+            state.editRecord = action.payload ? action.payload : {
+                id: null,
+                type: null
+            };
         }
     }
 })
@@ -55,7 +90,9 @@ export const {
   setPurchaseFinanceDetail,
   setPurchaseFinanceData,
   setModalWithdrawal,
-  setFormWithdrawal
+  setFormWithdrawal,
+  setModalRecordMoney,
+  setEditRecord
   } = finance.actions;
 
 export default finance.reducer;

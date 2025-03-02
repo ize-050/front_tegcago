@@ -9,17 +9,18 @@ import { purchaseData, setModalImage } from "@/stores/purchase";
 
 import { Document, Page } from "react-pdf";
 
-
-//component
+// component
 
 import ModalPreviewImage from "@/components/Content/Prepurchase/upload/ModalPreview";
 
 const UploadImageComponent = ({
   setValue,
   control,
+  existingImage,
 }: {
   setValue: any;
   control: any;
+  existingImage?: string;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const dispatch = useAppDispatch();
@@ -27,6 +28,20 @@ const UploadImageComponent = ({
   const { modalImage } = useAppSelector(purchaseData);
 
   const [previewUrls, setPreviewUrls] = useState<any[]>([]);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | undefined>(existingImage);
+
+  // Update existingImageUrl when existingImage prop changes
+  useEffect(() => {
+    setExistingImageUrl(existingImage);
+  }, [existingImage]);
+
+  // Handle modal preview for existing image
+  const handleExistingImagePreview = () => {
+    if (existingImageUrl) {
+      dispatch(setModalImage(true));
+      setSelectedImageIndex(0);
+    }
+  };
 
   useEffect(() => {
     const urls = files.map((file) => {
@@ -71,7 +86,7 @@ const UploadImageComponent = ({
 
   return (
     <>
-      {files.length < 1 ? (
+      {files.length < 1 && !existingImageUrl ? (
         <div
           className="flex flex-col flex-wrap items-center justify-center"
         >
@@ -88,6 +103,46 @@ const UploadImageComponent = ({
         </div>
       ) : (
         <div className="flex flex-wrap">
+          {/* Display Existing Image if available */}
+          {existingImageUrl && (
+            <div className="relative m-2">
+              <div className="relative w-32 h-32 overflow-hidden border rounded-md">
+                <Image
+                  src={existingImageUrl}
+                  alt="Existing Transfer Slip"
+                  width={128}
+                  height={128}
+                  objectFit="cover"
+                  className="cursor-pointer"
+                  onClick={handleExistingImagePreview}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setExistingImageUrl(undefined);
+                  // Clear the existing image from the form
+                  setValue("existingTransferSlip", null);
+                }}
+                className="absolute top-0 right-0 p-1 text-white bg-red-500 rounded-full"
+              >
+                <Lucide icon="X" className="w-4 h-4" />
+              </button>
+              <div className="mt-1 flex justify-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Open image in new tab for better viewing
+                    window.open(existingImageUrl, '_blank');
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                >
+                  <Lucide icon="Eye" className="w-3 h-3 mr-1" />
+                  ดูรูป
+                </button>
+              </div>
+            </div>
+          )}
           {/* Display Existing Images */}
           {previewUrls.map((data, index) => {
             const isExcel =
@@ -101,7 +156,6 @@ const UploadImageComponent = ({
               data.name?.endsWith(".jpeg") ||
               data.name?.endsWith(".webp");
             const url = data.url;
-
 
             return (
               <div
@@ -217,28 +271,25 @@ const UploadImageComponent = ({
                     )}
                   </>
                 )}
-                
-
                 {isExcel && (
                   <div>
                     <div className="relative w-full h-32 border-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                       <div className="absolute inset-0 flex items-center justify-center">
-                       <img src="/excel-dowload.png" alt="excel" className="w-10 h-10 m-auto" />
+                        <img src="/excel-dowload.png" alt="excel" className="w-10 h-10 m-auto" />
                       </div>
                       <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-70 transition-opacity duration-300 flex items-center justify-center">
-                      <p className="text-center text-white text-sm font-medium">
+                        <p className="text-center text-white text-sm font-medium">
                           {data.name}
                         </p>
-                      
                       </div>
-                
+
                       <div className="absolute bottom-2 right-2 flex gap-2">
                         <button
                           type="button"
                           onClick={() => DeleteImage(index)}
                           className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg "
                         >
-                           <Lucide
+                          <Lucide
                             color="#6C9AB5"
                             icon="Trash"
                             className="w-5 h-5 m-auto"
@@ -248,7 +299,7 @@ const UploadImageComponent = ({
                           href={data.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                         className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
+                          className="hover:bg-blue-300 bg-[#C8D9E3] w-6 h-6 rounded-lg mr-1"
                         >
                           <Lucide
                             color="#6C9AB5"
@@ -268,6 +319,15 @@ const UploadImageComponent = ({
               </div>
             );
           })}
+          {/* Display modal for image preview */}
+          {modalImage && (
+            <ModalPreviewImage
+              isOpen={modalImage}
+              onClose={() => dispatch(setModalImage(false))}
+              startIndex={selectIndex}
+              images={selectIndex === 0 && existingImageUrl ? existingImageUrl : (previewUrls[selectIndex]?.url || '')}
+            />
+          )}
           <div
             {...getRootProps()}
             className={`dropzone ${
