@@ -119,6 +119,12 @@ const ModalRecordMoneyComponent: React.FC = () => {
         formData.append('transferSlip', newTransferSlip);
       }
 
+      if(data.files && data.files.length > 0) {
+        data.files.forEach((file: File) => {
+          formData.append('transferSlip', file);
+        });
+      } 
+
       // Determine if this is an update or create operation
       const isUpdate = !!editRecord.id;
       const url = isUpdate 
@@ -182,6 +188,12 @@ const ModalRecordMoneyComponent: React.FC = () => {
       // Add file if a new one was uploaded
       if (newTransferSlip) {
         formData.append('transferSlip', newTransferSlip);
+      }
+
+      if(data.files && data.files.length > 0) {
+        data.files.forEach((file: File) => {
+          formData.append('transferSlip', file);
+        });
       }
       
       // Determine if this is an update or create operation
@@ -349,7 +361,9 @@ const ModalRecordMoneyComponent: React.FC = () => {
                             />
                           </div>
                         </div>
-                      )}
+                      )
+                      
+                      }
 
                       <div className="flex items-center space-x-4 mb-4">
                         <label className={`inline-flex items-center ${editRecord.id ? 'opacity-60' : ''}`}>

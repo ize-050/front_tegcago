@@ -427,7 +427,7 @@ const TableComponent = () => {
                 </td>
                 <td className="px-6 py-4">
                   {record.transferSlip ? (
-                    <a href={`${process.env.NEXT_PUBLIC_URL_API}${record.transferSlip}`} target="_blank" rel="noopener noreferrer" 
+                    <a href={`${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${record.transferSlip}`} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:underline">
                       ดูสลิป
                     </a>

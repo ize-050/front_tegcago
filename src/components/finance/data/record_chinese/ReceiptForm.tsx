@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 
+
 export interface ReceiptForm {
   date: string;
   title: string;
@@ -58,6 +59,12 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
       }
     }
   }, [initialData, reset, setValue]);
+
+
+  const handleFileUpload = (files: File[]) => {
+    if (!files || files.length === 0) return;
+    setValue("files", files);
+  };
 
   // Watch for changes in RMB amount and exchange rate
   const amountRMB = useWatch({ control, name: "amountRMB" });
@@ -236,6 +243,21 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
                 rows={3}
                 {...field}
               />
+            )}
+          />
+        </div>
+
+
+        <div>
+          <label>แนบหลักฐานการโอน</label>
+          <Controller
+            name="existingTransferSlip"
+            control={control}
+            render={({ field }) => (
+              <UploadImageComponent
+                setValue={setValue}
+                control={control}
+              ></UploadImageComponent>
             )}
           />
         </div>

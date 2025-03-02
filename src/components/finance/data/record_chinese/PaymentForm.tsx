@@ -203,6 +203,21 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
           />
         </div>
 
+
+        <div>
+          <label>แนบหลักฐานการโอน</label>
+          <Controller
+            name="existingTransferSlip"
+            control={control}
+            render={({ field }) => (
+              <UploadImageComponent
+                setValue={setValue}
+                control={control}
+              ></UploadImageComponent>
+            )}
+          />
+        </div>
+
       </div>
 
       <div className="flex justify-end space-x-4 mt-6">
