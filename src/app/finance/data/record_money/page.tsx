@@ -12,7 +12,8 @@ import { financeData, setModalRecordMoney } from "@/stores/finance";
 import { useAppDispatch } from "@/stores/hooks";
 
 //Modal
-import TableComponent from "@/components/finance/data/record_money/TableComponent";
+// import TableComponent from "@/components/finance/data/record_money/TableComponent";
+import TableComponent from "@/components/finance/data/record_money/index";
 import ModalRecordMoney from "@/components/finance/data/record_money/ModalComponent";
 
 export default function WorkPage() {
@@ -39,7 +40,7 @@ export default function WorkPage() {
           >
             + เพิ่มข้อมูล
           </button>
-          <button
+          {/* <button
             className="bg-blue-950 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
             onClick={() => {
               // Handle export functionality
@@ -48,7 +49,7 @@ export default function WorkPage() {
             type="button"
           >
             ส่งออก Excel
-          </button>
+          </button> */}
         </div>  
       </div>
 

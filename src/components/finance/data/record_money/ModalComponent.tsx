@@ -10,27 +10,11 @@ import Image from "next/image";
 import Lucide from "@/components/Base/Lucide";
 import Button from "@/components/Base/Button";
 import Swal from "sweetalert2";
-import CustomerDepositFormComponent from './CustomerDepositForm';
-import ConsignmentForm from './CustomerDepositForm';
+
+import { CustomerDepositFormComponent, CustomerDepositForm } from './CustomerDepositForm';
+
 import { getSalesSupportEmployees, Employee } from '@/services/finance/employee';
 import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent';
-
-interface CustomerDepositForm {
-    amountRMB: number;
-    priceDifference: number;
-    exchangeRate: number;
-    fee: number;
-    amount: number;
-    vat: number;
-    totalWithVat: number;
-    transferDate: string;
-    receivingAccount: string;
-    exchangeRateProfit: number;
-    incomePerTransaction: number;
-    notes: string;
-    files?: File[];
-    existingTransferSlip?: string;
-}
 
 interface FormData {
     date: string;
@@ -39,8 +23,8 @@ interface FormData {
     customerId: string;
     type: 'deposit' | 'order' | 'topup' | '';
     customerDeposit?: CustomerDepositForm;
+    exchange?: any;
     consignmentData?: any;
-    // Additional fields will be added later
 }
 
 const ModalRecordMoneyComponent: React.FC = () => {
@@ -53,19 +37,45 @@ const ModalRecordMoneyComponent: React.FC = () => {
     const {
         control,
         handleSubmit,
-        formState: { errors },
         setValue,
-        reset,
         watch,
-        getValues
+        getValues,
+        reset,
+        formState: { errors }
     } = useForm<FormData>({
         defaultValues: {
-            date: new Date().toISOString().split("T")[0],
+            date: new Date().toISOString().split('T')[0],
             salesperson: '',
             documentNumber: '',
             customerId: '',
             type: '',
-        },
+            customerDeposit: {
+                amountRMB: 0,
+                exchangeRate: 0,
+                fee: 0,
+                amount: 0,
+                vat: 0,
+                totalWithVat: 0,
+                transferDate: new Date().toISOString().split("T")[0],
+                receivingAccount: '',
+                exchangeRateProfit: 0,
+                incomePerTransaction: 0,
+            },
+            exchange: {
+                amountRMB: 0,
+                priceDifference: 0,
+                exchangeRate: 0,
+                fee: 0,
+                amount: 0,
+                vat: 0,
+                totalWithVat: 0,
+                transferDate: new Date().toISOString().split("T")[0],
+                receivingAccount: '',
+                exchangeRateProfit: 0,
+                incomePerTransaction: 0,
+                notes: '',
+            }
+        }
     });
 
     const data = watch();
@@ -97,92 +107,55 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
     // Load record data when editing
     useEffect(() => {
-        const fetchRecordData = async () => {
-            if (editRecord?.id && editRecord?.type) {
-                try {
-                    setLoading(true);
-                    let response;
+        // const fetchRecordData = async () => {
+        //     if (editRecord?.id && editRecord?.type) {
+        //         try {
+        //             setLoading(true);
+        //             let response;
+        //             if (editRecord.type === 'deposit') {
+        //                 response = await axios.get(`/api/finance/record-money/${editRecord.id}`);
+        //                 if (response.data) {
+        //                     const recordData = response.data;
+        //                     setValue('date', recordData.date || new Date().toISOString().split('T')[0]);
+        //                     setValue('salesperson', recordData.salespersonId || '');
+        //                     setValue('documentNumber', recordData.documentNumber || '');
+        //                     setValue('customerId', recordData.customerId || '');
+        //                     setValue('type', 'deposit');
 
-                    if (editRecord.type === 'deposit') {
-                        response = await axios.get(`/api/finance/record-money/${editRecord.id}`);
+        //                     // Set customer deposit specific fields
+        //                     setValue('customerDeposit.amountRMB', recordData.amountRMB || 0);
+        //                     setValue('customerDeposit.exchangeRate', recordData.exchangeRate || 0);
+        //                     setValue('customerDeposit.fee', recordData.fee || 0);
+        //                     setValue('customerDeposit.amount', recordData.amount || 0);
+        //                     setValue('customerDeposit.vat', recordData.vat || 0);
+        //                     setValue('customerDeposit.totalWithVat', recordData.totalWithVat || 0);
+        //                     setValue('customerDeposit.transferDate', recordData.transferDate || new Date().toISOString().split('T')[0]);
+        //                     setValue('customerDeposit.receivingAccount', recordData.receivingAccount || '');
+        //                     setValue('customerDeposit.exchangeRateProfit', recordData.exchangeRateProfit || 0);
+        //                     setValue('customerDeposit.incomePerTransaction', recordData.incomePerTransaction || 0);
 
-                        if (response.data) {
-                            const recordData = response.data;
+        //                     if (recordData.transferSlipUrl) {
+        //                         setValue('customerDeposit.existingTransferSlip', recordData.transferSlipUrl);
+        //                     }
+        //                 }
+        //             }
+        //         } catch (error) {
+        //             console.error("Error fetching record data:", error);
+        //             Swal.fire({
+        //                 icon: 'error',
+        //                 title: 'เกิดข้อผิดพลาด',
+        //                 text: 'ไม่สามารถดึงข้อมูลรายการได้ กรุณาลองใหม่อีกครั้ง',
+        //                 confirmButtonText: 'ตกลง'
+        //             });
+        //         } finally {
+        //             setLoading(false);
+        //         }
+        //     }
+        // };
 
-                            // Set form values for common fields
-                            setValue('date', recordData.date || new Date().toISOString().split('T')[0]);
-                            setValue('salesperson', recordData.salespersonId || '');
-                            setValue('documentNumber', recordData.documentNumber || '');
-                            setValue('customerId', recordData.customerId || '');
-                            setValue('type', 'deposit');
-
-                            // Set customer deposit specific fields
-                            setValue('customerDeposit.amountRMB', recordData.amountRMB || 0);
-                            setValue('customerDeposit.priceDifference', recordData.priceDifference || 0);
-                            setValue('customerDeposit.exchangeRate', recordData.exchangeRate || 0);
-                            setValue('customerDeposit.fee', recordData.fee || 0);
-                            setValue('customerDeposit.amount', recordData.amount || 0);
-                            setValue('customerDeposit.vat', recordData.vat || 0);
-                            setValue('customerDeposit.totalWithVat', recordData.totalWithVat || 0);
-                            setValue('customerDeposit.transferDate', recordData.transferDate || new Date().toISOString().split('T')[0]);
-                            setValue('customerDeposit.receivingAccount', recordData.receivingAccount || '');
-                            setValue('customerDeposit.exchangeRateProfit', recordData.exchangeRateProfit || 0);
-                            setValue('customerDeposit.incomePerTransaction', recordData.incomePerTransaction || 0);
-                            setValue('customerDeposit.notes', recordData.notes || '');
-
-                            // Set transfer slip if exists
-                            if (recordData.transferSlipUrl) {
-                                setValue('customerDeposit.existingTransferSlip', recordData.transferSlipUrl);
-                            }
-                        }
-                    }
-                    // } else if (editRecord.type === 'order' || editRecord.type === 'topup') {
-                    //     response = await axios.get(`/api/finance/consignments/${editRecord.id}`);
-
-                    //     if (response.data) {
-                    //         const recordData = response.data;
-
-                    //         // Set form values for common fields
-                    //         setValue('date', recordData.date || new Date().toISOString().split('T')[0]);
-                    //         setValue('salesperson', recordData.salespersonId || '');
-                    //         setValue('documentNumber', recordData.documentNumber || '');
-                    //         setValue('customerId', recordData.customerId || '');
-                    //         setValue('type', recordData.type === 'ORDER' ? 'order' : 'topup');
-
-                    //         // Set consignment specific fields
-                    //         setValue('consignmentData.amount', recordData.amount || 0);
-                    //         setValue('consignmentData.amountRMB', recordData.amountRMB || 0);
-                    //         setValue('consignmentData.notes', recordData.notes || '');
-
-                    //         if (recordData.type === 'ORDER') {
-                    //             setValue('consignmentData.productDetails', recordData.productDetails || '');
-                    //         } else {
-                    //             setValue('consignmentData.platformDetails', recordData.platformDetails || '');
-                    //         }
-
-                    //         // Set transfer slip if exists
-                    //         if (recordData.transferSlipUrl) {
-                    //             setValue('consignmentData.existingTransferSlip', recordData.transferSlipUrl);
-                    //         }
-                    //     }
-                    // }
-                } catch (error) {
-                    console.error("Error fetching record data:", error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: 'ไม่สามารถดึงข้อมูลรายการได้ กรุณาลองใหม่อีกครั้ง',
-                        confirmButtonText: 'ตกลง'
-                    });
-                } finally {
-                    setLoading(false);
-                }
-            }
-        };
-
-        if (modalRecordMoney && editRecord?.id) {
-            fetchRecordData();
-        }
+        // if (modalRecordMoney && editRecord?.id) {
+        //     fetchRecordData();
+        // }
     }, [modalRecordMoney, editRecord, setValue]);
 
     const onClose = () => {
@@ -191,116 +164,47 @@ const ModalRecordMoneyComponent: React.FC = () => {
         reset();
     };
 
-    const onSubmit = async (data: FormData) => {
+    const onSubmit = async (data: any) => {
         try {
             setLoading(true);
             console.log('Form data submitted:', data);
 
-            // Prepare the data for API submission
-            const formattedData: any = {
-                date: data.date,
-                salespersonId: data.salesperson,
-                documentNumber: data.documentNumber,
-                customerId: data.customerId,
-                type: data.type,
-
-                // Customer deposit specific data
-                ...(data.type === 'deposit' && data.customerDeposit && {
-                    amountRMB: data.customerDeposit.amountRMB,
-                    priceDifference: data.customerDeposit.priceDifference,
-                    exchangeRate: data.customerDeposit.exchangeRate,
-                    fee: data.customerDeposit.fee,
-                    amount: data.customerDeposit.amount,
-                    vat: data.customerDeposit.vat,
-                    totalWithVat: data.customerDeposit.totalWithVat,
-                    transferDate: data.customerDeposit.transferDate,
-                    receivingAccount: data.customerDeposit.receivingAccount,
-                    exchangeRateProfit: data.customerDeposit.exchangeRateProfit,
-                    incomePerTransaction: data.customerDeposit.incomePerTransaction,
-                    notes: data.customerDeposit.notes,
-                }),
-            };
-
-            // Handle file upload if files exist for customer deposit
             let transferSlipUrl = '';
-            if (data.type === 'deposit' && data.customerDeposit?.files && data.customerDeposit.files.length > 0) {
-                const formData = new FormData();
-                formData.append('file', data.customerDeposit.files[0]);
+            // if (data.customerDeposit?.files && data.customerDeposit.files.length > 0) {
+            //     const formData = new FormData();
+            //     formData.append('file', data.customerDeposit.files[0]);
 
-                const uploadResponse = await axios.post('/api/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+            //     const uploadResponse = await axios.post('/api/upload', formData, {
+            //         headers: {
+            //             'Content-Type': 'multipart/form-data',
+            //         },
+            //     });
 
-                if (uploadResponse.data && uploadResponse.data.success) {
-                    transferSlipUrl = uploadResponse.data.url;
-                }
-            }
+            //     if (uploadResponse.data && uploadResponse.data.success) {
+            //         transferSlipUrl = uploadResponse.data.url;
+            //     }
+            // }
+            let formattedData = { ...data };
+            
 
-            // Handle file upload if files exist for consignment
-            if ((data.type === 'order' || data.type === 'topup') && data.consignmentData?.files && data.consignmentData.files.length > 0) {
-                const formData = new FormData();
-                formData.append('file', data.consignmentData.files[0]);
-
-                const uploadResponse = await axios.post('/api/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                if (uploadResponse.data && uploadResponse.data.success) {
-                    transferSlipUrl = uploadResponse.data.url;
-                }
-            }
-
-            // Add the transfer slip URL to the data if it exists
+            
             if (transferSlipUrl) {
                 formattedData.transferSlipUrl = transferSlipUrl;
-            } else if (data.type === 'deposit' && data.customerDeposit?.existingTransferSlip) {
+            } else if (data.customerDeposit?.existingTransferSlip) {
                 formattedData.transferSlipUrl = data.customerDeposit.existingTransferSlip;
-            } else if ((data.type === 'order' || data.type === 'topup') && data.consignmentData?.existingTransferSlip) {
-                formattedData.transferSlipUrl = data.consignmentData.existingTransferSlip;
             }
 
-            // Determine if this is an update or create operation
+            console.log("formattedData", formattedData)
+
             let response;
-
-            // For consignment records (order or topup)
-            if (data.type === 'order' || data.type === 'topup') {
-                const consignmentData = {
-                    date: data.date,
-                    salespersonId: data.salesperson,
-                    documentNumber: data.documentNumber,
-                    customerId: data.customerId,
-                    type: data.type === 'order' ? 'ORDER' : 'TOPUP', // Convert to enum format
-                    notes: data.consignmentData?.notes || '',
-                    amount: data.consignmentData?.amount || 0,
-                    amountRMB: data.consignmentData?.amountRMB || 0,
-                    platformDetails: data.type === 'topup' ? data.consignmentData?.platformDetails || '' : '',
-                    productDetails: data.type === 'order' ? data.consignmentData?.productDetails || '' : '',
-                    transferSlipUrl: formattedData.transferSlipUrl || '',
-                };
-
-                if (editRecord?.id) {
-                    // Update existing consignment record
-                    response = await axios.put(`/api/finance/consignments/${editRecord.id}`, consignmentData);
-                } else {
-                    // Create new consignment record
-                    response = await axios.post('/api/finance/consignments', consignmentData);
-                }
+            if (editRecord?.id) {
+                response = await axios.put(`/finance/record-money/${editRecord.id}`, formattedData);
             } else {
-                // For deposit records (using existing endpoint)
-                if (editRecord?.id) {
-                    // Update existing record
-                    response = await axios.put(`/api/finance/record-money/${editRecord.id}`, formattedData);
-                } else {
-                    // Create new record
-                    response = await axios.post('/api/finance/record-money', formattedData);
-                }
+                // Create new record
+                response = await axios.post('/finance/record-money', formattedData);
             }
 
-            if (response.data && (response.data.success || response.data.id)) {
+            if (response.data && (response.data.statusCode === 200 || response.data.statusCode === 201)) {
                 Swal.fire({
                     icon: 'success',
                     title: editRecord?.id ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกข้อมูลสำเร็จ',
@@ -309,10 +213,14 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 });
 
                 onClose();
+
+                window.location.reload();
+              
             } else {
                 throw new Error(response.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                window.location.reload();
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.error("Error submitting form:", error);
             Swal.fire({
                 icon: 'error',
@@ -552,10 +460,46 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                                 type="number"
                                                                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                                                                     }`}
-                                                                placeholder="0.00"
+                                                                placeholder="กรุณากรอกจำนวนเงิน"
                                                                 {...field}
                                                                 onChange={(e) => {
-                                                                    field.onChange(parseFloat(e.target.value) || 0);
+                                                                    const inputValue = e.target.value;
+                                                                    // Allow empty string or valid number
+                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+
+                                                                    // Only perform calculations if we have a valid number
+                                                                    if (inputValue !== '') {
+                                                                        const formValues = getValues();
+                                                                        const rmbAmount = parseFloat(inputValue) || 0;
+                                                                        const rate = parseFloat(formValues.customerDeposit?.exchangeRate?.toString() || "0") || 0;
+                                                                        const feeAmount = parseFloat(formValues.customerDeposit?.fee?.toString() || "0") || 0;
+                                                                        const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
+
+                                                                        // คำนวณกำไรอัตราแลกเปลี่ยน
+                                                                        let exchangeRateProfit = 0;
+                                                                        const customerDeposit = watch('customerDeposit');
+                                                                        if (customerDeposit?.amountRMB && customerDeposit?.exchangeRate) {
+                                                                            const customerRMB = customerDeposit.amountRMB || 0;
+                                                                            const customerRate = customerDeposit.exchangeRate || 0;
+                                                                            exchangeRateProfit = (rmbAmount * rate) - (customerRMB * customerRate);
+                                                                        } else {
+                                                                            exchangeRateProfit = rmbAmount * rate;
+                                                                        }
+                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
+
+                                                                        // คำนวณรายรับต่อรายการธุรกรรม
+                                                                        const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
+                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
+
+                                                                        // คำนวณจำนวนเงิน THB
+                                                                        const calculatedAmount = rmbAmount * rate + feeAmount;
+                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                    } else {
+                                                                        // Reset calculated values when input is empty
+                                                                        setValue('customerDeposit.exchangeRateProfit', 0);
+                                                                        setValue('customerDeposit.incomePerTransaction', 0);
+                                                                        setValue('customerDeposit.amount', 0);
+                                                                    }
                                                                 }}
                                                             />
                                                         )}
@@ -579,7 +523,34 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                                 placeholder="0.00"
                                                                 {...field}
                                                                 onChange={(e) => {
-                                                                    field.onChange(parseFloat(e.target.value) || 0);
+                                                                    const inputValue = e.target.value;
+                                                                    // Allow empty string or valid number
+                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                                                                    const formValues = getValues();
+                                                                    const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
+                                                                    const rate = parseFloat(inputValue) || 0;
+                                                                    const feeAmount = parseFloat(formValues.customerDeposit?.fee?.toString() || "0") || 0;
+                                                                    const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
+
+                                                                    // คำนวณกำไรอัตราแลกเปลี่ยน
+                                                                    let exchangeRateProfit = 0;
+                                                                    const customerDeposit = watch('customerDeposit');
+                                                                    if (customerDeposit?.amountRMB && customerDeposit?.exchangeRate) {
+                                                                        const customerRMB = customerDeposit.amountRMB || 0;
+                                                                        const customerRate = customerDeposit.exchangeRate || 0;
+                                                                        exchangeRateProfit = (rmbAmount * rate) - (customerRMB * customerRate);
+                                                                    } else {
+                                                                        exchangeRateProfit = rmbAmount * rate;
+                                                                    }
+                                                                    setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
+
+                                                                    // คำนวณรายรับต่อรายการธุรกรรม
+                                                                    const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
+                                                                    setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
+
+                                                                    // คำนวณจำนวนเงิน THB
+                                                                    const calculatedAmount = rmbAmount * rate + feeAmount;
+                                                                    setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
                                                                 }}
                                                             />
                                                         )}
@@ -587,28 +558,8 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        ส่วนต่างต่อรองราคา
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.priceDifference"
-                                                        control={control}
-                                                        render={({ field }) => (
-                                                            <input
-                                                                type="number"
-                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                placeholder="0.00"
-                                                                {...field}
-                                                                onChange={(e) => {
-                                                                    field.onChange(parseFloat(e.target.value) || 0);
-                                                                }}
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
 
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         ค่าธรรมเนียม
@@ -619,20 +570,36 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                step="0.01"
-                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                placeholder="0.00"
+                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.fee ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                                                placeholder="กรุณากรอกค่าธรรมเนียม"
                                                                 {...field}
                                                                 onChange={(e) => {
-                                                                    field.onChange(parseFloat(e.target.value) || 0);
+                                                                    const inputValue = e.target.value;
+                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                                                                    
+                                                                    if (inputValue !== '') {
+                                                                        const formValues = getValues();
+                                                                        const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
+                                                                        const rate = parseFloat(formValues.customerDeposit?.exchangeRate?.toString() || "0") || 0;
+                                                                        const feeAmount = parseFloat(inputValue) || 0;
+                                                                        const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
+
+                                                                        // Recalculate all values
+                                                                        const exchangeRateProfit = (rmbAmount - priceDiff) * rate;
+                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
+
+                                                                        const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
+                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
+
+                                                                        const calculatedAmount = (rmbAmount - priceDiff) * rate + feeAmount;
+                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                    }
                                                                 }}
                                                             />
                                                         )}
                                                     />
                                                 </div>
-                                            </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         จำนวนเงิน (THB)
@@ -652,7 +619,9 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         )}
                                                     />
                                                 </div>
+                                            </div>
 
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         ภาษีมูลค่าเพิ่ม
@@ -663,18 +632,14 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                step="0.01"
-                                                                readOnly
-                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                className="mt-1 block w-full rounded-md border-gray-300  shadow-sm focus:ring-blue-500 sm:text-sm"
                                                                 placeholder="0.00"
                                                                 {...field}
                                                             />
                                                         )}
                                                     />
                                                 </div>
-                                            </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         จำนวนเงินรวมภาษีมูลค่าเพิ่ม
@@ -685,9 +650,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                step="0.01"
-                                                                readOnly
-                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                className="mt-1 block w-full rounded-md border-gray-300  shadow-sm focus:ring-blue-500 sm:text-sm"
                                                                 placeholder="0.00"
                                                                 {...field}
                                                             />
@@ -739,7 +702,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                 </div>
                                             </div>
 
-
                                             <div className="grid grid-cols-1 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -753,20 +715,14 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     />
                                                 </div>
                                             </div>
-
-
-
-
-                                            <CustomerDepositFormComponent
-                                                onSubmit={(depositData) => {
-                                                    const formData = getValues();
-                                                    formData.customerDeposit = depositData;
-                                                    onSubmit(formData);
-                                                }}
-                                                initialData={watch('customerDeposit')}
-                                                loading={loading}
-                                            />
-
+                                                <CustomerDepositFormComponent
+                                                    control={control}
+                                                    setValue={setValue}
+                                                    errors={errors}
+                                                    loading={loading}
+                                                    customerDeposit={watch('customerDeposit')}
+                                                    exchangeData={watch('exchange')}
+                                                />
                                         </div>
                                     </form>
                                 </div>

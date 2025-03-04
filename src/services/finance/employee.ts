@@ -14,11 +14,9 @@ export interface Employee {
  */
 export const getSalesSupportEmployees = async (): Promise<Employee[]> => {
   try {
-    // Using the dedicated salesupport endpoint
-    const url = `/employee/role/salesupport`;
+    const url = `/employee/salesupport`;
     const response = await axios.get(url);
     
-    // Check if the response has the success property and data array
     if (response.data && response.data.success && Array.isArray(response.data.data)) {
       return response.data.data;
     }

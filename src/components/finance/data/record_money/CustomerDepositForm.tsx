@@ -1,11 +1,11 @@
 "use client";
 
-import { useForm, Controller, useWatch } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 
-export interface CustomerDepositForm {
+export interface ExchangeForm {
   amountRMB: number;
   priceDifference: number; // ส่วนต่างต่อรองราคา
   exchangeRate: number;
@@ -22,95 +22,109 @@ export interface CustomerDepositForm {
   existingTransferSlip?: string;
 }
 
+// Export CustomerDepositForm interface for backward compatibility with ModalComponent
+export interface CustomerDepositForm extends ExchangeForm {}
+
 const accountOptions = [
   { value: 'ayong', label: 'อาหยอง' },
   { value: 'jinny', label: 'จินนี่' }
 ];
 
-interface CustomerDepositFormProps {
-  onSubmit: (data: CustomerDepositForm) => void;
-  initialData?: CustomerDepositForm;
+interface ExchangeFormProps {
+  control: any;
+  setValue: any;
+  errors: any;
+  exchangeData?: {
+    amountRMB?: number | null;
+    exchangeRate?: number | null;
+    fee?: number;
+    amount?: number;
+    vat?: number;
+    totalWithVat?: number;
+    transferDate?: string;
+    receivingAccount?: string;
+    exchangeRateProfit?: number;
+    incomePerTransaction?: number;
+    notes?: string;
+    files?: File[];
+    existingTransferSlip?: any;
+  };
   loading?: boolean;
 }
 
-const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({ 
-  onSubmit, 
-  initialData, 
-  loading = false 
+// For backward compatibility
+interface CustomerDepositFormProps extends ExchangeFormProps {
+  customerDeposit?: {
+    amountRMB?: number | null;
+    exchangeRate?: number | null;
+    fee?: number;
+    amount?: number;
+    vat?: number;
+    totalWithVat?: number;
+    transferDate?: string;
+    receivingAccount?: string;
+    exchangeRateProfit?: number;
+    incomePerTransaction?: number;
+  };
+}
+
+
+
+const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormProps> = ({
+  control,
+  setValue,
+  errors,
+  loading = false,
+  ...props
 }) => {
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors }
-  } = useForm<CustomerDepositForm>({
-    defaultValues: initialData || {
-      amountRMB: 0,
-      priceDifference: 0,
-      exchangeRate: 0,
-      fee: 0,
-      amount: 0,
-      vat: 0,
-      totalWithVat: 0,
-      transferDate: new Date().toISOString().split("T")[0],
-      receivingAccount: '',
-      exchangeRateProfit: 0,
-      incomePerTransaction: 0,
-      notes: '',
-    },
-  });
+  // Handle both exchangeData and customerDepositData
+  const exchangeData = 'exchangeData' in props ? props.exchangeData : undefined;
+  const customerDepositData = 'customerDeposit' in props ? props.customerDeposit : undefined;
+
+  const amountRMB = useWatch({ control, name: "exchange.amountRMB" });
+  const priceDifference = useWatch({ control, name: "exchange.priceDifference" });
+  const exchangeRate = useWatch({ control, name: "exchange.exchangeRate" });
+  const fee = useWatch({ control, name: "exchange.fee" });
+  const amount = useWatch({ control, name: "exchange.amount" });
+
+
+
 
   useEffect(() => {
-    if (initialData) {
-      reset(initialData);
-      
-      // If there's an existing transfer slip, make sure it's properly set
-      if (initialData.existingTransferSlip) {
-        setValue("existingTransferSlip", initialData.existingTransferSlip);
-      }
+    // Handle empty values
+    if (!amountRMB && !priceDifference && !exchangeRate && !fee) {
+      setValue('exchange.amount', '');
+      setValue('exchange.exchangeRateProfit', '');
+      setValue('exchange.incomePerTransaction', '');
+      return;
     }
-  }, [initialData, reset, setValue]);
 
-  // Watch for changes in RMB amount, exchange rate, and fee
-  const amountRMB = useWatch({ control, name: "amountRMB" });
-  const priceDifference = useWatch({ control, name: "priceDifference" });
-  const exchangeRate = useWatch({ control, name: "exchangeRate" });
-  const fee = useWatch({ control, name: "fee" });
-  const amount = useWatch({ control, name: "amount" });
+    const rmbAmount = amountRMB === '' ? 0 : parseFloat(amountRMB?.toString() || "0") || 0;
+    const priceDiff = priceDifference === '' ? 0 : parseFloat(priceDifference?.toString() || "0") || 0;
+    const rate = exchangeRate === '' ? 0 : parseFloat(exchangeRate?.toString() || "0") || 0;
+    const feeAmount = fee === '' ? 0 : parseFloat(fee?.toString() || "0") || 0;
 
-  // Calculate amount when RMB or exchange rate changes
-  useEffect(() => {
-    const rmbAmount = parseFloat(amountRMB?.toString() || "0") || 0;
-    const priceDiff = parseFloat(priceDifference?.toString() || "0") || 0;
-    const rate = parseFloat(exchangeRate?.toString() || "0") || 0;
-    const feeAmount = parseFloat(fee?.toString() || "0") || 0;
-    
-    // Calculate base amount
-    const calculatedAmount = (rmbAmount - priceDiff) * rate - feeAmount;
-    setValue('amount', calculatedAmount > 0 ? calculatedAmount : 0);
-    
-    // Calculate exchange rate profit (using standard rate of 5.0)
-    const standardRate = 5.0;
-    const exchangeRateProfit = (rmbAmount - priceDiff) * (rate - standardRate);
-    setValue('exchangeRateProfit', exchangeRateProfit);
-    
-    // Calculate income per transaction
-    const incomePerTransaction = exchangeRateProfit + feeAmount;
-    setValue('incomePerTransaction', incomePerTransaction);
-  }, [amountRMB, priceDifference, exchangeRate, fee, setValue]);
+    // Amount in THB = RMB * Exchange Rate + Fee
+    const calculatedAmount = rmbAmount * rate + feeAmount;
+    setValue('exchange.amount', calculatedAmount > 0 ? calculatedAmount : '');
 
-  // Calculate VAT and total with VAT when amount changes
-  useEffect(() => {
-    const baseAmount = parseFloat(amount?.toString() || "0") || 0;
-    
-    // Calculate VAT (7%)
-    const vatAmount = baseAmount * 0.07;
-    setValue('vat', vatAmount);
-    
-    // Calculate total with VAT
-    setValue('totalWithVat', baseAmount + vatAmount);
-  }, [amount, setValue]);
+    // Exchange Rate Profit = (RMB * Exchange Rate) - (Customer RMB * Customer Exchange Rate)
+    let exchangeRateProfit = 0;
+    if(customerDepositData?.amountRMB && customerDepositData?.exchangeRate){
+      exchangeRateProfit = (rmbAmount * rate) - (customerDepositData?.amountRMB * customerDepositData?.exchangeRate);
+    }
+    else{
+      exchangeRateProfit = (rmbAmount * rate);
+    }
+
+    setValue('exchange.exchangeRateProfit', exchangeRateProfit > 0 ? exchangeRateProfit : exchangeRateProfit);
+
+  
+
+    let feeValue = exchangeData?.fee || 0;
+    const incomePerTransaction = feeValue + exchangeRateProfit + priceDiff;
+    setValue('exchange.incomePerTransaction', incomePerTransaction || '');
+  }, [amountRMB, priceDifference, exchangeRate, fee, setValue, exchangeData?.amountRMB, exchangeData?.exchangeRate, exchangeData?.fee, customerDepositData?.amountRMB, customerDepositData?.exchangeRate, customerDepositData?.fee, customerDepositData?.amount]);
 
   return (
     <div className="mt-6 border-t border-gray-200 pt-6">
@@ -121,21 +135,20 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             วันที่โอน
           </label>
           <Controller
-            name="transferDate"
+            name="exchange.transferDate"
             control={control}
             rules={{ required: "กรุณาระบุวันที่โอน" }}
             render={({ field }) => (
               <input
                 type="date"
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
-                  errors.transferDate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.transferDate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+                  }`}
                 {...field}
               />
             )}
           />
-          {errors.transferDate && (
-            <p className="mt-1 text-sm text-red-500">{errors.transferDate.message}</p>
+          {errors.exchange?.transferDate && (
+            <p className="mt-1 text-sm text-red-500">{errors.exchange.transferDate.message}</p>
           )}
         </div>
 
@@ -144,14 +157,13 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             บัญชี
           </label>
           <Controller
-            name="receivingAccount"
+            name="exchange.receivingAccount"
             control={control}
             rules={{ required: "กรุณาเลือกบัญชี" }}
             render={({ field }) => (
               <select
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
-                  errors.receivingAccount ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.receivingAccount ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+                  }`}
                 {...field}
               >
                 <option value="">เลือกบัญชี</option>
@@ -163,8 +175,8 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
               </select>
             )}
           />
-          {errors.receivingAccount && (
-            <p className="mt-1 text-sm text-red-500">{errors.receivingAccount.message}</p>
+          {errors.exchange?.receivingAccount && (
+            <p className="mt-1 text-sm text-red-500">{errors.exchange.receivingAccount.message}</p>
           )}
         </div>
 
@@ -173,22 +185,24 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             จำนวนเงิน (RMB)
           </label>
           <Controller
-            name="amountRMB"
+            name="exchange.amountRMB"
             control={control}
             rules={{ required: "กรุณาระบุจำนวนเงิน" }}
             render={({ field }) => (
               <input
                 type="number"
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
-                  errors.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                placeholder="กรุณากรอกจำนวนเงิน"
                 {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                }}
               />
             )}
           />
-          {errors.amountRMB && (
-            <p className="mt-1 text-sm text-red-500">{errors.amountRMB.message}</p>
+          {errors.exchange?.amountRMB && (
+            <p className="mt-1 text-sm text-red-500">{errors.exchange.amountRMB.message}</p>
           )}
         </div>
 
@@ -197,14 +211,18 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             ส่วนต่างต่อรองราคา
           </label>
           <Controller
-            name="priceDifference"
+            name="exchange.priceDifference"
             control={control}
             render={({ field }) => (
               <input
                 type="number"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="กรุณากรอกส่วนต่าง"
                 {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                }}
               />
             )}
           />
@@ -215,23 +233,25 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             อัตราแลกเปลี่ยน
           </label>
           <Controller
-            name="exchangeRate"
+            name="exchange.exchangeRate"
             control={control}
             rules={{ required: "กรุณาระบุอัตราแลกเปลี่ยน" }}
             render={({ field }) => (
               <input
                 type="number"
                 step="0.01"
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
-                  errors.exchangeRate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.exchangeRate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                placeholder="กรุณากรอกอัตราแลกเปลี่ยน"
                 {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                }}
               />
             )}
           />
-          {errors.exchangeRate && (
-            <p className="mt-1 text-sm text-red-500">{errors.exchangeRate.message}</p>
+          {errors.exchange?.exchangeRate && (
+            <p className="mt-1 text-sm text-red-500">{errors.exchange.exchangeRate.message}</p>
           )}
         </div>
 
@@ -240,24 +260,22 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             ค่าธรรมเนียม
           </label>
           <Controller
-            name="fee"
+            name="exchange.fee"
             control={control}
-            rules={{ required: "กรุณาระบุค่าธรรมเนียม" }}
             render={({ field }) => (
               <input
                 type="number"
                 step="0.01"
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
-                  errors.fee ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                }`}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="กรุณากรอกค่าธรรมเนียม"
                 {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                }}
               />
             )}
           />
-          {errors.fee && (
-            <p className="mt-1 text-sm text-red-500">{errors.fee.message}</p>
-          )}
         </div>
 
         <div>
@@ -265,45 +283,7 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             จำนวนเงิน (THB)
           </label>
           <Controller
-            name="amount"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                step="0.01"
-                readOnly
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
-                {...field}
-              />
-            )}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            ภาษีมูลค่าเพิ่ม
-          </label>
-          <Controller
-            name="vat"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                step="0.01"
-                readOnly
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
-                {...field}
-              />
-            )}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            จำนวนรวมภาษีมูลค่าเพิ่ม
-          </label>
-          <Controller
-            name="totalWithVat"
+            name="exchange.amount"
             control={control}
             render={({ field }) => (
               <input
@@ -322,12 +302,11 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             กำไรอัตราแลกเปลี่ยน
           </label>
           <Controller
-            name="exchangeRateProfit"
+            name="exchange.exchangeRateProfit"
             control={control}
             render={({ field }) => (
               <input
                 type="number"
-                step="0.01"
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
                 {...field}
@@ -341,12 +320,12 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             รายรับต่อรายการธุรกรรม
           </label>
           <Controller
-            name="incomePerTransaction"
+            name="exchange.incomePerTransaction"
             control={control}
             render={({ field }) => (
               <input
                 type="number"
-                step="0.01"
+                defaultValue={0}
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
                 {...field}
@@ -354,6 +333,26 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
             )}
           />
         </div>
+
+        {/* <div>
+          <label className="block text-sm font-medium text-gray-700">
+            ภาษีมูลค่าเพิ่ม (VAT)
+          </label>
+          <Controller
+            name="exchange.vat"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="number"
+                step="0.01"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                {...field}
+                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+              />
+            )}
+          />
+        </div> */}
+
       </div>
 
       <div className="mt-6">
@@ -363,8 +362,8 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
         <UploadImageComponent
           setValue={setValue}
           control={control}
-          
-          existingImage={initialData?.existingTransferSlip}
+
+          existingImage={exchangeData?.existingTransferSlip}
         />
       </div>
 
@@ -373,7 +372,7 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
           หมายเหตุ
         </label>
         <Controller
-          name="notes"
+          name="exchange.notes"
           control={control}
           render={({ field }) => (
             <textarea
@@ -389,4 +388,7 @@ const CustomerDepositFormComponent: React.FC<CustomerDepositFormProps> = ({
   );
 };
 
-export default CustomerDepositFormComponent;
+export default ExchangeFormComponent;
+
+// For backward compatibility with ModalComponent
+export const CustomerDepositFormComponent = ExchangeFormComponent;
