@@ -1,6 +1,7 @@
 "use client"
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession, signOut } from "next-auth/react";
+import { toast } from "react-toastify";
 
 // Create axios instance with baseURL
 const axiosInstance = axios.create({
@@ -64,21 +65,21 @@ axiosInstance.interceptors.response.use(
     }
 
     if (response.status == 401) {
-      //   toast.error(
-      //     response?.message
-      //       ? response.message
-      //       : "ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-      //     {
-      //       position: "top-right",
-      //       autoClose: 3000,
-      //       hideProgressBar: false,
-      //       closeOnClick: false,
-      //       pauseOnHover: true,
-      //       draggable: false,
-      //       progress: undefined,
-      //     }
-      //   );
-    //   signOut({ callbackUrl: "/login" });
+        toast.error(
+          response?.message
+            ? response.message
+            : "ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+          }
+        );
+      signOut({ callbackUrl: "/login" });
     }
 
     if (response.status == 400) {
@@ -90,19 +91,21 @@ axiosInstance.interceptors.response.use(
   error => {
     console.log("error222222", error);
     if (error.response?.status === 401) {
-      //   toast.error("ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-      //     {
-      //       position: "top-right",
-      //       autoClose: 3000,
-      //       hideProgressBar: false,
-      //       closeOnClick: false,
-      //       pauseOnHover: true,
-      //       draggable: false,
-      //       progress: undefined,
-      //     }
-      //   );
-    //   signOut({ callbackUrl: "/login" });
-      //window.location.reload()
+      toast.error(
+        error.response?.message
+          ? error.response.message
+          : "ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+        }
+      );
+    signOut({ callbackUrl: "/login" });
     } else {
       //   toast.error("ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
       //     {

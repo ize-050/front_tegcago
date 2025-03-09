@@ -120,6 +120,23 @@ const initialState: SideMenuState = {
         },
       ]
     },
+    {
+      icon: "Pencil",
+      pathname: "/finance/setting",
+      title: "ตั้งค่า",
+      subMenu:[
+        {
+          icon: "Pencil",
+          pathname: "/finance/setting/finance_company",
+          title: "ตั้งค่าบัญชีผู้รับเงิน",
+        },
+        {
+          icon: "Pencil",
+          pathname: "/finance/setting/finance_customer",
+          title: "ตั้งค่าบัญชี",
+        },
+      ]
+    },
   ]
 };
 
