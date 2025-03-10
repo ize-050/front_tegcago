@@ -26,6 +26,8 @@ interface WithdrawalItem {
     withdrawal_date: string;
     withdrawal_amount: string;
     withdrawal_company: string;
+    gasoline_cost: string;
+    other_cost: string;
 }
 
 interface InvoiceOption {
@@ -45,7 +47,9 @@ const defaultWithdrawalItem = {
     head_tractor: '',
     withdrawal_date: moment().format('YYYY-MM-DD'),
     withdrawal_amount: '',
-    withdrawal_company: '',
+    withdrawal_company: 'LOGISTIC',
+    gasoline_cost: '',
+    other_cost: ''
 }
 
 type FormValues = {
@@ -62,7 +66,7 @@ type FormValues = {
 const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     const dispatch = useAppDispatch()
     const router = useRouter()
-    const { modalWithdrawal, formwithdrawal } = useAppSelector(financeData)
+    const { modalWithdrawal, formwithdrawal , action } = useAppSelector(financeData)
     const [selectedInvoiceId, setSelectedInvoiceId] = useState("")
     const [withdrawalItems, setWithdrawalItems] = useState<WithdrawalItem[]>([defaultWithdrawalItem])
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -94,20 +98,38 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     })
 
     useEffect(() => {
-        if (formwithdrawal) {
+        if (formwithdrawal && action.action == 'edit') {
             setValue('pay_gasoline', formwithdrawal.pay_gasoline || '')
             setValue('pay_price', formwithdrawal.pay_price || '')
             setValue('pay_total', formwithdrawal.pay_total || '')
             setValue('return_people', formwithdrawal.return_people || '')
             setValue('withdrawal_date', formwithdrawal.withdrawal_date || '')
             setValue('withdrawal_person', formwithdrawal.withdrawal_person || '')
+            setValue('transfer_amount', formwithdrawal.transfer_amount || '')
+            setValue('transfer_date', formwithdrawal.transfer_date || '')
 
             if (formwithdrawal.withdrawalItems?.length > 0) {
                 setWithdrawalItems(formwithdrawal.withdrawalItems)
                 setQueries(new Array(formwithdrawal.withdrawalItems.length).fill(''))
             }
+        } else {
+            // เคลียร์ฟอร์มเมื่อไม่มีข้อมูล formwithdrawal (กรณีเพิ่มรายการใหม่)
+            reset({
+                transfer_amount: 0,
+                transfer_date: new Date().toISOString().split('T')[0],
+                pay_gasoline: 0,
+                pay_price: 0,
+                pay_total: 0,
+                return_people: '',
+                withdrawal_date: moment().format('YYYY-MM-DD'),
+                withdrawal_person: '',
+            });
+            setWithdrawalItems([defaultWithdrawalItem]);
+            setQueries(['']);
+            setOptions([]);
+            setActiveIndex(null);
         }
-    }, [formwithdrawal, setValue])
+    }, [formwithdrawal, setValue, reset, action])
 
     // Fetch invoice options when query changes
     const fetchInvoiceOptions = async () => {
@@ -184,7 +206,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             newWithdrawalItems[index] = {
                 ...newWithdrawalItems[index],
                 invoice_package: option.invoice_package,
-                consignee: option.consignee
+                consignee: option.consignee,
+                invoice_id: option.id,
+                withdrawal_company: newWithdrawalItems[index].withdrawal_company || 'LOGISTIC' // ตั้งค่าเริ่มต้นเป็น LOGISTIC ถ้ายังไม่มีค่า
             };
             setWithdrawalItems(newWithdrawalItems);
 
@@ -209,7 +233,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             consignee: '',
             head_tractor: '',
             withdrawal_amount: '',
-            withdrawal_company: ''
+            withdrawal_company: 'LOGISTIC', // ตั้งค่าเริ่มต้นเป็น LOGISTIC เมื่อเคลียร์ข้อมูล
+            gasoline_cost: '',
+            other_cost: ''
         };
         setWithdrawalItems(newWithdrawalItems);
 
@@ -234,7 +260,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 text: 'กรุณาเลือก Invoice & PackingList No. ในรายการปัจจุบันก่อนเพิ่มรายการใหม่',
                 confirmButtonText: 'ตกลง'
             });
-            return;
+            return; 
         }
 
         const newItem = {
@@ -244,7 +270,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             head_tractor: '',
             withdrawal_date: moment().format('YYYY-MM-DD'),
             withdrawal_amount: '',
-            withdrawal_company: '',
+            withdrawal_company: 'LOGISTIC',
+            gasoline_cost: '',
+            other_cost: '',
         };
         
         setWithdrawalItems([...withdrawalItems, newItem]);
@@ -275,6 +303,28 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     }
 
     useEffect(() => {
+        // Calculate total withdrawal amount
+        const totalWithdrawalAmount = withdrawalItems.reduce((sum, item) => sum + Number(item.withdrawal_amount || 0), 0);
+        
+        // Calculate total gasoline and other costs from individual items
+        const totalGasolineCost = withdrawalItems.reduce((sum, item) => sum + Number(item.gasoline_cost || 0), 0);
+        const totalOtherCost = withdrawalItems.reduce((sum, item) => sum + Number(item.other_cost || 0), 0);
+        
+        // Set the total values to the form
+        setValue('pay_gasoline', totalGasolineCost);
+        setValue('pay_price', totalOtherCost);
+        
+        // Calculate total
+        const gasoline = Number(watch('pay_gasoline')) || 0;
+        const price = Number(watch('pay_price')) || 0;
+        const transferAmount = Number(watch('transfer_amount')) || 0;
+        
+        // Calculate total amount to return
+        const total = transferAmount - gasoline - price;
+        setValue('pay_total', total);
+    }, [withdrawalItems, watch('pay_gasoline'), watch('pay_price'), watch('transfer_amount'), setValue]);
+
+    useEffect(() => {
         const totalWithdrawal = withdrawalItems.reduce((sum, item) => sum + (Number(item.withdrawal_amount) || 0), 0);
         const gasoline = Number(watch('pay_gasoline')) || 0;
         const price = Number(watch('pay_price')) || 0;
@@ -287,7 +337,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         if (total > 0) {
             setValue('return_people', 'คืนบริษัท');
         } else if (total < 0) {
-            setValue('return_people', 'คืนพี่เปิ้ล');
+            setValue('return_people', 'คืนShipping');
         } else {
             setValue('return_people', '');
         }
@@ -313,10 +363,17 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 ? `${process.env.NEXT_PUBLIC_URL_API}/finance/updateWidhdrawalInformation`
                 : `${process.env.NEXT_PUBLIC_URL_API}/finance/submitwidhdrawalInformation`
 
+            // ส่ง group_id ไปด้วยเมื่อทำการแก้ไขข้อมูล
             const payload = {
                 ...data,
                 withdrawalItems,
                 d_purchase_id: selectedInvoiceId,
+            }
+            
+            // เพิ่ม group_id เมื่อทำการแก้ไขข้อมูล
+            if (formwithdrawal?.id) {
+                payload.id = formwithdrawal.id;
+                payload.group_id = formwithdrawal.group_id;
             }
 
             const response = await axios.post(endpoint, payload)
@@ -481,7 +538,9 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                                                 consignee: '',
                                                                                                 head_tractor: '',
                                                                                                 withdrawal_amount: '',
-                                                                                                withdrawal_company: ''
+                                                                                                withdrawal_company: '',
+                                                                                                gasoline_cost: '',
+                                                                                                other_cost: ''
                                                                                             };
                                                                                             setWithdrawalItems(newWithdrawalItems);
                                                                                         } else {
@@ -492,7 +551,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                                 >
                                                                                     <div className="relative">
                                                                                         <Combobox.Input
-                                                                                            className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                                                            className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                                                             onChange={(e) => {
                                                                                                 const newQueries = [...queries]
                                                                                                 newQueries[index] = e.target.value
@@ -610,8 +669,46 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                         >
                                                                             <option value="">เลือกบริษัท</option>
                                                                             <option value="LOGISTIC">LOGISTIC</option>
-                                                                            <option value="8196">8196</option>
+                                                                            <option value="8169">8169</option>
                                                                         </select>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                            ค่าน้ำมัน
+                                                                        </label>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={item.gasoline_cost}
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...withdrawalItems]
+                                                                                newItems[index] = {
+                                                                                    ...newItems[index],
+                                                                                    gasoline_cost: e.target.value
+                                                                                }
+                                                                                setWithdrawalItems(newItems)
+                                                                            }}
+                                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                                        />
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                            ค่าอื่นๆ
+                                                                        </label>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={item.other_cost}
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...withdrawalItems]
+                                                                                newItems[index] = {
+                                                                                    ...newItems[index],
+                                                                                    other_cost: e.target.value
+                                                                                }
+                                                                                setWithdrawalItems(newItems)
+                                                                            }}
+                                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                                        />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -643,7 +740,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
                                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                        ค่าน้ำมัน
+                                                                        ยอดค่าน้ำมันรวม
                                                                     </label>
                                                                     <Controller
                                                                         name="pay_gasoline"
@@ -666,7 +763,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
 
                                                                 <div>
                                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                        ค่าอื่นๆ
+                                                                        ยอดค่าอื่นๆรวม
                                                                     </label>
                                                                     <Controller
                                                                         name="pay_price"
@@ -779,12 +876,12 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                         </div>
 
                                                             {/* Live calculation summary */}
-                                                            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                                            {/* <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                                                             <h4 className="font-medium text-gray-700 mb-2">สรุปการคำนวณ (ตัวอย่าง)</h4>
                                                             <div className="space-y-2 text-sm">
                                                                 <p>จำนวนรายการเบิก: <span className="font-medium">{withdrawalItems.length} รายการ</span></p>
-                                                                <p>ค่าน้ำมันทั้งหมด: <span className="font-medium">{watch('pay_gasoline') || 0} บาท</span></p>
-                                                                <p>ค่าอื่นๆทั้งหมด: <span className="font-medium">{watch('pay_price') || 0} บาท</span></p>
+                                                                <p>ยอดค่าน้ำมันรวม: <span className="font-medium">{watch('pay_gasoline') || 0} บาท</span></p>
+                                                                <p>ยอดค่าอื่นๆรวม: <span className="font-medium">{watch('pay_price') || 0} บาท</span></p>
                                                                 <p>ค่าน้ำมันต่อรายการ: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_gasoline') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
                                                                 <p>ค่าอื่นๆต่อรายการ: <span className="font-medium">{withdrawalItems.length ? (Number(watch('pay_price') || 0) / withdrawalItems.length).toFixed(2) : 0} บาท</span></p>
                                                                 
@@ -806,7 +903,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                        </div>
+                                                        </div> */}
 
                                                         <div className="flex justify-end space-x-3 p-4 bg-gray-50 rounded-b-lg">
                                                             <button

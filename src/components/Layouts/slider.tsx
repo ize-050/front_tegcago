@@ -39,10 +39,15 @@ function Slider() {
 
   const router = useRouter();
 
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
-  const toggleSubMenu = () => {
-    setIsSubMenuOpen(!isSubMenuOpen);
+  const toggleSubMenu = (menuId: string) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    const newOpenMenus: Record<string, boolean> = {};
+    if (!openMenus[menuId]) {
+      newOpenMenus[menuId] = true;
+    }
+    setOpenMenus(newOpenMenus);
   };
 
   const handleItemClick = (path: any) => (event: any) => {
@@ -195,7 +200,7 @@ function Slider() {
                     "bg-white  text-white hover:text-gray-900",
 
                   ])}
-                  onClick={menu?.subMenu?.length > 0 ? toggleSubMenu : handleItemClick(menu.pathname)}
+                  onClick={menu?.subMenu?.length > 0 ? toggleSubMenu(menu.title) : handleItemClick(menu.pathname)}
 
                 >
                   <div className={`
@@ -208,23 +213,26 @@ function Slider() {
                     />
                     <div className="side-menu__link__title p-3 ">{menu.title}</div>
                     {menu.subMenu && (
-                      <>
+                      <div className="relative ml-auto">
                         <Lucide
                           icon="ChevronDown"
                           className={`
                             side-menu__link__chevron 
                             mt-3 
-                            ${isSubMenuOpen ? 'transform rotate-180' : ''}
+                            ${openMenus[menu.title] ? 'transform rotate-180' : ''}
                         `}
                         />
 
-                        {isSubMenuOpen && (
-                          <ul className="submenu absolute  top-0 mt-10 w-48 bg-white text-gray-800 rounded-md shadow-lg">
+                        {openMenus[menu.title] && (
+                          <ul className="submenu absolute right-0 top-full mt-2 w-60 bg-white text-gray-800 rounded-md shadow-lg z-[100]">
                             {menu.subMenu.map((subItem: any, index: number) => (
-                              <li key={index} onClick={handleItemClick(subItem.pathname || '')}>
+                              <li key={index} onClick={(e) => {
+                                e.stopPropagation();
+                                handleItemClick(subItem.pathname || '')(e);
+                              }}>
                                 <div
                                   className={`
-                                            p-3 cursor-pointer 
+                                            p-3 cursor-pointer hover:bg-gray-100
                                             ${pathname === `${subItem.pathname}` || pathname.startsWith(`${subItem.pathname}/`)
                                       ? "bg-[#D2D6E14D] rounded-md"
                                       : ''
@@ -237,7 +245,7 @@ function Slider() {
                             ))}
                           </ul>
                         )}
-                      </>
+                      </div>
                     )}
 
                   </div>

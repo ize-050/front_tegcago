@@ -126,16 +126,16 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
     const handleExportExcel = async () => {
         try {
             setIsLoading(true);
-            
+
             // Build parameters for the axios request
             const params: any = {};
             if (startDate) params.startDate = startDate;
             if (endDate) params.endDate = endDate;
             if (searchedVal) params.search = searchedVal;
-            
+
             // Make axios request with responseType blob to handle file download
             const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_URL_API}/finance/export-withdrawal-excel`, 
+                `${process.env.NEXT_PUBLIC_URL_API}/finance/export-withdrawal-excel`,
                 {
                     params,
                     responseType: 'blob',
@@ -144,35 +144,35 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                     }
                 }
             );
-            
+
             // Create a URL for the blob
             const url = window.URL.createObjectURL(new Blob([response.data]));
-            
+
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
-            
+
             // Set the filename
             const contentDisposition = response.headers['content-disposition'];
             let filename = 'withdrawal_information.xlsx';
-            
+
             if (contentDisposition) {
                 const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
                 if (filenameMatch && filenameMatch.length === 2) {
                     filename = filenameMatch[1];
                 }
             }
-            
+
             link.setAttribute('download', filename);
-            
+
             // Append to the document, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Clean up the URL object
             window.URL.revokeObjectURL(url);
-            
+
         } catch (error) {
             console.error('Error downloading Excel file:', error);
             Swal.fire({
@@ -190,7 +190,8 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
         await handleSearchData();
     }
 
-    const handleDelete = async (id: number) => {
+    // แก้ไขฟังก์ชัน handleDelete ให้ลบตาม group_id
+    const handleDelete = async (group_id?: string) => {
         Swal.fire({
             title: "คุณแน่ใจหรือไม่?",
             text: "คุณจะไม่สามารถย้อนกลับได้!",
@@ -198,21 +199,34 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "ใช่, ลบข้อมูล!",
+            cancelButtonText: "ยกเลิก"
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await axios.delete(`${process.env.NEXT_PUBLIC_URL_API}/finance/withdrawal_information/${id}`)
-                if (response?.status === 200) {
+                try {
+                    let response;
+
+                    response = await axios.delete(`${process.env.NEXT_PUBLIC_URL_API}/finance/withdrawal_information/group/${group_id}`);
+
+                    if (response?.status === 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ลบข้อมูลสำเร็จ!',
+                            text: 'ลบข้อมูลการเบิกเงินเรียบร้อยแล้ว',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        onRefresh();
+                    }
+                } catch (error) {
+                    console.error("Error deleting withdrawal information:", error);
                     Swal.fire({
-                        icon: 'success',
-                        title: 'ลบข้อมูลสำเร็จ!',
-                        text: 'Withdrawal information deleted successfully!',
-                    })
-                    onRefresh()
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             }
-        }).catch((error) => {
-            console.error("Error deleting withdrawal information:", error);
         });
     }
 
@@ -226,6 +240,12 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                 if (response.status === 200 && response.data.data) {
                     const groupRecords = response.data.data;
 
+                    // Filter out the summary record
+                    const regularRecords = groupRecords.filter((record: any) => record.invoice_package !== 'SUMMARY_RECORD');
+
+                    // Find the summary record
+                    const summaryRecord = groupRecords.find((record: any) => record.invoice_package === 'SUMMARY_RECORD');
+
                     // Extract common data from the first record
                     const commonData = {
                         id: data.id,
@@ -234,27 +254,31 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                         withdrawal_person: data.withdrawal_person,
                         transfer_amount: data.transfer_amount,
                         transfer_date: data.transfer_date ? moment(data.transfer_date).format('YYYY-MM-DD') : '',
-                        pay_gasoline: data.pay_gasoline,
-                        pay_price: data.pay_price,
-                        pay_total: data.pay_total,
+                        pay_gasoline: summaryRecord?.pay_gasoline || data.pay_gasoline,
+                        pay_price: summaryRecord?.pay_price || data.pay_price,
+                        pay_total: summaryRecord?.pay_total || data.pay_total,
                         return_people: data.return_people,
                         withdrawal_date: data.withdrawal_date ? moment(data.withdrawal_date).format('YYYY-MM-DD') : '',
                     };
 
-                    // Create withdrawal items array from all records
-                    const withdrawalItems = groupRecords.map((record: any) => ({
+                    // Create withdrawal items array from regular records
+                    const withdrawalItems = regularRecords.map((record: any) => ({
                         invoice_package: record.invoice_package,
                         consignee: record.consignee,
                         head_tractor: record.head_tractor,
                         withdrawal_date: record.withdrawal_date ? moment(record.withdrawal_date).format('YYYY-MM-DD') : '',
                         withdrawal_amount: record.withdrawal_amount,
-                        d_purchase_id: record.d_purchase_id
+                        d_purchase_id: record.d_purchase_id,
+                        // ใช้ค่า pay_gasoline และ pay_price ของแต่ละรายการเป็น gasoline_cost และ other_cost
+                        gasoline_cost: record.pay_gasoline,
+                        other_cost: record.pay_price
                     }));
 
                     // Set the form data with all items
                     dispatch(setFormWithdrawal({
                         ...commonData,
-                        withdrawalItems
+                        withdrawalItems,
+                        action: "edit"
                     }));
                 }
             } else {
@@ -278,7 +302,10 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                         head_tractor: data.head_tractor,
                         withdrawal_date: data.withdrawal_date ? moment(data.withdrawal_date).format('YYYY-MM-DD') : '',
                         withdrawal_amount: data.withdrawal_amount,
-                        d_purchase_id: data.d_purchase_id
+                        d_purchase_id: data.d_purchase_id,
+                        // ใช้ค่า pay_gasoline และ pay_price เป็น gasoline_cost และ other_cost
+                        gasoline_cost: data.pay_gasoline,
+                        other_cost: data.pay_price
                     }]
                 };
 
@@ -418,123 +445,258 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                     </Table.Thead>
                                     <Table.Tbody>
                                         {filteredData?.length > 0 &&
-                                            filteredData
-                                                .filter((row: any) =>
-                                                    !searchedVal?.length
-                                                    || row?.invoice_package.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.consignee.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_status.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_term.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_transport.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || (row?.d_shipment_number && row.d_shipment_number.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()))
-                                                )
-                                                .map((data: any, key: number) => {
-                                                    return (
-                                                        <>
-                                                            <Table.Tr className="text-sm  ">
-                                                                <Table.Td className="text-center    border-slate-200/60  text-gray-900">
-                                                                    {key + 1}
+                                            // Group data by group_id
+                                            Object.entries(
+                                                filteredData.reduce((groups: Record<string, any[]>, item: any) => {
+                                                    // Skip summary records for grouping
+                                                    if (item.invoice_package === 'SUMMARY_RECORD') return groups;
+
+                                                    // Create a new group if it doesn't exist
+                                                    const groupId = item.group_id || 'ungrouped';
+                                                    if (!groups[groupId]) {
+                                                        groups[groupId] = [];
+                                                    }
+
+                                                    // Add the item to its group
+                                                    groups[groupId].push(item);
+                                                    return groups;
+                                                }, {} as Record<string, any[]>)
+                                            ).map(([groupId, groupItems]: [string, any[]], groupIndex: number) => {
+                                                // Find the summary record for this group
+                                                const summaryRecord = filteredData.find(
+                                                    (item: any) => item.invoice_package === 'SUMMARY_RECORD' && item.group_id === groupId
+                                                );
+
+                                                return (
+                                                    <React.Fragment key={groupId}>
+
+                                                        {/* Group Header */}
+                                                        <Table.Tr className="bg-gray-100 font-medium">
+                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={10}>
+                                                                <span className="font-medium">กลุ่มรายการที่ {groupIndex + 1} - {moment(groupItems[0]?.withdrawal_date).format('DD/MM/YYYY')} ({groupItems.length} รายการ)</span>
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                <div className="flex justify-center gap-2">
+                                                                    <button
+                                                                        onClick={() => handleEdit(groupItems[0])}
+                                                                        title="แก้ไขทั้งกลุ่ม"
+                                                                    >
+                                                                        <Lucide
+                                                                            color="#6C9AB5"
+                                                                            icon="Pencil"
+                                                                            className="inset-y-0 justify-center m-auto w-5 h-5"
+                                                                        ></Lucide>
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            handleDelete(groupId)
+                                                                        }}
+                                                                        title="ลบทั้งกลุ่ม"
+                                                                    >
+                                                                        <Lucide
+                                                                            color="#FF5555"
+                                                                            icon="Trash2"
+                                                                            className="inset-y-0 justify-center m-auto w-5 h-5"
+                                                                        ></Lucide>
+                                                                    </button>
+                                                                </div>
+                                                            </Table.Td>
+                                                        </Table.Tr>
+
+                                                        {/* Group Items */}
+                                                        {groupItems
+                                                            .filter((row: any) =>
+                                                                !searchedVal?.length
+                                                                || row?.invoice_package.toString()
+                                                                    .toLowerCase()
+                                                                    .includes(searchedVal.toString().toLowerCase())
+                                                                || row?.consignee.toString()
+                                                                    .toLowerCase()
+                                                                    .includes(searchedVal.toString().toLowerCase())
+                                                                || row?.d_status?.toString()
+                                                                    .toLowerCase()
+                                                                    .includes(searchedVal.toString().toLowerCase())
+                                                                || row?.d_term?.toString()
+                                                                    .toLowerCase()
+                                                                    .includes(searchedVal.toString().toLowerCase())
+                                                                || row?.d_transport?.toString()
+                                                                    .toLowerCase()
+                                                                    .includes(searchedVal.toString().toLowerCase())
+                                                                || (row?.d_shipment_number && row.d_shipment_number.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()))
+                                                            )
+                                                            .map((data: any, key: number) => {
+                                                                return (
+                                                                    <Table.Tr key={data.id} className="text-sm">
+                                                                        <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                            {key + 1}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.invoice_package}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.consignee}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {moment(data.withdrawal_date).format('DD/MM/YYYY')}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.withdrawal_amount}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {/* แสดงยอดโอนเฉพาะรายการแรกของกลุ่ม
+                                                                            {key === 0 ? data.transfer_amount : ''} */}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.pay_price}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.pay_gasoline}
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            <div className="flex flex-col items-center">
+                                                                                <span className="font-medium text-green-600">{data.pay_total}</span>
+                                                                                <span className="text-xs text-gray-500 mt-1">
+                                                                                    = {data.withdrawal_amount} - {data.pay_price} - {data.pay_gasoline}
+                                                                                </span>
+                                                                            </div>
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                            {data.return_people === "คืนShipping"
+                                                                                ? <p className="bg-purple-500 text-white px-2 rounded">{data.return_people}</p>
+                                                                                : <p className="bg-green-500 text-white px-2 rounded">{data.return_people}</p>
+                                                                            }
+                                                                        </Table.Td>
+                                                                        <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                        </Table.Td>
+                                                                    </Table.Tr>
+                                                                );
+                                                            })}
+
+                                                        {/* Group Summary */}
+                                                        {summaryRecord && (
+                                                            <Table.Tr className="bg-blue-50 font-medium border-t-2 border-blue-200">
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={4}>
+                                                                    {/* <span className="font-medium text-blue-700">รายการสรุปกลุ่มที่ {groupIndex + 1}</span> */}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center  truncate    border-slate-200/60  text-gray-900">
-                                                                    {data.invoice_package}
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                    {groupItems
+                                                                        .reduce((sum: number, item: any) => sum + Number(item.withdrawal_amount || 0), 0)
+                                                                        .toLocaleString()}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
-                                                                    {data.consignee}
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                    {summaryRecord.transfer_amount || '0'}
                                                                 </Table.Td>
-                                                                {/* <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
-                                                                    {data.head_tractor}
-                                                                </Table.Td> */}
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {moment(data.withdrawal_date).format('DD/MM/YYYY')}
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                    {summaryRecord.pay_price || '0'}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.withdrawal_amount}
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                    {summaryRecord.pay_gasoline || '0'}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.transfer_amount}
+                                                                <Table.Td className="text-center border-slate-200/60 text-green-600 font-medium">
+                                                                    {(
+                                                                        (
+                                                                            groupItems.reduce((sum: number, item: any) => sum + Number(item.withdrawal_amount || 0), 0) +
+                                                                            Number(summaryRecord.pay_gasoline || 0) +
+                                                                            Number(summaryRecord.pay_price || 0)
+                                                                        ) -
+                                                                        Number(summaryRecord.transfer_amount || 0)
+                                                                    ).toLocaleString()}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.pay_price}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.pay_gasoline}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    <div className="flex flex-col items-center">
-                                                                        <span className="font-medium text-green-600">{data.pay_total}</span>
-                                                                        <span className="text-xs text-gray-500 mt-1">
-                                                                            = {data.withdrawal_amount} - {data.pay_price} - {data.pay_gasoline}
-                                                                        </span>
-                                                                    </div>
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.return_people === "คืนพี่เปิ้ล"
-                                                                        ? <p className="bg-purple-500 text-white px-2 rounded">{data.return_people}</p>
-                                                                        : <p className="bg-green-500 text-white px-2 rounded">{data.return_people}</p>
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                    {summaryRecord.return_people === "คืนShipping"
+                                                                        ? <p className="bg-purple-500 text-white px-2 rounded">{summaryRecord.return_people}</p>
+                                                                        : <p className="bg-green-500 text-white px-2 rounded">{summaryRecord.return_people}</p>
                                                                     }
                                                                 </Table.Td>
-
-                                                                <Table.Td className="text-center   border-slate-200/60  text-gray-900">
-                                                                    <div className="flex justify-center gap-2">
-                                                                        {/* <button
-                                                                            onClick={() => handleEdit(data)}
-                                                                            style={{
-                                                                                background: "#C8D9E3"
-                                                                            }}
-                                                                            className=" hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
-                                                                            <Lucide
-                                                                                color="#6C9AB5"
-                                                                                icon="Pencil"
-                                                                                className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                                                            ></Lucide>
-                                                                        </button> */}
-
-                                                                        <button
-                                                                            onClick={() => handleDelete(data.id)}
-                                                                        >
-                                                                            <Lucide
-                                                                                color="#6C9AB5"
-                                                                                icon="Trash2"
-                                                                                className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                                                            ></Lucide>
-                                                                        </button>
-                                                                    </div>
+                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                 </Table.Td>
                                                             </Table.Tr>
-                                                        </>
-                                                    );
-                                                })}
+                                                        )}
 
-                                        {/* Totals Row */}
+                                                        {/* Separator between groups */}
+                                                        <Table.Tr>
+                                                            <Table.Td colSpan={11} className="p-1 bg-gray-200"></Table.Td>
+                                                        </Table.Tr>
+                                                    </React.Fragment>
+                                                );
+                                            })
+                                        }
+
+                                        {/* Overall Total Row */}
                                         {filteredData?.length > 0 && (
                                             <Table.Tr className="bg-gray-50 font-medium">
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={4}>
                                                     <span className="font-medium">รวมทั้งหมด</span>
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                    {filteredData.reduce((sum: number, item: any) => sum + Number(item.withdrawal_amount || 0), 0).toLocaleString()}
+                                                    {filteredData
+                                                        .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                        .reduce((sum: number, item: any) => sum + Number(item.withdrawal_amount || 0), 0)
+                                                        .toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                    {filteredData.reduce((sum: number, item: any) => sum + Number(item.transfer_amount || 0), 0).toLocaleString()}
+                                                    {/* คำนวณยอดโอนรวมจากยอดโอนของแต่ละกลุ่ม (เลือกเฉพาะรายการแรกของแต่ละกลุ่ม) */}
+                                                    {Object.entries(
+                                                        filteredData
+                                                            .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                            .reduce((groups: Record<string, any[]>, item: any) => {
+                                                                const groupId = item.group_id || 'ungrouped';
+                                                                if (!groups[groupId]) {
+                                                                    groups[groupId] = [];
+                                                                }
+                                                                groups[groupId].push(item);
+                                                                return groups;
+                                                            }, {} as Record<string, any[]>)
+                                                    )
+                                                        .map(([_, groupItems]) => groupItems[0]) // เลือกรายการแรกของแต่ละกลุ่ม
+                                                        .reduce((sum: number, item: any) => sum + Number(item.transfer_amount || 0), 0)
+                                                        .toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                    {filteredData.reduce((sum: number, item: any) => sum + Number(item.pay_price || 0), 0).toLocaleString()}
+                                                    {filteredData
+                                                        .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                        .reduce((sum: number, item: any) => sum + Number(item.pay_price || 0), 0)
+                                                        .toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                    {filteredData.reduce((sum: number, item: any) => sum + Number(item.pay_gasoline || 0), 0).toLocaleString()}
+                                                    {filteredData
+                                                        .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                        .reduce((sum: number, item: any) => sum + Number(item.pay_gasoline || 0), 0)
+                                                        .toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-green-600 font-medium">
-                                                    {filteredData.reduce((sum: number, item: any) => sum + Number(item.pay_total || 0), 0).toLocaleString()}
+                                                    {(
+                                                        // ยอดเบิกรวมทั้งหมด
+                                                        filteredData
+                                                            .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                            .reduce((sum: number, item: any) => sum + Number(item.withdrawal_amount || 0), 0)
+                                                        +
+                                                        // ค่าน้ำมันรวมทั้งหมด
+                                                        filteredData
+                                                            .filter((item: any) => item.invoice_package === 'SUMMARY_RECORD')
+                                                            .reduce((sum: number, item: any) => sum + Number(item.pay_gasoline || 0), 0)
+                                                        +
+                                                        // ค่าอื่นๆรวมทั้งหมด
+                                                        filteredData
+                                                            .filter((item: any) => item.invoice_package === 'SUMMARY_RECORD')
+                                                            .reduce((sum: number, item: any) => sum + Number(item.pay_price || 0), 0)
+                                                        -
+                                                        // คำนวณยอดโอนรวมทั้งหมด (เลือกเฉพาะรายการแรกของแต่ละกลุ่ม)
+                                                        Object.entries(
+                                                            filteredData
+                                                                .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
+                                                                .reduce((groups: Record<string, any[]>, item: any) => {
+                                                                    const groupId = item.group_id || 'ungrouped';
+                                                                    if (!groups[groupId]) {
+                                                                        groups[groupId] = [];
+                                                                    }
+                                                                    groups[groupId].push(item);
+                                                                    return groups;
+                                                                }, {} as Record<string, any[]>)
+                                                        )
+                                                            .map(([_, groupItems]) => groupItems[0]) // เลือกรายการแรกของแต่ละกลุ่ม
+                                                            .reduce((sum: number, item: any) => sum + Number(item.transfer_amount || 0), 0)
+                                                    ).toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={2}>
                                                 </Table.Td>
@@ -555,7 +717,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                         <span className="sr-only">Previous</span>
                                         {/* Previous Icon (replace with your preferred icon library) */}
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 19.5L8.25 12l7.5-7.5" />
                                         </svg>
 
                                     </button>
@@ -583,7 +745,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                         <span className="sr-only">Next</span>
                                         {/* Next Icon (replace with your preferred icon library) */}
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                         </svg>
                                     </button>
 

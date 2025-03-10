@@ -1,9 +1,10 @@
 "use client";
 
 import { Controller, useWatch } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
+import { getCustomerAccounts, getCompanyAccounts } from "@/services/finance";
 
 export interface ExchangeForm {
   amountRMB: number;
@@ -25,10 +26,7 @@ export interface ExchangeForm {
 // Export CustomerDepositForm interface for backward compatibility with ModalComponent
 export interface CustomerDepositForm extends ExchangeForm {}
 
-const accountOptions = [
-  { value: 'ayong', label: 'อาหยอง' },
-  { value: 'jinny', label: 'จินนี่' }
-];
+// กำหนด interface สำหรับ company account
 
 interface ExchangeFormProps {
   control: any;
@@ -86,9 +84,20 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
   const exchangeRate = useWatch({ control, name: "exchange.exchangeRate" });
   const fee = useWatch({ control, name: "exchange.fee" });
   const amount = useWatch({ control, name: "exchange.amount" });
-
-
-
+  const [accountOptions, setAccountOptions] = useState<any[]>([]);
+ 
+  // ดึงข้อมูลบัญชีลูกค้า
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const accounts = await getCustomerAccounts();
+        setAccountOptions(accounts as any[]);
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+      }
+    };
+    fetchAccounts();
+  }, []);
 
   useEffect(() => {
     // Handle empty values
@@ -118,8 +127,6 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
     }
 
     setValue('exchange.exchangeRateProfit', exchangeRateProfit > 0 ? exchangeRateProfit : exchangeRateProfit);
-
-  
 
     let feeValue = exchangeData?.fee || 0;
     const incomePerTransaction = feeValue + exchangeRateProfit + priceDiff;
@@ -162,14 +169,13 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
             rules={{ required: "กรุณาเลือกบัญชี" }}
             render={({ field }) => (
               <select
-                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.receivingAccount ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                  }`}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 {...field}
               >
                 <option value="">เลือกบัญชี</option>
-                {accountOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {accountOptions.map((option:any) => (
+                  <option key={option.id} value={option.finance_name}>
+                    {option.finance_name}
                   </option>
                 ))}
               </select>
@@ -202,7 +208,7 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
             )}
           />
           {errors.exchange?.amountRMB && (
-            <p className="mt-1 text-sm text-red-500">{errors.exchange.amountRMB.message}</p>
+            <p className="mt-1 text-sm text-red-500">{errors.exchange?.amountRMB?.message as string}</p>
           )}
         </div>
 

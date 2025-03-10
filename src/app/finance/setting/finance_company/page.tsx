@@ -60,12 +60,12 @@ export default function FinanceCompanyPage() {
             } else {
                 await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/finance/company`, data);
             }
-            
+
             await fetchCompanies();
             setIsModalOpen(false);
             reset();
             setEditingCompany(null);
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'สำเร็จ',
@@ -272,7 +272,7 @@ export default function FinanceCompanyPage() {
                                             <Button
                                                 type="submit"
                                                 variant="primary"
-                                                loading={loading}
+                                                // loading={loading}
                                             >
                                                 {editingCompany ? 'แก้ไข' : 'เพิ่ม'}
                                             </Button>

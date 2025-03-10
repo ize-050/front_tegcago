@@ -27,7 +27,8 @@ export interface internalFinance {
    transferSlipUrl?: string;
    recipientBank?: string;
    notes?: string;
- }
+ },
+ action: any
 }
 
 const initialState: internalFinance = {
@@ -42,7 +43,8 @@ const initialState: internalFinance = {
  editRecord: {
    id: null,
    type: null
- }
+ },
+ action: null
 };
 
 
@@ -66,9 +68,15 @@ export const finance = createSlice({
             state.modalWithdrawal = action.payload
         },
         setFormWithdrawal(state, action: PayloadAction<any>) {
+            console.log("action.payload", action?.payload?.action)
             state.formwithdrawal = {
                 ...state.formwithdrawal,
-                ...action.payload
+                ...action.payload,
+               
+            },
+            state.action = {
+                ...state.action,
+                action: action?.payload?.action
             }
         },
         setModalRecordMoney(state, action: PayloadAction<boolean>) {

@@ -56,7 +56,14 @@ export default function WorkPage() {
   }, [refreshKey]) // Add refreshKey as dependency
 
   const handleAdd = () => {
-      dispatch(setModalWithdrawal(true))
+    // เคลียร์ค่าฟอร์มก่อนเปิด Modal
+    dispatch({
+      type: 'finance/setFormWithdrawal',
+      payload: {
+        action: 'add'
+      }
+    })
+    dispatch(setModalWithdrawal(true))
   }
 
   const handleRefresh = () => {

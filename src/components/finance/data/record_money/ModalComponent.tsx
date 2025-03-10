@@ -15,6 +15,7 @@ import { CustomerDepositFormComponent, CustomerDepositForm } from './CustomerDep
 
 import { getSalesSupportEmployees, Employee } from '@/services/finance/employee';
 import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent';
+import { getCompanyAccounts } from '@/services/finance';
 
 interface FormData {
     date: string;
@@ -22,9 +23,9 @@ interface FormData {
     documentNumber: string;
     customerId: string;
     type: 'deposit' | 'order' | 'topup' | '';
-    customerDeposit?: CustomerDepositForm;
-    exchange?: any;
-    consignmentData?: any;
+    customerDeposit?: any
+    exchange?: any
+    transferSlipUrl?: string;
 }
 
 const ModalRecordMoneyComponent: React.FC = () => {
@@ -54,12 +55,14 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 exchangeRate: 0,
                 fee: 0,
                 amount: 0,
-                vat: 0,
+                includeVat: false,
+                vatAmount: 0,
                 totalWithVat: 0,
                 transferDate: new Date().toISOString().split("T")[0],
                 receivingAccount: '',
                 exchangeRateProfit: 0,
                 incomePerTransaction: 0,
+                notes: '',
             },
             exchange: {
                 amountRMB: 0,
@@ -67,18 +70,41 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 exchangeRate: 0,
                 fee: 0,
                 amount: 0,
-                vat: 0,
-                totalWithVat: 0,
-                transferDate: new Date().toISOString().split("T")[0],
-                receivingAccount: '',
                 exchangeRateProfit: 0,
                 incomePerTransaction: 0,
+                transferDate: new Date().toISOString().split("T")[0],
+                receivingAccount: '',
                 notes: '',
+                includeVat: false,
+                vatAmount: 0,
+                totalWithVat: 0,
             }
         }
     });
 
+    interface CompanyAccount {
+        id: string;
+        company_name: string;
+        bank_name: string;
+        bank_account: string;
+    }
+
     const data = watch();
+
+    const [accountCompanyOptions, setAccountCompanyOptions] = useState<CompanyAccount[]>([]);
+
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            try {
+                const accounts = await getCompanyAccounts() as CompanyAccount[];
+                setAccountCompanyOptions(accounts);
+            } catch (error) {
+                console.error('Error fetching company accounts:', error);
+            }
+        };
+
+        fetchAccounts();
+    }, []);
 
     // Fetch sales support employees
     useEffect(() => {
@@ -185,9 +211,9 @@ const ModalRecordMoneyComponent: React.FC = () => {
             //     }
             // }
             let formattedData = { ...data };
-            
 
-            
+
+
             if (transferSlipUrl) {
                 formattedData.transferSlipUrl = transferSlipUrl;
             } else if (data.customerDeposit?.existingTransferSlip) {
@@ -215,7 +241,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 onClose();
 
                 window.location.reload();
-              
+
             } else {
                 throw new Error(response.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
                 window.location.reload();
@@ -232,6 +258,31 @@ const ModalRecordMoneyComponent: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // ฟังก์ชันคำนวณ VAT และยอดรวม
+    const calculateVatAndTotal = (amount: number, includeVat: boolean) => {
+        if (!includeVat || amount === 0) {
+            setValue('exchange.vatAmount', 0);
+            setValue('exchange.totalWithVat', amount);
+            return;
+        }
+        
+        const vatAmount = amount * 0.07;
+        const totalWithVat = amount + vatAmount;
+        
+        setValue('exchange.vatAmount', vatAmount);
+        setValue('exchange.totalWithVat', totalWithVat);
+    };
+
+    // เมื่อมีการเปลี่ยนแปลงค่า amount หรือ includeVat ให้คำนวณ VAT ใหม่
+    useEffect(() => {
+        const exchangeData = watch('exchange');
+        if (exchangeData) {
+            const amount = parseFloat(exchangeData.amount?.toString() || '0');
+            const includeVat = exchangeData.includeVat || false;
+            calculateVatAndTotal(amount, includeVat);
+        }
+    }, [watch('exchange.amount'), watch('exchange.includeVat')]);
 
     return (
         <Transition appear show={modalRecordMoney} as={Fragment}>
@@ -458,7 +509,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'amountRMB' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                                                                     }`}
                                                                 placeholder="กรุณากรอกจำนวนเงิน"
                                                                 {...field}
@@ -518,7 +569,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                             <input
                                                                 type="number"
                                                                 step="0.01"
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.exchangeRate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'exchangeRate' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                                                                     }`}
                                                                 placeholder="0.00"
                                                                 {...field}
@@ -570,13 +621,13 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.fee ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'fee' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                                                 placeholder="กรุณากรอกค่าธรรมเนียม"
                                                                 {...field}
                                                                 onChange={(e) => {
                                                                     const inputValue = e.target.value;
                                                                     field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
-                                                                    
+
                                                                     if (inputValue !== '') {
                                                                         const formValues = getValues();
                                                                         const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
@@ -622,83 +673,85 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                                <div className="mt-2">
+                                                    <div className="flex items-center">
+                                                        <Controller
+                                                            name="customerDeposit.includeVat"
+                                                            control={control}
+                                                            defaultValue={false}
+                                                            render={({ field: { onChange, value, ...field } }) => (
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                    checked={value}
+                                                                    onChange={(e) => {
+                                                                        onChange(e.target.checked);
+                                                                        const amount = parseFloat(watch('customerDeposit.amount')?.toString() || '0');
+                                                                        if (e.target.checked) {
+                                                                            // คำนวณ VAT 7%
+                                                                            const vatAmount = parseFloat((amount * 0.07).toFixed(2));
+                                                                            const totalWithVat = parseFloat((amount + vatAmount).toFixed(2));
+                                                                            setValue('customerDeposit.vatAmount', vatAmount);
+                                                                            setValue('customerDeposit.totalWithVat', totalWithVat);
+                                                                        } else {
+                                                                            // ไม่รวม VAT
+                                                                            setValue('customerDeposit.vatAmount', 0);
+                                                                            setValue('customerDeposit.totalWithVat', amount);
+                                                                        }
+                                                                    }}
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                        <label className="ml-2 block text-sm font-medium text-gray-700">
+                                                            มีภาษีมูลค่าเพิ่ม (VAT 7%)
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                {watch('customerDeposit.includeVat') && (
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
-                                                        ภาษีมูลค่าเพิ่ม
+                                                        ภาษีมูลค่าเพิ่ม (7%)
                                                     </label>
                                                     <Controller
-                                                        name="customerDeposit.vat"
+                                                        name="customerDeposit.vatAmount"
                                                         control={control}
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                className="mt-1 block w-full rounded-md border-gray-300  shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                readOnly
+                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
                                                                 placeholder="0.00"
                                                                 {...field}
                                                             />
                                                         )}
                                                     />
                                                 </div>
+                                                )}
 
                                                 <div>
+                                                    {watch('customerDeposit.includeVat') && (
+                                                        <>
                                                     <label className="block text-sm font-medium text-gray-700">
-                                                        จำนวนเงินรวมภาษีมูลค่าเพิ่ม
+                                                        {watch('customerDeposit.includeVat') ? 'จำนวนเงินรวมภาษีมูลค่าเพิ่ม' : 'จำนวนเงินปัจจุบัน (THB)'}
                                                     </label>
+                                                    
                                                     <Controller
                                                         name="customerDeposit.totalWithVat"
                                                         control={control}
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
-                                                                className="mt-1 block w-full rounded-md border-gray-300  shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                readOnly
+                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
                                                                 placeholder="0.00"
                                                                 {...field}
                                                             />
                                                         )}
                                                     />
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6 mt-4">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        วันที่โอน
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.transferDate"
-                                                        control={control}
-                                                        rules={{ required: "กรุณาระบุวันที่โอน" }}
-                                                        render={({ field }) => (
-                                                            <input
-                                                                type="date"
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.transferDate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                                                    }`}
-                                                                {...field}
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        ธนาคารบัญชีผู้รับเงิน
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.receivingAccount"
-                                                        control={control}
-                                                        rules={{ required: "กรุณาเลือกบัญชี" }}
-                                                        render={({ field }) => (
-                                                            <select
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit?.receivingAccount ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                                                    }`}
-                                                                {...field}
-                                                            >
-                                                                <option value="">เลือกบัญชี</option>
-                                                                <option value="ayong">อาหยอง</option>
-                                                                <option value="jinny">จินนี่</option>
-                                                            </select>
-                                                        )}
-                                                    />
+                                                    </>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -715,14 +768,14 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     />
                                                 </div>
                                             </div>
-                                                <CustomerDepositFormComponent
-                                                    control={control}
-                                                    setValue={setValue}
-                                                    errors={errors}
-                                                    loading={loading}
-                                                    customerDeposit={watch('customerDeposit')}
-                                                    exchangeData={watch('exchange')}
-                                                />
+                                            <CustomerDepositFormComponent
+                                                control={control}
+                                                setValue={setValue}
+                                                errors={errors}
+                                                loading={loading}
+                                                customerDeposit={watch('customerDeposit')}
+                                                exchangeData={watch('exchange')}
+                                            />
                                         </div>
                                     </form>
                                 </div>

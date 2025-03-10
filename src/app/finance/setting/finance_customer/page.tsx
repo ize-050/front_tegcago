@@ -159,12 +159,14 @@ export default function FinanceCustomerPage() {
                                     >
                                         <FiEdit2 className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        variant="soft-danger"
-                                        onClick={() => handleDelete(customer.id)}
-                                    >
-                                        <FiTrash2 className="w-4 h-4" />
+                                    {customer.finance_name !=="AHYONG" && customer.finance_name !=="GINNY" && (
+                                        <Button
+                                            variant="soft-danger"
+                                            onClick={() => handleDelete(customer.id)}
+                                        >
+                                            <FiTrash2 className="w-4 h-4" />
                                     </Button>
+                                    )}
                                 </div>
                             </Table.Td>
                         </Table.Tr>

@@ -107,3 +107,41 @@ export const exportWithdrawalInformationToExcel = async (params: Partial<any>) =
         }
     });
 }
+
+export const getCustomerAccounts = async () => {
+    return new Promise(async (resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/finance/customer-accounts`;
+        
+        await axios.get(url, {
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                resolve(res.data.data);
+            }
+        }).catch(err => {
+            console.error("Error fetching customer accounts:", err);
+            reject(err);
+        });
+    });
+}
+
+export const getCompanyAccounts = async () => {
+    return new Promise(async (resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/finance/company-accounts`;
+        
+        await axios.get(url, {
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                resolve(res.data.data);
+            }
+        }).catch(err => {
+            console.error("Error fetching company accounts:", err);
+            reject(err);
+        });
+    });
+}

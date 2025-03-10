@@ -331,8 +331,8 @@ const TableComponent = () => {
               value={filterForm.account}
               onChange={(e) => handleFilterChange('account', e.target.value)}
             >
-              <option value="AHYONG">อาหยอง</option>
-              <option value="GINNY">จินนี่</option>
+              <option value="AHYONG">AHYONG</option>
+              <option value="GINNY">GINNY</option>
             </select>
           </div>
 
@@ -415,7 +415,7 @@ const TableComponent = () => {
                 </td>
                 <td className="px-6 py-4">{record.title}</td>
                 <td className="px-6 py-4">
-                  {record.accountOwner === 'AHYONG' ? 'อาหยอง' : 'จินนี่'}
+                  {record.accountOwner}
                 </td>
                 <td className="px-6 py-4">
                   {record.amountRMB.toLocaleString()}

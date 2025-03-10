@@ -106,7 +106,7 @@ const initialState: SideMenuState = {
         {
           icon: "Proportions",
           pathname: "/finance/data/withdrawal_information",
-          title: "บันทึกข้อมูลการเบิกเงินแผนกชิป",
+          title: "บันทึกการเบิกเงินShipping",
         },
         {
           icon: "Proportions",

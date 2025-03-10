@@ -1,9 +1,10 @@
 "use client";
 
 import { useForm, Controller, useFormContext } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
+import { getCustomerAccounts } from "@/services/finance";
 
 export interface PaymentForm {
   date: string;
@@ -17,10 +18,7 @@ export interface PaymentForm {
   existingTransferSlip?: string;
 }
 
-const accountOptions = [
-  { value: 'ahyong', label: 'อาหยอง' },
-  { value: 'ginny', label: 'จินนี่' }
-];
+
 
 interface PaymentFormProps {
   onSubmit: (data: PaymentForm) => void;
@@ -45,6 +43,21 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
       details: '',
     },
   });
+
+  const [accountOptions, setAccountOptions] = useState([]);
+  
+useEffect(() => {
+  const fetchAccounts = async () => {
+    try {
+      const accounts :any = await getCustomerAccounts();
+      setAccountOptions(accounts);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    }
+  };
+  
+  fetchAccounts();
+}, []);
 
   useEffect(() => {
     if (initialData) {
@@ -96,9 +109,9 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
                 {...field}
               >
                 <option value="">เลือกบัญชี</option>
-                {accountOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {accountOptions.map((option:any) => (
+                  <option key={option.id} value={option.finance_name}>
+                    {option.finance_name}
                   </option>
                 ))}
               </select>
