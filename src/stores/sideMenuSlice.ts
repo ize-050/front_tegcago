@@ -16,6 +16,7 @@ export interface SideMenuState {
   menuCs: Array<Menu | string>;
   menuSuperadmin: Array<Menu | string>;
   menuFinance: Array<Menu | string>;
+  menuHr: Array<Menu | string>;
 }
 
 const initialState: SideMenuState = {
@@ -134,6 +135,35 @@ const initialState: SideMenuState = {
           icon: "Pencil",
           pathname: "/finance/setting/finance_customer",
           title: "ตั้งค่าบัญชี",
+        },
+      ]
+    },
+  ],
+  menuHr:[
+    {
+      icon: "Users",
+      pathname: "/hr/work",
+      title: "ข้อมูลงานจองตู้",
+    },
+    {
+      icon: "SendToBack",
+      pathname: "/hr/transfer",
+      title: "ข้อมูลฝากสั่งฝากโอน",
+    },
+    {
+      icon: "Settings",
+      pathname: "/hr/settings",
+      title: "ตั้งค่า",
+      subMenu: [
+        {
+          icon: "BarChart",
+          pathname: "/hr/settings/commission-ranks",
+          title: "ตั้งค่าอัตราคอมมิชชั่น",
+        },
+        {
+          icon: "Repeat",
+          pathname: "/hr/settings/transfer-types",
+          title: "ตั้งค่าประเภทฝากสั่งฝากโอน",
         },
       ]
     },

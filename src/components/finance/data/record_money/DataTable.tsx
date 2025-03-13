@@ -180,7 +180,7 @@ const DataTable = ({ onRefresh }: Props) => {
     const getTransactionTypeLabel = (type: any):any => {
         switch (type) {
             case 'deposit':
-                return { label: 'ฝากสั่ง', color: 'success' };
+                return { label: 'ฝากโอน', color: 'success' };
             case 'order':
                 return { label: 'ฝากสั่งซื้อ', color: 'primary' };
             case 'topup':

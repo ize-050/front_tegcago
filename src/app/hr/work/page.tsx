@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 
 import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
 
-
+import TableComponent from "@/components/hr/work/TableComponent";
 
 export default async function WorkPage() {
   // const user = await getUser();
@@ -12,7 +12,7 @@ export default async function WorkPage() {
   
   return (
     <Fragment>
-
+      <TableComponent />
     </Fragment>
   );
 }
