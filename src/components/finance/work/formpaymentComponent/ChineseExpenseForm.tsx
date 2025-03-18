@@ -23,7 +23,7 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                     <Controller
                         name="ch_freight"
                         control={control}
-                        defaultValue={0}
+                        // defaultValue={0}
                         rules={{
                             required: false,
                             pattern: {
@@ -35,7 +35,7 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                             <input
                                 type="number"
                                 onChange={(e) => {
-                                    onChange(e);
+                                    onChange(e.target.value);
                                 }}
                                 value={value}
                                 placeholder="กรอกข้อมูล"
@@ -66,7 +66,8 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                             <input
                                 type="number"
                                 onChange={(e) => {
-                                    onChange(e);
+                                    const value = e.target.value === '' ? '' : e.target.value;
+                                    onChange(value);
                                 }}
                                 value={value}
                                 placeholder="กรอกข้อมูล"

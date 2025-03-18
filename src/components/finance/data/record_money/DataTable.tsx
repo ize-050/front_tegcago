@@ -49,7 +49,7 @@ const DataTable = ({ onRefresh }: Props) => {
     const [endDate, setEndDate] = useState<string>("");
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-
+    
     const fetchTransactions = async () => {
         try {
             setLoading(true);
