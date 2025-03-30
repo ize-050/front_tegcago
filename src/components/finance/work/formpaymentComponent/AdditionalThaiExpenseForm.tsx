@@ -22,7 +22,7 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
             Number(watch('th_ground_fee') || 0) +
             Number(watch('th_port_other_fee') || 0);
         
-        setValue('th_total_port_fee', total);
+        setValue('th_total_port_fee', total.toFixed(2));
     };
     
     return (
@@ -63,20 +63,48 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_port_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_port_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_port_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกจำนวน"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_port_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_port_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -96,20 +124,48 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_lift_on_off', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_lift_on_off', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_lift_on_off', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกราคา"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_lift_on_off', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_lift_on_off ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -131,20 +187,48 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_ground_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_ground_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_ground_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกจำนวน"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_ground_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_ground_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -164,20 +248,48 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_port_other_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_port_other_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_port_other_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_port_other_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_port_other_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />

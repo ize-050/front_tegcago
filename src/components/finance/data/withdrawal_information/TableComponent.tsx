@@ -426,7 +426,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 ยอดโอน
                                             </Table.Td>
-                                            <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
+                                            {/* <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 ยอดจ่าย
                                             </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
@@ -437,10 +437,10 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                             </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 คืนใคร
-                                            </Table.Td>
-                                            <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
+                                            </Table.Td> */}
+                                            {/* <Table.Td className="py-4 font-medium text-center border-t   border-slate-200/60 text-black">
 
-                                            </Table.Td>
+                                            </Table.Td> */}
                                         </Table.Tr>
                                     </Table.Thead>
                                     <Table.Tbody>
@@ -472,7 +472,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
 
                                                         {/* Group Header */}
                                                         <Table.Tr className="bg-gray-100 font-medium">
-                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={10}>
+                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={5}>
                                                                 <span className="font-medium">กลุ่มรายการที่ {groupIndex + 1} - {moment(groupItems[0]?.withdrawal_date).format('DD/MM/YYYY')} ({groupItems.length} รายการ)</span>
                                                             </Table.Td>
                                                             <Table.Td className="text-center border-slate-200/60 text-gray-900">
@@ -546,10 +546,10 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                                             {/* แสดงยอดโอนเฉพาะรายการแรกของกลุ่ม
                                                                             {key === 0 ? data.transfer_amount : ''} */}
                                                                         </Table.Td>
-                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                        {/* <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                             {data.pay_price}
-                                                                        </Table.Td>
-                                                                        <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                        </Table.Td> */}
+                                                                        {/* <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                             {data.pay_gasoline}
                                                                         </Table.Td>
                                                                         <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
@@ -567,7 +567,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                                             }
                                                                         </Table.Td>
                                                                         <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                                        </Table.Td>
+                                                                        </Table.Td> */}
                                                                     </Table.Tr>
                                                                 );
                                                             })}
@@ -586,10 +586,10 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                     {summaryRecord.transfer_amount || '0'}
                                                                 </Table.Td>
-                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                {/* <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                     {summaryRecord.pay_price || '0'}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                </Table.Td> */}
+                                                                {/* <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                     {summaryRecord.pay_gasoline || '0'}
                                                                 </Table.Td>
                                                                 <Table.Td className="text-center border-slate-200/60 text-green-600 font-medium">
@@ -609,7 +609,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                                     }
                                                                 </Table.Td>
                                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900">
-                                                                </Table.Td>
+                                                                </Table.Td> */}
                                                             </Table.Tr>
                                                         )}
 
@@ -652,13 +652,13 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                         .reduce((sum: number, item: any) => sum + Number(item.transfer_amount || 0), 0)
                                                         .toLocaleString()}
                                                 </Table.Td>
-                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                {/* <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                     {filteredData
                                                         .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
                                                         .reduce((sum: number, item: any) => sum + Number(item.pay_price || 0), 0)
                                                         .toLocaleString()}
-                                                </Table.Td>
-                                                <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                </Table.Td> */}
+                                                {/* <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                     {filteredData
                                                         .filter((item: any) => item.invoice_package !== 'SUMMARY_RECORD')
                                                         .reduce((sum: number, item: any) => sum + Number(item.pay_gasoline || 0), 0)
@@ -699,7 +699,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                     ).toLocaleString()}
                                                 </Table.Td>
                                                 <Table.Td className="text-center border-slate-200/60 text-gray-900" colSpan={2}>
-                                                </Table.Td>
+                                                </Table.Td> */}
                                             </Table.Tr>
                                         )}
                                     </Table.Tbody>

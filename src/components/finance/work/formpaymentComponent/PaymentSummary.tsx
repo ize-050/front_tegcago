@@ -1,15 +1,22 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { numberFormatTh, numberFormatTH_CN } from "@/utils/numberFormat";
+import { useDispatch, useSelector } from 'react-redux';
+import { addPaymentRow, removePaymentRow } from '@/stores/finance';
 
 interface PaymentSummaryProps {
     control: any;
     watch: any;
     setValue: any;
-    errors:any
+    errors: any;
+    onPaymentRowsChange?: (rows: number[]) => void; // เพิ่ม prop นี้
 }
 
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch, setValue }) => {
+interface FinanceState {
+    paymentRows: number[];
+}
+
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch, setValue, onPaymentRowsChange }) => {
     // คำนวณรวมเคลียร์ทั้งหมด
     const totalClear = Number(watch('th_duty') || 0) +
         Number(watch('th_tax') || 0) +
@@ -48,6 +55,9 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
 
     // คำนวณยอดคงเหลือ Shipping เบิก
     const remainingShipping = totalShippingAdvance - totalClear;
+
+    const dispatch = useDispatch();
+    const paymentRows = useSelector((state: { financeReducer: FinanceState }) => state.financeReducer.paymentRows);
 
     useEffect(() => {
         // คำนวณกำไรขาดทุน
@@ -89,48 +99,86 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
         watch('percentage_fee')
     ]);
 
-    useEffect(() => {
-        // ติดตามการเปลี่ยนแปลงของค่าใช้จ่ายต่างๆ ที่ใช้ในการคำนวณ totalThaiExpensesNew
-    }, [
-        watch('amount_payment_do'),
-        watch('price_deposit'),
-        watch('th_total_shipping'),
-        watch('th_total_port_fee'),
-        watch('th_price_head_tractor')
-    ]);
 
     useEffect(() => {
         // เมื่อ billing_amount มีการเปลี่ยนแปลง ให้คำนวณยอดคงค้างใหม่
         calculateRemainingPayment();
     }, [watch('billing_amount')]);
 
+    useEffect(() => {
+        if (onPaymentRowsChange) {
+            onPaymentRowsChange(paymentRows);
+        }
+    }, [paymentRows, onPaymentRowsChange]);
+
     const calculateRemainingPayment = () => {
         const billingAmount = Number(watch('billing_amount') || 0);
-        const paymentAmount1 = Number(watch('payment_amount_1') || 0);
-        const paymentAmount2 = Number(watch('payment_amount_2') || 0);
-        const paymentAmount3 = Number(watch('payment_amount_3') || 0);
-
-        // คำนวณยอดคงค้างหลังจากชำระงวดที่ 1
-        const remainingAmount1 = billingAmount - paymentAmount1;
-        setValue('remaining_amount_1', remainingAmount1);
-
-        // คำนวณยอดคงค้างหลังจากชำระงวดที่ 2
-        const remainingAmount2 = remainingAmount1 - paymentAmount2;
-        setValue('remaining_amount_2', remainingAmount2);
-
-        // คำนวณยอดคงค้างหลังจากชำระงวดที่ 3
-        const remainingAmount3 = remainingAmount2 - paymentAmount3;
-        setValue('remaining_amount_3', remainingAmount3);
+        let remainingAmount = billingAmount;
+        let totalPayment = 0;
+        paymentRows.forEach((rowNumber: number) => {
+            const paymentAmountValue = watch(`payment_amount_${rowNumber}`);
+            const paymentAmount = paymentAmountValue === '' ? 0 : parseFloat(paymentAmountValue);
+            totalPayment += paymentAmount;
+            remainingAmount -= paymentAmount;
+            setValue(`remaining_amount_${rowNumber}`, remainingAmount.toFixed(2));
+        });
 
         // คำนวณยอดชำระทั้งหมด
-        const totalPayment = paymentAmount1 + paymentAmount2 + paymentAmount3;
-        setValue('total_payment_all', totalPayment);
+        setValue('total_payment_all', totalPayment.toFixed(2));
 
         // คำนวณยอดคงค้างทั้งหมด
-        setValue('miss_payment', remainingAmount3);
+        setValue('miss_payment', remainingAmount.toFixed(2));
     };
 
-    // คำนวณกำไรสุทธิ
+    // อัพเดทสถานะการชำระเงิน
+    const updatePaymentStatus = () => {
+        const billingAmount = Number(watch('billing_amount') || 0);
+        const totalPayment = Number(watch('total_payment_all') || 0);
+        const missPayment = Number(watch('miss_payment') || 0);
+
+        // if (totalPayment === 0) {
+        //     setValue('payment_status', 'รอตรวจสอบ');
+        // } else if (missPayment === 0 && totalPayment > 0) {
+        //     setValue('payment_status', 'ชำระครบแล้ว');
+        // } else if (totalPayment > 0 && totalPayment < billingAmount) {
+        //     setValue('payment_status', 'ชำระบางส่วน');
+        // } else {
+        //     setValue('payment_status', 'ค้างชำระ');
+        // }
+    };
+
+    // ฟังก์ชันเพิ่มแถวการชำระเงิน
+    const addPaymentRowHandler = () => {
+        // หาหมายเลขแถวถัดไป
+        const nextRowNumber = Math.max(...paymentRows) + 1;
+        dispatch(addPaymentRow(nextRowNumber));
+        
+        // ตั้งค่าเริ่มต้นสำหรับแถวใหม่
+        setValue(`payment_date_${nextRowNumber}`, '');
+        setValue(`payment_amount_${nextRowNumber}`, 0);
+        setValue(`remaining_amount_${nextRowNumber}`, watch(`remaining_amount_${paymentRows[paymentRows.length - 1]}`) || 0);
+        
+        // คำนวณยอดคงค้างใหม่
+        calculateRemainingPayment();
+    };
+
+    // ฟังก์ชันลบแถวการชำระเงิน
+    const removePaymentRowHandler = (rowNumber: number) => {
+        // ไม่อนุญาตให้ลบแถวสุดท้าย
+        if (paymentRows.length <= 1) return;
+        
+        // ลบแถวที่ต้องการ
+        dispatch(removePaymentRow(rowNumber));
+        
+        // คำนวณยอดคงค้างใหม่
+        calculateRemainingPayment();
+    };
+
+    useEffect(() => {
+        // อัพเดทสถานะการชำระเงินเมื่อมีการเปลี่ยนแปลงของยอดชำระหรือยอดคงค้าง
+        updatePaymentStatus();
+    }, [watch('total_payment_all'), watch('miss_payment')]);
+
     const calculateNetProfit = () => {
         const grossProfit = Number(watch('profit_loss') || 0);
         const managementFee = Number(watch('management_fee') || 0);
@@ -142,28 +190,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
         // คำนวณกำไรสุทธิเมื่อมีการเปลี่ยนแปลงของกำไรขั้นต้นหรือค่าบริหารจัดการ
         calculateNetProfit();
     }, [watch('profit_loss'), watch('management_fee')]);
-
-    // อัพเดทสถานะการชำระเงิน
-    const updatePaymentStatus = () => {
-        const billingAmount = Number(watch('billing_amount') || 0);
-        const totalPayment = Number(watch('total_payment_all') || 0);
-        const missPayment = Number(watch('miss_payment') || 0);
-
-        if (totalPayment === 0) {
-            setValue('payment_status', 'รอตรวจสอบ');
-        } else if (missPayment === 0 && totalPayment > 0) {
-            setValue('payment_status', 'ชำระครบแล้ว');
-        } else if (totalPayment > 0 && totalPayment < billingAmount) {
-            setValue('payment_status', 'ชำระบางส่วน');
-        } else {
-            setValue('payment_status', 'ค้างชำระ');
-        }
-    };
-
-    useEffect(() => {
-        // อัพเดทสถานะการชำระเงินเมื่อมีการเปลี่ยนแปลงของยอดชำระหรือยอดคงค้าง
-        updatePaymentStatus();
-    }, [watch('total_payment_all'), watch('miss_payment')]);
 
     return (
         <div className="mt-5">
@@ -187,6 +213,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         name="th_shipping_advance"
                         control={control}
                         defaultValue={0}
+                        
                         rules={{
                             required: false,
                             pattern: {
@@ -197,6 +224,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
+                                readOnly
                                 onChange={(e) => {
                                     const newValue = e.target.value === '' ? '' : e.target.value;
                                     onChange(newValue);
@@ -240,6 +268,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         name="th_shipping_remaining"
                         control={control}
                         defaultValue={0}
+                        
                         render={({ field }) => <input type="hidden" {...field} />}
                     />
                 </div>
@@ -297,16 +326,48 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
-                                onChange={onChange}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                type="text"
+                                onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('total_before_vat', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('total_before_vat', formattedValue);
+                                }}
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('total_before_vat', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
                             />
                         )}
@@ -324,16 +385,50 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
-                                onChange={onChange}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                type="text"
+                                onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('billing_amount', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('billing_amount', formattedValue);
+                                    calculateRemainingPayment();
+                                }}
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('billing_amount', numValue.toFixed(2));
+                                        calculateRemainingPayment();
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
                             />
                         )}
@@ -351,220 +446,134 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                 {/* <h3 className="text-lg font-semibold text-gray-800 mb-3">การชำระเงิน</h3> */}
                 
                 {/* Row 1 */}
-                <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            วันที่ชำระ
-                        </label>
-                        <Controller
-                            name="payment_date_1"
-                            control={control}
-                            defaultValue=""
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="date"
-                                    onChange={onChange}
-                                    value={value}
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            ยอดชำระ
-                        </label>
-                        <Controller
-                            name="payment_amount_1"
-                            control={control}
-                            defaultValue={0}
-                            rules={{
-                                required: false,
-                                pattern: {
-                                    value: /^[0-9]*$/,
-                                    message: "กรุณากรอกตัวเลขเท่านั้น"
-                                }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="number"
-                                    onChange={(e) => {
-                                        const newValue = e.target.value === '' ? '' : e.target.value;
-                                        onChange(newValue);
-                                        setValue('payment_amount_1', newValue === '' ? '' : Number(newValue));
-                                        
-                                        // คำนวณยอดคงค้างใหม่
-                                        calculateRemainingPayment();
-                                    }}
-                                    value={value === 0 ? '' : value}
-                                    placeholder="กรอกข้อมูล"
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            คงค้าง
-                        </label>
-                        <Controller
-                            name="remaining_amount_1"
-                            control={control}
-                            defaultValue={0}
-                            render={({ field: { value } }) => (
-                                <div className="px-4 py-2 bg-gray-100 rounded-md">
-                                    {numberFormatTh(value)} THB
-                                </div>
-                            )}
-                        />
-                    </div>
+                <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-lg font-semibold text-gray-800">การชำระเงิน</h3>
+                    <button 
+                        type="button" 
+                        onClick={addPaymentRowHandler}
+                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                    >
+                        + เพิ่มการชำระ
+                    </button>
                 </div>
-
-                {/* Row 2 */}
-                <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            วันที่ชำระ
-                        </label>
-                        <Controller
-                            name="payment_date_2"
-                            control={control}
-                            defaultValue=""
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="date"
-                                    onChange={onChange}
-                                    value={value}
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
-                                />
+                
+                {/* แสดงแถวการชำระเงินตามจำนวนใน state */}
+                {paymentRows.map((rowNumber: number, index: number) => (
+                    <div key={rowNumber} className="mb-5">
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-medium text-gray-700">การชำระครั้งที่ {index + 1}</h4>
+                            {paymentRows.length > 1 && (
+                                <button 
+                                    type="button" 
+                                    onClick={() => removePaymentRowHandler(rowNumber)}
+                                    className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm"
+                                >
+                                    ลบ
+                                </button>
                             )}
-                        />
-                    </div>
+                        </div>
+                        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+                            <div className="w-full md:w-1/2 flex flex-col">
+                                <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                    วันที่ชำระ
+                                </label>
+                                <Controller
+                                    name={`payment_date_${rowNumber}`}
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field: { onChange, value } }) => (
+                                        <input
+                                            type="date"
+                                            onChange={onChange}
+                                            value={value}
+                                            className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                                        />
+                                    )}
+                                />
+                            </div>
 
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            ยอดชำระ
-                        </label>
-                        <Controller
-                            name="payment_amount_2"
-                            control={control}
-                            defaultValue={0}
-                            rules={{
-                                required: false,
-                                pattern: {
-                                    value: /^[0-9]*$/,
-                                    message: "กรุณากรอกตัวเลขเท่านั้น"
-                                }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="number"
-                                    onChange={(e) => {
-                                        const newValue = e.target.value === '' ? '' : e.target.value;
-                                        onChange(newValue);
-                                        setValue('payment_amount_2', newValue === '' ? '' : Number(newValue));
-                                        
-                                        // คำนวณยอดคงค้างใหม่
-                                        calculateRemainingPayment();
+                            <div className="w-full md:w-1/2 flex flex-col">
+                                <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                    ยอดเรียกเก็บ
+                                </label>
+                                <Controller
+                                    name={`payment_amount_${rowNumber}`}
+                                    control={control}
+                                    defaultValue={0}
+                                    rules={{
+                                        required: false,
+                                        pattern: {
+                                            value: /^[0-9]*\.?[0-9]*$/,
+                                            message: "กรุณากรอกตัวเลขเท่านั้น"
+                                        }
                                     }}
-                                    value={value === 0 ? '' : value}
-                                    placeholder="กรอกข้อมูล"
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                                    render={({ field: { onChange, value } }) => (
+                                        <input
+                                            type="text"
+                                            onChange={(e) => {
+                                                const inputValue = e.target.value;
+                                                
+                                                // Allow empty value for deletion
+                                                if (inputValue === '') {
+                                                    onChange('');
+                                                    setValue(`payment_amount_${rowNumber}`, '');
+                                                    calculateRemainingPayment();
+                                                    return;
+                                                }
+                                                
+                                                // Allow only numbers and decimal point
+                                                if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                                    return; // Invalid input, don't update
+                                                }
+                                                
+                                                // Limit to 2 decimal places if there's a decimal point
+                                                let formattedValue = inputValue;
+                                                if (inputValue.includes('.')) {
+                                                    const [whole, decimal] = inputValue.split('.');
+                                                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                                }
+                                                
+                                                onChange(formattedValue);
+                                                setValue(`payment_amount_${rowNumber}`, formattedValue);
+                                                
+                                                // คำนวณยอดคงค้างใหม่
+                                                calculateRemainingPayment();
+                                            }}
+                                            onBlur={() => {
+                                                // Format to 2 decimal places when leaving the field
+                                                if (value !== '' && value !== null && value !== undefined) {
+                                                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                                    onChange(numValue.toFixed(2));
+                                                    setValue(`payment_amount_${rowNumber}`, numValue.toFixed(2));
+                                                    calculateRemainingPayment();
+                                                }
+                                            }}
+                                            value={typeof value === 'number' ? value.toFixed(2) : value}
+                                            placeholder="0.00"
+                                            className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
-                    </div>
+                            </div>
 
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            คงค้าง
-                        </label>
-                        <Controller
-                            name="remaining_amount_2"
-                            control={control}
-                            defaultValue={0}
-                            render={({ field: { value } }) => (
-                                <div className="px-4 py-2 bg-gray-100 rounded-md">
-                                    {numberFormatTh(value)} THB
-                                </div>
-                            )}
-                        />
-                    </div>
-                </div>
-
-                {/* Row 3 */}
-                <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            วันที่ชำระ
-                        </label>
-                        <Controller
-                            name="payment_date_3"
-                            control={control}
-                            defaultValue=""
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="date"
-                                    onChange={onChange}
-                                    value={value}
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                            <div className="w-full md:w-1/2 flex flex-col">
+                                <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                    คงค้าง
+                                </label>
+                                <Controller
+                                    name={`remaining_amount_${rowNumber}`}
+                                    control={control}
+                                    defaultValue={0}
+                                    render={({ field: { value } }) => (
+                                        <div className="px-4 py-2 bg-gray-100 rounded-md">
+                                            {numberFormatTh(value)} THB
+                                        </div>
+                                    )}
                                 />
-                            )}
-                        />
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            ยอดชำระ
-                        </label>
-                        <Controller
-                            name="payment_amount_3"
-                            control={control}
-                            defaultValue={0}
-                            rules={{
-                                required: false,
-                                pattern: {
-                                    value: /^[0-9]*$/,
-                                    message: "กรุณากรอกตัวเลขเท่านั้น"
-                                }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <input
-                                    type="number"
-                                    onChange={(e) => {
-                                        const newValue = e.target.value === '' ? '' : e.target.value;
-                                        onChange(newValue);
-                                        setValue('payment_amount_3', newValue === '' ? '' : Number(newValue));
-                                        
-                                        // คำนวณยอดคงค้างใหม่
-                                        calculateRemainingPayment();
-                                    }}
-                                    value={value === 0 ? '' : value}
-                                    placeholder="กรอกข้อมูล"
-                                    className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="w-full md:w-1/3 flex flex-col">
-                        <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                            คงค้าง
-                        </label>
-                        <Controller
-                            name="remaining_amount_3"
-                            control={control}
-                            defaultValue={0}
-                            render={({ field: { value } }) => (
-                                <div className="px-4 py-2 bg-gray-100 rounded-md">
-                                    {numberFormatTh(value)} THB
-                                </div>
-                            )}
-                        />
-                    </div>
-                </div>
+                ))}
             </div>
 
             <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">

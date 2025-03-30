@@ -8,6 +8,7 @@ export interface internalFinance {
  formwithdrawal :any
  modalWithdrawal:boolean
  modalRecordMoney:boolean
+ paymentRows: number[]
  editRecord: {
    id: string | null;
    type: 'PAYMENT' | 'RECEIPT' | 'deposit' | 'payment' | 'other' | null;
@@ -38,6 +39,7 @@ const initialState: internalFinance = {
  purchaseFinanceData:{},
  modalWithdrawal:false,
  modalRecordMoney:false,
+ paymentRows: [1],
  formwithdrawal :{
  },
  editRecord: {
@@ -82,6 +84,15 @@ export const finance = createSlice({
         setModalRecordMoney(state, action: PayloadAction<boolean>) {
             state.modalRecordMoney = action.payload
         },
+        setPaymentRows(state, action: PayloadAction<number[]>) {
+            state.paymentRows = action.payload
+        },
+        addPaymentRow(state, action: PayloadAction<number>) {
+            state.paymentRows = [...state.paymentRows, action.payload]
+        },
+        removePaymentRow(state, action: PayloadAction<number>) {
+            state.paymentRows = state.paymentRows.filter(row => row !== action.payload)
+        },
         setEditRecord(state, action: PayloadAction<any>) {
             state.editRecord = action.payload ? action.payload : {
                 id: null,
@@ -100,7 +111,10 @@ export const {
   setModalWithdrawal,
   setFormWithdrawal,
   setModalRecordMoney,
+  setPaymentRows,
+  addPaymentRow,
+  removePaymentRow,
   setEditRecord
-  } = finance.actions;
+} = finance.actions;
 
 export default finance.reducer;

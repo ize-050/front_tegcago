@@ -6,12 +6,6 @@ import { numberFormatTh } from "@/utils/numberFormat";
 const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
     const { control, formState: { errors }, setValue, watch } = useFormContext();
 
-    // ตรวจสอบค่าที่ได้รับจาก API
-    React.useEffect(() => {
-        console.log("amount_payment_do value:", watch('amount_payment_do'));
-        console.log("price_deposit value:", watch('price_deposit'));
-    }, [watch]);
-
     return (
         <>
             <h1 className="mb-5 text-1xl font-bold">ค่าแลก D/O</h1>
@@ -33,14 +27,42 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
+                                readOnly
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('amount_payment_do', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('amount_payment_do', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('amount_payment_do', formattedValue === '' ? '' : Number(formattedValue));
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        setValue('amount_payment_do', Number(numValue.toFixed(2)));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.amount_payment_do ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -67,13 +89,41 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
+                                readOnly
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('price_deposit', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('price_deposit', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('price_deposit', formattedValue === '' ? '' : Number(formattedValue));
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        setValue('price_deposit', Number(numValue.toFixed(2)));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.price_deposit ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />

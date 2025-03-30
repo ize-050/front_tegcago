@@ -45,6 +45,25 @@ export const getPurchaseByid = async (id:string) => {
     })
 }
 
+export const getWidhdrawalInformationByShipmentNumber = async (d_purchase_id :string) => {
+    return new Promise(async (resolve, reject) => {
+
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/finance/getWidhdrawalInformationByShipmentNumber/${d_purchase_id}`;
+        await axios.get(url,
+            {
+                headers: {
+                    Accept: 'application/json',
+                },
+            }).then(res => {
+                if (res.status === 200) {
+                    resolve(res.data.data)
+                }
+            }).catch(err => {
+                reject(err)
+            })
+    })
+}
+
 
 export const getWorkByid = async (id:string) => {
     return new Promise(async (resolve, reject) => {

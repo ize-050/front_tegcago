@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import moment from "moment";
 import { customerData } from "@/stores/customer";
-import { submitPrePurchase } from "@/stores/purchase";
 import { numberFormatTh, numberFormatAllth, numberFormatcn, numberFormatTH_CN } from "@/utils/numberFormat";
 import { getSelectCustomer } from "@/services/customer";
 import FormTablePaymentComponent from '@/components/finance/work/FormTablePaymentComponent';
-import { financeData } from "@/stores/finance";
+import { financeData, setPaymentRows } from "@/stores/finance";
 import ChineseExpenseForm from './ChineseExpenseForm';
 import ThaiExpenseForm from './ThaiExpenseForm';
 import DOExpenseForm from './DOExpenseForm';
@@ -18,13 +18,14 @@ import AdditionalThaiExpenseForm from './AdditionalThaiExpenseForm';
 
 // axios
 import axios from '../../../../../axios';
-import { getWorkByid } from "@/services/finance";
+import { getWidhdrawalInformationByShipmentNumber, getWorkByid } from "@/services/finance";
 
 //lib
 import Swal from "sweetalert2"
 
 const FormPaymentComponent = ({ BookingId }: any) => {
-    const dispatch = useAppDispatch();
+    const appDispatch = useAppDispatch();
+    const reduxDispatch = useDispatch();
     const { purchaseFinanceDetail, purchaseFinanceData } = useAppSelector(financeData);
     const methods = useForm();
     const [selectCustomer, SetSelectCustomer] = useState<any[]>([]);
@@ -53,21 +54,21 @@ const FormPaymentComponent = ({ BookingId }: any) => {
     } = methods;
 
     const router = useRouter();
+    const { paymentRows } = useSelector((state: any) => state.financeReducer);
     const [openTag, setOpenTag] = useState<boolean>(false);
     const [data, setData] = useState<Partial<any>>({});
     const [Bookdate, SetBookingDate] = useState<string>(
         moment().format("DD/MM/DD HH:mm")
     );
 
+    const [paymentDetails, setPaymentDetails] = useState<any[]>([]);
 
     const getWork = async () => {
         const work_by_id: any = await getWorkByid(BookingId as string);
 
-        if (work_by_id != null) {
-            // Set all form values from work_by_id
-
+        console.log("work_by_id", work_by_id);
+        if (work_by_id) {
             setValue('id', work_by_id.id || '');
-            
             // Thailand expenses
             setValue('th_overtime', work_by_id.th_overtime || '0');
             setValue('th_employee', work_by_id.th_employee || '0');
@@ -84,12 +85,13 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('th_total_shipping', work_by_id.th_total_shipping || '0');
             setValue('th_shipping_note', work_by_id.th_shipping_note || '');
             setValue('th_shipping_advance', work_by_id.th_shipping_advance || '0');
-            setValue('th_shipping_remaining', work_by_id.th_shipping_remaining || '0');
+            setValue('th_shipping_remaining',work_by_id.th_shipping_remaining || '0');
             setValue('th_shipping_return_to', work_by_id.th_shipping_return_to || '');
-            
+                
             // Port expenses
             setValue('th_port_name', work_by_id.th_port_name || '');
             setValue('th_port_fee', work_by_id.th_port_fee || '0');
+            setValue('th_port_note',work_by_id.th_port_note || '');
             setValue('th_lift_on_off', work_by_id.th_lift_on_off || '0');
             setValue('th_ground_fee', work_by_id.th_ground_fee || '0');
             setValue('th_port_other_fee', work_by_id.th_port_other_fee || '0');
@@ -101,9 +103,10 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('price_deposit', work_by_id.price_deposit || '0');
             
             // Chinese Expenses
-            setValue('ch_freight', work_by_id.ch_freight || '0');
-            setValue('ch_exchange_rate', work_by_id.ch_exchange_rate || '0');
-            setValue('ch_freight_total', work_by_id.ch_freight_total || '0');
+            console.log("work_by_id_ch_freight", work_by_id.ch_freight)
+            setValue('ch_freight', Number(work_by_id?.ch_freight || 0));
+            setValue('ch_exchange_rate', Number(work_by_id?.ch_exchange_rate || 0));
+            setValue('ch_freight_total', Number(work_by_id?.ch_freight_total || 0));
 
             // Billing and Payment
             setValue('total_before_vat', work_by_id.total_before_vat || '0');
@@ -117,36 +120,78 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('total_profit_loss', work_by_id.total_profit_loss || '0');
             setValue('text_profit_loss', work_by_id.text_profit_loss || '');
 
-            // Status
-            setValue('finance_status', work_by_id.finance_status || 'ชำระครบแล้ว');
+            setValue('th_check_fee',work_by_id.th_check_fee);
+            setValue('th_license_fee',work_by_id.th_license_fee);
+            setValue('th_product_account',work_by_id.th_product_account);
+           
 
-            // ข้อมูลการชำระเงิน
-            setValue('payment_date_1', work_by_id.payment_date_1 || '');
-            setValue('payment_date_2', work_by_id.payment_date_2 || '');
-            setValue('payment_date_3', work_by_id.payment_date_3 || '');
-            setValue('payment_amount_1', work_by_id.payment_amount_1 || '0');
-            setValue('payment_amount_2', work_by_id.payment_amount_2 || '0');
-            setValue('payment_amount_3', work_by_id.payment_amount_3 || '0');
-            setValue('remaining_amount_1', work_by_id.remaining_amount_1 || '0');
-            setValue('remaining_amount_2', work_by_id.remaining_amount_2 || '0');
-            setValue('remaining_amount_3', work_by_id.remaining_amount_3 || '0');
+            // Status
+            setValue('payment_status', work_by_id.payment_prefix.payment_status);
+            // ข้อมูลการชำระเงิน - ใช้ payment_details ที่เพิ่มมาใหม่
+            if (work_by_id.payment_details && Array.isArray(work_by_id.payment_details)) {
+                // เก็บข้อมูลการชำระเงินในรูปแบบใหม่
+                const details = work_by_id.payment_details.map((detail: any) => ({
+                    payment_date: detail.payment_date || '',
+                    payment_amount: detail.payment_amount || '0',
+                    payment_percentage: detail.payment_percentage || '0',
+                    remaining_amount: detail.remaining_amount || '0'
+                }));
+                
+                // อัพเดท paymentRows state ให้แสดงแถวตามจำนวนข้อมูลที่มี
+                const newPaymentRows = details.map((_: any, index: number) => index + 1);
+                if (newPaymentRows.length > 0) {
+                    // อัพเดท Redux store ด้วย payment rows ใหม่
+                    appDispatch(setPaymentRows(newPaymentRows));
+                    
+                    // ตั้งค่าข้อมูลในฟอร์มสำหรับแต่ละแถว
+                    details.forEach((detail: any, index: number) => {
+                        const rowNumber = index + 1;
+                        setValue(`payment_date_${rowNumber}`, detail.payment_date);
+                        setValue(`payment_amount_${rowNumber}`, detail.payment_amount);
+                        setValue(`remaining_amount_${rowNumber}`, detail.remaining_amount);
+                    });
+                    
+                    // คำนวณยอดรวมการชำระเงิน
+                    const totalPayment = details.reduce((sum: number, detail: any) => 
+                        sum + Number(detail.payment_amount), 0);
+                    setValue('total_payment_all', totalPayment);
+                    
+                    // คำนวณยอดคงค้าง
+                    const billingAmount = Number(watch('billing_amount') || 0);
+                    setValue('miss_payment', billingAmount - totalPayment);
+                }
+            }
+            
             setValue('payment_status', work_by_id.payment_status || 'รอตรวจสอบ');
             
             // ข้อมูลคืนภาษีจากตู้
-            setValue('tax_return_checked', work_by_id.tax_return_checked || false);
-            setValue('tax_return_amount', work_by_id.tax_return_amount || '0');
-            setValue('tax_return_date', work_by_id.tax_return_date || '');
+            setValue('tax_return_checked', work_by_id.payment_prefix.tax_return_checked || false);
+            setValue('tax_return_amount', work_by_id.payment_prefix.tax_return_amount || '0');
+            setValue('tax_return_date', work_by_id.payment_prefix.tax_return_date || '');
             
             // ข้อมูลกำไรและค่าบริหารจัดการ
-            setValue('management_fee', work_by_id.management_fee || '0');
-            setValue('percentage_fee', work_by_id.percentage_fee || '0');
+
+            setValue('th_port_note',work_by_id.th_port_note);
+            setValue('th_shipping_note',work_by_id.th_shipping_note);
+
+            setValue('management_fee', work_by_id.payment_prefix.management_fee || 0);
+            setValue('percentage_fee', work_by_id.payment_prefix.percentage_fee || 0);
             setValue('net_profit', work_by_id.net_profit || '0');
         }
     };
 
     useEffect(() => {
-        getWork();
+        (async () => {
+            if (BookingId) {
+                await getWork();
+            }
+        })();
     }, []);
+
+    const handlePaymentRowsChange = (rows: number[]) => {
+        // Update Redux store
+        reduxDispatch(setPaymentRows(rows));
+    };
 
     const calculateTotalShipping = useCallback(() => {
         const total =
@@ -276,145 +321,154 @@ const FormPaymentComponent = ({ BookingId }: any) => {
         (async () => {
             let customer: any = await getSelectCustomer();
             SetSelectCustomer(customer);
+            let withdrawal_information :any = await getWidhdrawalInformationByShipmentNumber(BookingId);
+            if(withdrawal_information && withdrawal_information.withdrawal_amount !== null){
+                setValue('th_shipping_advance', withdrawal_information.withdrawal_amount);
+            }
         })();
     }, []);
 
     const onSubmit = async (data: any) => {
         try {
+            console.log("data", data)
+            console.log("purchaseFinanceData", purchaseFinanceData)
+            console.log("paymentRows", paymentRows)
+
+            // สร้าง array เก็บข้อมูลการชำระเงินแต่ละครั้ง
+            const payment_details = paymentRows.map((rowNumber: number) => {
+                const detail = {
+                    payment_date: data[`payment_date_${rowNumber}`],
+                    payment_amount: Number(data[`payment_amount_${rowNumber}`]),
+                    remaining_amount: Number(data[`remaining_amount_${rowNumber}`])
+                };
+                return detail;
+            });
+
+            // ฟังก์ชันช่วยในการแปลงค่าให้เป็น string หรือ null ถ้าไม่มีค่า
+            const safeToString = (value: any) => {
+                if (value === undefined || value === null || value === '') {
+                    return null;
+                }
+                return value.toString();
+            };
+
             const requestData = {
-                id: data.id || '',
-                work_id: BookingId, // เพิ่ม work_id กลับมา
+                id: purchaseFinanceData?.purchase_finance?.[0]?.id || purchaseFinanceData?.id,
+                purchase_id: purchaseFinanceData?.purchase_id,
+                work_id: BookingId, 
                 
-                // ข้อมูลทั่วไป
-                finance_status: data.finance_status || '',
+                amount_payment_do: safeToString(data.amount_payment_do),
+                price_deposit: safeToString(data.price_deposit),
                 
-                // ข้อมูลค่าใช้จ่ายจีน
-                ch_freight: String(data.ch_freight || 0),
-                ch_exchange_rate: String(data.ch_exchange_rate || 0),
-                ch_freight_total: String(data.ch_freight_total || 0),
+                th_overtime: safeToString(data.th_overtime),
+                th_employee: safeToString(data.th_employee),
+                th_warehouse: safeToString(data.th_warehouse),
+                th_gasoline: safeToString(data.th_gasoline),
+                th_duty: safeToString(data.th_duty),
+                th_custom_fees: safeToString(data.th_custom_fees),
+                th_tax: safeToString(data.th_tax),
+                th_hairy: safeToString(data.th_hairy),
+                th_check_fee: safeToString(data.th_check_fee),
+                th_product_account: safeToString(data.th_product_account),
+                th_license_fee: safeToString(data.th_license_fee),
+                th_other_fee: safeToString(data.th_other_fee),
+                th_port_note: safeToString(data.th_port_note),
                 
-                // ข้อมูลค่าใช้จ่ายไทยปไป
-                th_duty: String(data.th_duty || 0),
-                th_tax: String(data.th_tax || 0),
-                th_employee: String(data.th_employee || 0),
-                th_warehouse: String(data.th_warehouse || 0),
-                th_custom_fees: String(data.th_custom_fees || 0),
-                th_overtime: String(data.th_overtime || 0),
-                th_check_fee: String(data.th_check_fee || 0),
-                th_product_account: String(data.th_product_account || 0),
-                th_license_fee: String(data.th_license_fee || 0),
-                th_gasoline: String(data.th_gasoline || 0),
-                th_hairy: String(data.th_hairy || 0),
-                th_other_fee: String(data.th_other_fee || 0),
+                // Shipping expenses
+                th_shipping_price: data.th_shipping,
+                th_total_shipping: safeToString(data.th_total_shipping),
+                th_shipping_note: safeToString(data.th_shipping_note),
+                th_shipping_advance: safeToString(data.th_shipping_advance),
+                th_shipping_remaining: safeToString(data.th_shipping_remaining),
+                th_shipping_return_to: safeToString(data.th_shipping_return_to),
+                payment_status: data.payment_status,
                 
-                // ข้อมูลค่าใช้จ่ายหัวลาก
-                th_port_name: String(data.th_port_name || ''),
-                th_port_fee: String(data.th_port_fee || 0),
-                th_lift_on_off: String(data.th_lift_on_off || 0),
-                th_ground_fee: String(data.th_ground_fee || 0),
-                th_port_other_fee: String(data.th_port_other_fee || 0),
-                th_price_head_tractor: String(data.th_price_head_tractor || 0),
-                th_total_port_fee: String(data.th_total_port_fee || 0),
+                // Port expenses
+                th_port_name: safeToString(data.th_port_name),
+                th_port_fee: safeToString(data.th_port_fee),
+                th_lift_on_off: safeToString(data.th_lift_on_off),
+                th_ground_fee: safeToString(data.th_ground_fee),
+                th_port_other_fee: safeToString(data.th_port_other_fee),
+                th_price_head_tractor: data.th_price_head_tractor,
+                th_total_port_fee: safeToString(data.th_total_port_fee),
                 
-                // ข้อมูลค่าใช้จ่าย D/O
-                amount_payment_do: String(data.amount_payment_do || 0),
-                price_deposit: String(data.price_deposit || 0),
+                // Chinese Expenses
+                ch_freight: safeToString(data.ch_freight),
+                ch_exchange_rate: safeToString(data.ch_exchange_rate),
+                ch_freight_total: safeToString(data.ch_freight_total),
                 
-                // ข้อมูล Shipping
-                th_shipping_price: String(data.th_shipping || 0), // แก้ไขจาก th_shipping_price เป็น th_shipping
-                th_shipping_note: String(data.th_shipping_note || ''),
-                th_shipping_advance: String(data.th_shipping_advance || 0),
-                th_shipping_remaining: String(data.th_shipping_remaining || 0),
-                th_shipping_return_to: String(data.th_shipping_return_to || ''),
-                th_total_shipping: String(data.th_total_shipping || 0),
+                // Billing and Payment
+                total_before_vat: safeToString(data.total_before_vat),
+                billing_amount: safeToString(data.billing_amount),
+                total_payment_all: safeToString(data.total_payment_all),
+                miss_payment: safeToString(data.miss_payment),
                 
-                // ข้อมูลการคำนวณ
-                billing_amount: String(data.billing_amount || 0),
-                total_before_vat: String(data.total_before_vat || 0),
-                total_payment_all: String(data.total_payment_all || 0),
-                miss_payment: String(data.miss_payment || 0),
-                profit_loss: String(data.profit_loss || 0),
-                price_service: String(data.price_service || 0),
-                total_profit_loss: String(data.total_profit_loss || 0),
-                text_profit_loss: String(data.text_profit_loss || ''),
+                // Calculations
+                profit_loss: safeToString(data.profit_loss),
+                price_service: data.price_service,
+                total_profit_loss: data.total_profit_loss,
+                text_profit_loss: data.text_profit_loss,
                 
-                // ข้อมูลการชำระเงิน
-                payment_date_1: String(data.payment_date_1 || ''),
-                payment_date_2: String(data.payment_date_2 || ''),
-                payment_date_3: String(data.payment_date_3 || ''),
-                payment_amount_1: String(data.payment_amount_1 || 0),
-                payment_amount_2: String(data.payment_amount_2 || 0),
-                payment_amount_3: String(data.payment_amount_3 || 0),
-                remaining_amount_1: String(data.remaining_amount_1 || 0),
-                remaining_amount_2: String(data.remaining_amount_2 || 0),
-                remaining_amount_3: String(data.remaining_amount_3 || 0),
-                payment_status: String(data.payment_status || ''),
+                // Status
+                finance_status: data.finance_status,
                 
                 // ข้อมูลคืนภาษีจากตู้
-                tax_return_checked: data.tax_return_checked || false,
-                tax_return_amount: String(data.tax_return_amount || 0),
-                tax_return_date: String(data.tax_return_date || ''),
+                tax_return_checked: data.tax_return_checked,
+                tax_return_amount: safeToString(data.tax_return_amount),
+                tax_return_date: data.tax_return_date,
                 
                 // ข้อมูลกำไรและค่าบริหารจัดการ
-                management_fee: String(data.management_fee || 0),
-                percentage_fee: String(data.percentage_fee || 0),
-                net_profit: String(data.net_profit || 0),
+                management_fee: safeToString(data.management_fee),
+                percentage_fee: safeToString(data.percentage_fee),
+                net_profit: safeToString(data.net_profit),
+                
+                // ข้อมูลการชำระเงินแต่ละรายการ
+                payment_details: payment_details
             };
-            
-            const isUpdate = !!requestData.id;
-            console.log("Form data:", data);
-            console.log("Request data:", requestData);
-            console.log("Is update:", isUpdate);
 
-            Swal.fire({
-                title:"รอUpdate การบันทึกข้อมูล",
-                text: "รอUpdate การบันทึกข้อมูล",
-                icon: "warning",
-                // showCancelButton: true,
-            })
-            
-            // Swal.fire({
-            //     title: isUpdate ? "ต้องการอัปเดตข้อมูล?" : "ต้องการบันทึกข้อมูล?",
-            //     text: "กรุณาตรวจสอบข้อมูลให้ถูกต้องก่อนกดยืนยัน",
-            //     icon: "warning",
-            //     showCancelButton: true,
-            //     confirmButtonColor: "#3085d6",
-            //     cancelButtonColor: "#d33",
-            //     confirmButtonText: "ยืนยัน",
-            //     cancelButtonText: "ยกเลิก"
-            // }).then(async (result) => {
-            //     if (result.isConfirmed) {
-            //         let response;
-                    
-            //         if (isUpdate) {
-            //             // If we have an ID, update the existing record
-            //             console.log(`Updating record with ID: ${requestData.id}`);
-            //             response = await axios.put(`${process.env.NEXT_PUBLIC_URL_API}/finance/updatePurchase/${requestData.id}`, requestData);
-            //         } else {
-            //             // Otherwise create a new record
-            //             console.log("Creating new record");
-            //             response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/finance/submitPurchase`, requestData);
-            //         }
-                    
-            //         console.log("API response:", response.data);
-                    
-            //         if (response.data.statusCode === 200) {
-            //             Swal.fire({
-            //                 title: isUpdate ? "อัปเดตข้อมูลสำเร็จ" : "บันทึกข้อมูลสำเร็จ",
-            //                 text: isUpdate ? "ข้อมูลถูกอัปเดตเรียบร้อยแล้ว" : "ข้อมูลถูกบันทึกเรียบร้อยแล้ว",
-            //                 icon: "success"
-            //             }).then(() => {
-            //                 router.push('/finance/work');
-            //             });
-            //         } else {
-            //             Swal.fire({
-            //                 title: "เกิดข้อผิดพลาด",
-            //                 text: response.data.message,
-            //                 icon: "error"
-            //             });
-            //         }
-            //     }
-            // });
+            console.log("Request Data:", requestData);
+
+            // ถ้ามี id แสดงว่าเป็นการอัพเดท
+            if (data.id) {
+                const result = await axios.put(`${process.env.NEXT_PUBLIC_URL_API}/finance/updatePurchase/${requestData.id}`, requestData);
+                console.log("Update Result:", result);
+                
+                if (result.data.statusCode === 200) {
+                    Swal.fire({
+                        title: "อัปเดตข้อมูลสำเร็จ",
+                        text: "ข้อมูลถูกอัปเดตเรียบร้อยแล้ว",
+                        icon: "success"
+                    }).then(() => {
+                        router.push('/finance/work');
+                    });
+                } else {
+                    Swal.fire({
+                        title: "เกิดข้อผิดพลาด",
+                        text: result.data.message,
+                        icon: "error"
+                    });
+                }
+            } else {
+                // ถ้าไม่มี id แสดงว่าเป็นการสร้างใหม่
+                const result = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/finance/submitPurchase`, requestData);
+                console.log("Submit Result:", result);
+                
+                if (result.data.statusCode === 200) {
+                    Swal.fire({
+                        title: "บันทึกข้อมูลสำเร็จ",
+                        text: "ข้อมูลถูกบันทึกเรียบร้อยแล้ว",
+                        icon: "success"
+                    }).then(() => {
+                        router.push('/finance/work');
+                    });
+                } else {
+                    Swal.fire({
+                        title: "เกิดข้อผิดพลาด",
+                        text: result.data.message,
+                        icon: "error"
+                    });
+                }
+            }
         } catch (error) {
             console.error('Error submitting form:', error);
             Swal.fire({
@@ -498,7 +552,13 @@ const FormPaymentComponent = ({ BookingId }: any) => {
 
                     <hr className="mb-5 mt-10" />
 
-                    <PaymentSummary control={control} errors={errors} watch={watch} setValue={setValue} />
+                    <PaymentSummary 
+                        control={control} 
+                        watch={watch} 
+                        setValue={setValue} 
+                        errors={errors}
+                        onPaymentRowsChange={handlePaymentRowsChange}
+                    />
 
                     <div className="flex justify-end mt-8">
                         <button

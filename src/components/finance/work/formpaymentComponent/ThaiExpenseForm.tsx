@@ -19,20 +19,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_duty', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_duty', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_duty', formattedValue);
                                 }}
-                                value={value === 0 ? '' : value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_duty', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_duty ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -52,20 +80,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_tax', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_tax', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_tax', formattedValue);
                                 }}
-                                value={value === 0 ? '' : value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_tax', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_tax ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -86,20 +142,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_employee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_employee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_employee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_employee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_employee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -126,20 +210,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_warehouse', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_warehouse', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_warehouse', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_warehouse', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_warehouse ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -159,20 +271,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_custom_fees', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_custom_fees', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_custom_fees', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_custom_fees', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_custom_fees ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -192,20 +332,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_overtime', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_overtime', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_overtime', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_overtime', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_overtime ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -231,21 +399,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
-                                min="0"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_check_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_check_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_check_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_check_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_check_fee ? "border-red-500" : "border-gray-200"}
                                   px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -265,20 +460,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_product_account', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_product_account', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_product_account', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_product_account', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_product_account ? "border-red-500" : "border-gray-200"}
                                   px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -298,20 +521,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_license_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_license_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_license_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_license_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_license_fee ? "border-red-500" : "border-gray-200"}
                                   px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -322,6 +573,9 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
             </div>
 
             <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+
+
+
                 <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-gray-700 text-sm font-semibold">
                         ค่าน้ำมัน
@@ -333,20 +587,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_gasoline', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_gasoline', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_gasoline', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_gasoline', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_gasoline ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -366,20 +648,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_hairy', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_hairy', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_hairy', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_hairy', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_hairy ? "border-red-500" : "border-gray-200"}
                                 px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -399,20 +709,48 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const newValue = e.target.value === '' ? '' : e.target.value;
-                                    onChange(newValue);
-                                    setValue('th_other_fee', newValue === '' ? '' : Number(newValue));
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('th_other_fee', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('th_other_fee', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('th_other_fee', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.th_other_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -423,6 +761,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
             </div>
 
             <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+
 
 
                 <div className="w-full flex flex-col justify-end align-end">

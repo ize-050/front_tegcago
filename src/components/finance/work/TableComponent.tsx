@@ -30,6 +30,28 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     const [currentData, setCurrentData] = useState<any[]>([])
     const [bookNumbers, setBookNumbers] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    
+    // เพิ่ม state สำหรับตัวกรองวันที่และประเภท shipment
+    const [startDate, setStartDate] = useState<string>("")
+    const [endDate, setEndDate] = useState<string>("")
+    const [shipmentType, setShipmentType] = useState<string>("")
+    
+    // รายการประเภท shipment ตามที่ระบบ CS ใช้ในแท็บอัพเดทสถานะ
+    const shipmentTypes = [
+        { value: "", label: "ทั้งหมด" },
+        { value: "SEA", label: "SEA" },
+        { value: "CLG", label: "CLG" },
+        { value: "LCL", label: "LCL" },
+        { value: "EK", label: "EK" },
+        { value: "EKCIF", label: "EKCIF" },
+        { value: "EKCT", label: "EKCT" },
+        { value: "AW", label: "AW" },
+        { value: "RW", label: "RW" },
+        { value: "EXSEA", label: "EXSEA" },
+        { value: "EXEK", label: "EXEK" },
+        { value: "EXRW", label: "EXRW" },
+        { value: "SLG", label: "SLG" }
+    ]
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page)
@@ -72,10 +94,49 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         setSearchedVal(value);
         setShowSuggestions(false);
     }
+    
+    // ฟังก์ชันรีเซ็ตตัวกรอง
+    const resetFilters = () => {
+        setSearchedVal("");
+        setStartDate("");
+        setEndDate("");
+        setShipmentType("");
+    }
 
+    // ฟังก์ชันกรองข้อมูลตามเงื่อนไขทั้งหมด
     const filteredData = currentData?.filter((item: any) => {
-        if (!searchedVal) return true;
-        return item.book_number?.toLowerCase().includes(searchedVal.toLowerCase());
+        // กรองตามข้อความค้นหา (ค้นหาได้ทุกช่อง)
+        const searchMatch = !searchedVal ? true : (
+            (item?.book_number?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_route?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_status?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_term?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_transport?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_shipment_number?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.customer?.name?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_origin?.toLowerCase().includes(searchedVal.toLowerCase())) ||
+            (item?.d_destination?.toLowerCase().includes(searchedVal.toLowerCase()))
+        );
+        
+        // กรองตามวันที่
+        let dateMatch = true;
+        if (startDate || endDate) {
+            const itemDate = moment(item?.createdAt);
+            
+            if (startDate && endDate) {
+                dateMatch = itemDate.isBetween(moment(startDate), moment(endDate), 'day', '[]');
+            } else if (startDate) {
+                dateMatch = itemDate.isSameOrAfter(moment(startDate), 'day');
+            } else if (endDate) {
+                dateMatch = itemDate.isSameOrBefore(moment(endDate), 'day');
+            }
+        }
+        
+        // กรองตามประเภท shipment
+        const shipmentMatch = !shipmentType ? true : item?.d_transport === shipmentType;
+        
+        // ต้องผ่านทุกเงื่อนไขการกรอง
+        return searchMatch && dateMatch && shipmentMatch;
     });
 
     const handleView = (id: number) => {
@@ -91,31 +152,87 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
             <div className="grid grid-cols-12 gap-y-10 gap-x-6">
                 <div className="col-span-12">
                     <div className="mt-1">
-                        <div className="flex p-4 flex-col box box--stacked">
-                            <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                                <div className="mb-5 relative">
-                                    <input
-                                        type="text"
-                                        placeholder="ค้นหาเลข PO"
-                                        value={searchedVal}
-                                        onChange={handleSearch}
-                                        onFocus={() => setShowSuggestions(true)}
-                                        className="w-1/6 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none  focus:border-transparent"
-                                    />
-                                    {showSuggestions && filteredSuggestions.length > 0 && (
-                                        <div className="absolute z-10 w-1/6  mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-                                            {filteredSuggestions.map((suggestion, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                    onClick={() => handleSelectSuggestion(suggestion)}
-                                                >
-                                                    {suggestion}
-                                                </div>
+                        <div className="flex p-2 flex-col box box--stacked">
+                        <br></br>
+                            <div className="relative p-2 overflow-x-auto shadow-md sm:rounded-lg">
+                              
+                                {/* ส่วนของการค้นหาและตัวกรอง */}
+                                <div className="mb-5 flex flex-wrap items-center gap-3">
+                                    {/* ช่องค้นหา */}
+                                    <div className="relative">
+                                    <label className="block text-xs text-gray-500 mb-1">ค้นหา</label>
+                                        <input
+                                            type="text"
+                                            placeholder="ค้นหา"
+                                            value={searchedVal}
+                                            onChange={handleSearch}
+                                            onFocus={() => setShowSuggestions(true)}
+                                            className="w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-transparent"
+                                        />
+                                        {showSuggestions && filteredSuggestions.length > 0 && (
+                                            <div className="absolute z-10 w-64 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                                                {filteredSuggestions.map((suggestion, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => handleSelectSuggestion(suggestion)}
+                                                    >
+                                                        {suggestion}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* ตัวกรองวันที่เริ่มต้น */}
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-1">วันที่เริ่มต้น</label>
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
+                                        />
+                                    </div>
+                                    
+                                    {/* ตัวกรองวันที่สิ้นสุด */}
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-1">วันที่สิ้นสุด</label>
+                                        <input
+                                            type="date"
+                                            value={endDate}
+                                            onChange={(e) => setEndDate(e.target.value)}
+                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
+                                        />
+                                    </div>
+                                    
+                                    {/* ตัวกรองประเภท shipment */}
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-1">ประเภท Shipment</label>
+                                        <select
+                                            value={shipmentType}
+                                            onChange={(e) => setShipmentType(e.target.value)}
+                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
+                                        >
+                                            {shipmentTypes.map((type, index) => (
+                                                <option key={index} value={type.value}>
+                                                    {type.label}
+                                                </option>
                                             ))}
-                                        </div>
-                                    )}
+                                        </select>
+                                    </div>
+                                    
+                                    {/* ปุ่มรีเซ็ตตัวกรอง */}
+                                    <div className="ml-auto">
+                                        <button
+                                            onClick={resetFilters}
+                                            className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                        >
+                                            รีเซ็ตตัวกรอง
+                                        </button>
+                                    </div>
                                 </div>
+                                
                                 <Table className="border-b border-gray-100  ">
                                     <Table.Thead>
                                         <Table.Tr
@@ -153,84 +270,65 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                         </Table.Tr>
                                     </Table.Thead>
                                     <Table.Tbody>
-                                        {filteredData?.length > 0 &&
-                                            filteredData
-                                                ?.filter((row: any) =>
-                                                    !searchedVal?.length
-                                                    || row?.book_number.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_route.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_status.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_term.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || row?.d_transport.toString()
-                                                        .toLowerCase()
-                                                        .includes(searchedVal.toString().toLowerCase())
-                                                    || (row?.d_shipment_number && row.d_shipment_number.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()))
-                                                )
-                                                .map((data: any, key: number) => {
-                                                    return (
-                                                        <>
-                                                            <Table.Tr className="text-sm  ">
-                                                                <Table.Td className="text-center    border-slate-200/60  text-gray-900">
-                                                                    {key + 1}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center  truncate    border-slate-200/60  text-gray-900">
-                                                                    {data.book_number}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center  truncate   border-slate-200/60  text-gray-900">
-                                                                    {moment(data.createdAt).format('YYYY/MM/DD HH:mm')}  น.
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.d_shipment_number ? data.d_shipment_number.match(/[A-Za-z]+/)[0] || data.d_shipment_number : '-'}
-                                                                </Table.Td>
-                                                                <Table.Td className="text-center   truncate border-slate-200/60  text-gray-900">
-                                                                    {data.d_shipment_number ? data.d_shipment_number : '-'}
-                                                                </Table.Td>
-
-
-                                                                <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
-                                                                    <div className={`${data?.color} truncate  rounded-md  p-1  w-auto text-white`}>{data?.d_status}</div>
-                                                                </Table.Td>
-
-                                                                <Table.Td className="text-center truncate  border-slate-200/60  text-gray-900">
-                                                                    {data?.purchase_finance.length > 0 && 
-                                                                    <>
-                                                                     <div className={`truncate  rounded-md  p-1  w-auto text-black`}>{data?.purchase_finance[0]?.finance_status}</div>
-                                                                    </>
-                                                                    }
-                                                                   
-                                                                </Table.Td>
-
-
-                                                                <Table.Td className="text-center   border-slate-200/60  text-gray-900">
-                                                                    <div className="flex">
-                                                                        <button
-                                                                            onClick={() => {
-                                                                                router.replace(`/finance/work/content/${data?.id}`)
-                                                                            }}
-                                                                            style={{
-                                                                                background: "#C8D9E3"
-                                                                            }}
-                                                                            className=" hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
-                                                                            <Lucide
-                                                                                color="#6C9AB5"
-                                                                                icon="Pencil"
-                                                                                className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
-                                                                            ></Lucide>
-                                                                        </button>
-                                                                    </div>
-                                                                </Table.Td>
-                                                            </Table.Tr>
-                                                        </>
-                                                    );
-                                                })}
+                                        {filteredData?.length > 0 ?
+                                            filteredData.map((data: any, key: number) => {
+                                                return (
+                                                    <React.Fragment key={key}>
+                                                        <Table.Tr className="text-sm">
+                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                {key + 1}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.book_number}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.createdAt ? moment(data.createdAt).format('DD/MM/YYYY') : '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_transport || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_shipment_number || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_status || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance.length > 0 && 
+                                                                <>
+                                                                    <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.payment_status}</div>
+                                                                </>
+                                                                }
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center border-slate-200/60 text-gray-900">
+                                                                <div className="flex">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            router.replace(`/finance/work/content/${data?.id}`)
+                                                                        }}
+                                                                        style={{
+                                                                            background: "#C8D9E3"
+                                                                        }}
+                                                                        className="hover:bg-blue-500 w-8 h-8 rounded-lg mr-1">
+                                                                        <Lucide
+                                                                            color="#6C9AB5"
+                                                                            icon="Pencil"
+                                                                            className="inset-y-0 bg-secondary-400 justify-center m-auto w-5 h-5 text-slate-500"
+                                                                        ></Lucide>
+                                                                    </button>
+                                                                </div>
+                                                            </Table.Td>
+                                                        </Table.Tr>
+                                                    </React.Fragment>
+                                                );
+                                            })
+                                            :
+                                            <Table.Tr>
+                                                <Table.Td colSpan={8} className="text-center py-4 text-gray-500">
+                                                    ไม่พบข้อมูล
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        }
                                     </Table.Tbody>
                                 </Table>
                             </div>

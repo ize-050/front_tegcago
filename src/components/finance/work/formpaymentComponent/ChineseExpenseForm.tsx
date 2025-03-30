@@ -9,7 +9,7 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
     const ch_freight_total = Number(ch_freight) * Number(ch_exchange_rate);
 
     useEffect(() => {
-        setValue('ch_freight_total', ch_freight_total);
+        setValue('ch_freight_total', ch_freight_total.toFixed(2));
     }, [ch_freight_total, setValue]);
 
     return (
@@ -23,22 +23,51 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                     <Controller
                         name="ch_freight"
                         control={control}
-                        // defaultValue={0}
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    onChange(e.target.value);
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('ch_freight', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('ch_freight', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('ch_freight', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.ch_freight ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -64,13 +93,42 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
-                                type="number"
+                                type="text"
                                 onChange={(e) => {
-                                    const value = e.target.value === '' ? '' : e.target.value;
-                                    onChange(value);
+                                    const inputValue = e.target.value;
+                                    
+                                    // Allow empty value for deletion
+                                    if (inputValue === '') {
+                                        onChange('');
+                                        setValue('ch_exchange_rate', '');
+                                        return;
+                                    }
+                                    
+                                    // Allow only numbers and decimal point
+                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                        return; // Invalid input, don't update
+                                    }
+                                    
+                                    // Limit to 2 decimal places if there's a decimal point
+                                    let formattedValue = inputValue;
+                                    if (inputValue.includes('.')) {
+                                        const [whole, decimal] = inputValue.split('.');
+                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                    }
+                                    
+                                    onChange(formattedValue);
+                                    setValue('ch_exchange_rate', formattedValue);
                                 }}
-                                value={value}
-                                placeholder="กรอกข้อมูล"
+                                onBlur={() => {
+                                    // Format to 2 decimal places when leaving the field
+                                    if (value !== '' && value !== null && value !== undefined) {
+                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                        onChange(numValue.toFixed(2));
+                                        setValue('ch_exchange_rate', numValue.toFixed(2));
+                                    }
+                                }}
+                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                placeholder="0.00"
                                 className={`${errors.ch_exchange_rate ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
