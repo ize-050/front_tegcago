@@ -5,7 +5,6 @@ import { Dialog, Transition } from '@headlessui/react'
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
 import { financeData, setModalRecordMoney, setEditRecord } from "@/stores/finance";
 import { useForm, Controller } from "react-hook-form";
-import axios from '../../../../../axios';
 import Image from "next/image";
 import Lucide from "@/components/Base/Lucide";
 import Button from "@/components/Base/Button";
@@ -16,6 +15,7 @@ import { CustomerDepositFormComponent, CustomerDepositForm } from './CustomerDep
 import { getSalesSupportEmployees, Employee } from '@/services/finance/employee';
 import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent';
 import { getCompanyAccounts } from '@/services/finance';
+import { createRecordMoney, updateRecordMoney } from '@/services/record-money';
 
 interface FormData {
     date: string;
@@ -63,6 +63,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 exchangeRateProfit: 0,
                 incomePerTransaction: 0,
                 notes: '',
+                totalDepositAmount: 0,
             },
             exchange: {
                 amountRMB: 0,
@@ -224,13 +225,13 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
             let response;
             if (editRecord?.id) {
-                response = await axios.put(`/finance/record-money/${editRecord.id}`, formattedData);
+                response = await updateRecordMoney(editRecord.id, formattedData);
             } else {
                 // Create new record
-                response = await axios.post('/finance/record-money', formattedData);
+                response = await createRecordMoney(formattedData);
             }
 
-            if (response.data && (response.data.statusCode === 200 || response.data.statusCode === 201)) {
+            if (response && (response.statusCode === 200 || response.statusCode === 201)) {
                 Swal.fire({
                     icon: 'success',
                     title: editRecord?.id ? 'อัปเดตข้อมูลสำเร็จ' : 'บันทึกข้อมูลสำเร็จ',
@@ -243,7 +244,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                 window.location.reload();
 
             } else {
-                throw new Error(response.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                throw new Error(response?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
                 window.location.reload();
             }
         } catch (error: any) {
@@ -251,7 +252,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'เกิดข้อผิดพลาด',
-                text: error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                text: error.message || 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
                 confirmButtonText: 'ตกลง'
             });
         } finally {
@@ -505,7 +506,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     <Controller
                                                         name="customerDeposit.amountRMB"
                                                         control={control}
-                                                        rules={{ required: "กรุณาระบุจำนวนเงิน (RMB)" }}
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
@@ -545,11 +545,16 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                                         // คำนวณจำนวนเงิน THB
                                                                         const calculatedAmount = rmbAmount * rate + feeAmount;
                                                                         setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                        
+                                                                        // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
+                                                                        const totalDepositAmount = rmbAmount * rate;
+                                                                        setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
                                                                     } else {
                                                                         // Reset calculated values when input is empty
                                                                         setValue('customerDeposit.exchangeRateProfit', 0);
                                                                         setValue('customerDeposit.incomePerTransaction', 0);
                                                                         setValue('customerDeposit.amount', 0);
+                                                                        setValue('customerDeposit.totalDepositAmount', 0);
                                                                     }
                                                                 }}
                                                             />
@@ -564,7 +569,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     <Controller
                                                         name="customerDeposit.exchangeRate"
                                                         control={control}
-                                                        rules={{ required: "กรุณาระบุอัตราแลกเปลี่ยน" }}
                                                         render={({ field }) => (
                                                             <input
                                                                 type="number"
@@ -602,6 +606,10 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                                     // คำนวณจำนวนเงิน THB
                                                                     const calculatedAmount = rmbAmount * rate + feeAmount;
                                                                     setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                    
+                                                                    // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
+                                                                    const totalDepositAmount = rmbAmount * rate;
+                                                                    setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
                                                                 }}
                                                             />
                                                         )}
@@ -609,8 +617,29 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                 </div>
                                             </div>
 
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+
+                                            <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        ยอดฝากชำระรวม
+                                                    </label>
+                                                    <Controller
+                                                        name="customerDeposit.totalDepositAmount"
+                                                        control={control}
+                                                        render={({ field }) => (
+                                                            <input
+                                                                type="text"
+                                                                readOnly
+                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                placeholder="0.00"
+                                                                {...field}
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
+
+
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         ค่าธรรมเนียม
@@ -644,12 +673,17 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
                                                                         const calculatedAmount = (rmbAmount - priceDiff) * rate + feeAmount;
                                                                         setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                        
+                                                                        // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
+                                                                        const totalDepositAmount = rmbAmount * rate;
+                                                                        setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
                                                                     }
                                                                 }}
                                                             />
                                                         )}
                                                     />
                                                 </div>
+
 
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
@@ -670,7 +704,13 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         )}
                                                     />
                                                 </div>
+
+
+                                              
                                             </div>
+
+                                          
+                                       
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div className="mt-2">
@@ -708,8 +748,10 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         </label>
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                                {watch('customerDeposit.includeVat') && (
+                                            {watch('customerDeposit.includeVat') && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         ภาษีมูลค่าเพิ่ม (7%)
@@ -728,15 +770,11 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         )}
                                                     />
                                                 </div>
-                                                )}
 
                                                 <div>
-                                                    {watch('customerDeposit.includeVat') && (
-                                                        <>
                                                     <label className="block text-sm font-medium text-gray-700">
-                                                        {watch('customerDeposit.includeVat') ? 'จำนวนเงินรวมภาษีมูลค่าเพิ่ม' : 'จำนวนเงินปัจจุบัน (THB)'}
+                                                        จำนวนเงินรวมภาษีมูลค่าเพิ่ม
                                                     </label>
-                                                    
                                                     <Controller
                                                         name="customerDeposit.totalWithVat"
                                                         control={control}
@@ -750,11 +788,9 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                             />
                                                         )}
                                                     />
-                                                    </>
-                                                    )}
                                                 </div>
                                             </div>
-
+                                            )}
                                             <div className="grid grid-cols-1 gap-6 mt-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">

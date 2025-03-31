@@ -126,7 +126,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
            
 
             // Status
-            setValue('payment_status', work_by_id.payment_prefix.payment_status);
+            setValue('payment_status', work_by_id?.payment_prefix?.payment_status);
             // ข้อมูลการชำระเงิน - ใช้ payment_details ที่เพิ่มมาใหม่
             if (work_by_id.payment_details && Array.isArray(work_by_id.payment_details)) {
                 // เก็บข้อมูลการชำระเงินในรูปแบบใหม่
@@ -165,17 +165,17 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('payment_status', work_by_id.payment_status || 'รอตรวจสอบ');
             
             // ข้อมูลคืนภาษีจากตู้
-            setValue('tax_return_checked', work_by_id.payment_prefix.tax_return_checked || false);
-            setValue('tax_return_amount', work_by_id.payment_prefix.tax_return_amount || '0');
-            setValue('tax_return_date', work_by_id.payment_prefix.tax_return_date || '');
+            setValue('tax_return_checked', work_by_id.payment_prefix?.tax_return_checked || false);
+            setValue('tax_return_amount', work_by_id.payment_prefix?.tax_return_amount || '0');
+            setValue('tax_return_date', work_by_id.payment_prefix?.tax_return_date || '');
             
             // ข้อมูลกำไรและค่าบริหารจัดการ
 
             setValue('th_port_note',work_by_id.th_port_note);
             setValue('th_shipping_note',work_by_id.th_shipping_note);
 
-            setValue('management_fee', work_by_id.payment_prefix.management_fee || 0);
-            setValue('percentage_fee', work_by_id.payment_prefix.percentage_fee || 0);
+            setValue('management_fee', work_by_id.payment_prefix?.management_fee || 0);
+            setValue('percentage_fee', work_by_id.payment_prefix?.percentage_fee || 0);
             setValue('net_profit', work_by_id.net_profit || '0');
         }
     };

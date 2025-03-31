@@ -738,51 +738,8 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             </div>
 
                                                             <div className="grid grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                        ยอดค่าน้ำมันรวม
-                                                                    </label>
-                                                                    <Controller
-                                                                        name="pay_gasoline"
-                                                                        control={control}
-                                                                        render={({ field }) => (
-                                                                            <input
-                                                                                type="number"
-                                                                                {...field}
-                                                                                onChange={(e) => {
-                                                                                    field.onChange(e);
-                                                                                    const gasoline = Number(e.target.value) || 0;
-                                                                                    const others = Number(watch('pay_price')) || 0;
-                                                                                    setValue('pay_total', gasoline + others);
-                                                                                }}
-                                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
+                        
 
-                                                                <div>
-                                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                        ยอดค่าอื่นๆรวม
-                                                                    </label>
-                                                                    <Controller
-                                                                        name="pay_price"
-                                                                        control={control}
-                                                                        render={({ field }) => (
-                                                                            <input
-                                                                                type="number"
-                                                                                {...field}
-                                                                                onChange={(e) => {
-                                                                                    field.onChange(e);
-                                                                                    const price = Number(e.target.value) || 0;
-                                                                                    const gasoline = Number(watch('pay_gasoline')) || 0;
-                                                                                    setValue('pay_total', price + gasoline);
-                                                                                }}
-                                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
 
                                                                 <div>
                                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -839,40 +796,6 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                 />
                                                             </div>
 
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                    คงเหลือ
-                                                                </label>
-                                                                <Controller
-                                                                    name="pay_total"
-                                                                    control={control}
-                                                                    render={({ field }) => (
-                                                                        <input
-                                                                            {...field}
-                                                                            type="number"
-                                                                            readOnly
-                                                                            className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                        />
-                                                                    )}
-                                                                />
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                    คืนใคร
-                                                                </label>
-                                                                <Controller
-                                                                    name="return_people"
-                                                                    control={control}
-                                                                    render={({ field }) => (
-                                                                        <input
-                                                                            {...field}
-                                                                            readOnly
-                                                                            className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                                                        />
-                                                                    )}
-                                                                />
-                                                            </div>
                                                         </div>
 
                                                             {/* Live calculation summary */}

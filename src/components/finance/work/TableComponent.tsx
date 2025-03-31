@@ -1,5 +1,6 @@
 "use client"
 import moment from "moment"
+import axios from "../../../../axios";
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect } from "react"
 import { useSelector } from "react-redux"
@@ -30,12 +31,12 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     const [currentData, setCurrentData] = useState<any[]>([])
     const [bookNumbers, setBookNumbers] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    
+
     // เพิ่ม state สำหรับตัวกรองวันที่และประเภท shipment
     const [startDate, setStartDate] = useState<string>("")
     const [endDate, setEndDate] = useState<string>("")
     const [shipmentType, setShipmentType] = useState<string>("")
-    
+
     // รายการประเภท shipment ตามที่ระบบ CS ใช้ในแท็บอัพเดทสถานะ
     const shipmentTypes = [
         { value: "", label: "ทั้งหมด" },
@@ -56,13 +57,69 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     const handlePageChange = (page: number) => {
         setCurrentPage(page)
     }
+
+    // Function to export data to Excel using Axios
+    const exportToExcel = async () => {
+        try {
+            // Get the token from localStorage
+            
+            // Create URL with query parameters
+            const baseUrl = `${process.env.NEXT_PUBLIC_URL_API}/finance/export-finance-work`;
+            const queryParams = new URLSearchParams();
+            
+            if (startDate) queryParams.append('startDate', startDate);
+            if (endDate) queryParams.append('endDate', endDate);
+            if (shipmentType) queryParams.append('shipmentType', shipmentType);
+            
+            const url = `${baseUrl}?${queryParams.toString()}`;
+            
+            // Make request with authorization header
+            const response = await axios({
+                method: 'GET',
+                url: url,
+                responseType: 'blob', // Important for file downloads
+            });
+            
+            // Create a blob URL and trigger download
+            const blob = new Blob([response.data], { 
+                type: response.headers['content-type'] 
+            });
+            
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            
+            // Get filename from content-disposition header or use default
+            const contentDisposition = response.headers['content-disposition'];
+            let filename = 'รายงานการเงิน.xlsx';
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
+                }
+            }
+            
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์');
+        }
+    };
+
     const dispatch = useAppDispatch();
     const router = useRouter();
 
 
     useEffect(() => {
-        if(!purchase?.purchase) return
-    
+        if (!purchase?.purchase) return
+
         setCurrentData(purchase?.purchase)
         setTotalPage(Math.ceil(purchase?.total / 10))
         console.log("finance_purchase", purchase?.purchase)
@@ -81,7 +138,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         }
     }, [purchase])
 
-    const filteredSuggestions = bookNumbers.filter(number => 
+    const filteredSuggestions = bookNumbers.filter(number =>
         number.toLowerCase().includes(searchedVal.toLowerCase())
     );
 
@@ -94,7 +151,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         setSearchedVal(value);
         setShowSuggestions(false);
     }
-    
+
     // ฟังก์ชันรีเซ็ตตัวกรอง
     const resetFilters = () => {
         setSearchedVal("");
@@ -117,12 +174,12 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
             (item?.d_origin?.toLowerCase().includes(searchedVal.toLowerCase())) ||
             (item?.d_destination?.toLowerCase().includes(searchedVal.toLowerCase()))
         );
-        
+
         // กรองตามวันที่
         let dateMatch = true;
         if (startDate || endDate) {
             const itemDate = moment(item?.createdAt);
-            
+
             if (startDate && endDate) {
                 dateMatch = itemDate.isBetween(moment(startDate), moment(endDate), 'day', '[]');
             } else if (startDate) {
@@ -131,10 +188,10 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                 dateMatch = itemDate.isSameOrBefore(moment(endDate), 'day');
             }
         }
-        
+
         // กรองตามประเภท shipment
         const shipmentMatch = !shipmentType ? true : item?.d_transport === shipmentType;
-        
+
         // ต้องผ่านทุกเงื่อนไขการกรอง
         return searchMatch && dateMatch && shipmentMatch;
     });
@@ -153,14 +210,14 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                 <div className="col-span-12">
                     <div className="mt-1">
                         <div className="flex p-2 flex-col box box--stacked">
-                        <br></br>
+                            <br></br>
                             <div className="relative p-2 overflow-x-auto shadow-md sm:rounded-lg">
-                              
+
                                 {/* ส่วนของการค้นหาและตัวกรอง */}
                                 <div className="mb-5 flex flex-wrap items-center gap-3">
                                     {/* ช่องค้นหา */}
                                     <div className="relative">
-                                    <label className="block text-xs text-gray-500 mb-1">ค้นหา</label>
+                                        <label className="block text-xs text-gray-500 mb-1">ค้นหา</label>
                                         <input
                                             type="text"
                                             placeholder="ค้นหา"
@@ -183,7 +240,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* ตัวกรองวันที่เริ่มต้น */}
                                     <div>
                                         <label className="block text-xs text-gray-500 mb-1">วันที่เริ่มต้น</label>
@@ -194,7 +251,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
                                         />
                                     </div>
-                                    
+
                                     {/* ตัวกรองวันที่สิ้นสุด */}
                                     <div>
                                         <label className="block text-xs text-gray-500 mb-1">วันที่สิ้นสุด</label>
@@ -205,7 +262,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
                                         />
                                     </div>
-                                    
+
                                     {/* ตัวกรองประเภท shipment */}
                                     <div>
                                         <label className="block text-xs text-gray-500 mb-1">ประเภท Shipment</label>
@@ -221,18 +278,26 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             ))}
                                         </select>
                                     </div>
-                                    
+
                                     {/* ปุ่มรีเซ็ตตัวกรอง */}
-                                    <div className="ml-auto">
+                                    <div className="ml-auto flex gap-2">
+                                        <button
+                                            onClick={exportToExcel}
+                                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
+                                        >
+                                            <i className="fas fa-file-excel mr-2"></i>
+                                            Export Excel
+                                        </button>
                                         <button
                                             onClick={resetFilters}
                                             className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                                         >
+                                            <i className="fas fa-sync-alt mr-2"></i>
                                             รีเซ็ตตัวกรอง
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <Table className="border-b border-gray-100  ">
                                     <Table.Thead>
                                         <Table.Tr
@@ -254,7 +319,27 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                                                 ประเภทShipment
                                             </Table.Td>
-
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                Container No
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                B/L No
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                Consignee
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                Agency
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                สายเรือ
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                ETD
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                ETA
+                                            </Table.Td>
                                             <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
                                                 เลข Shipment
                                             </Table.Td>
@@ -288,16 +373,49 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                                 {data?.d_transport || '-'}
                                                             </Table.Td>
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.cs_purchase[0]?.receive?.container_no || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.cs_purchase?.find((res: any) => res.status_key === "Departure")?.provedeparture?.bl_no || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.cs_purchase?.find((res: any) => res.status_name === "จองตู้")?.bookcabinet?.consignee || '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_agentcy?.some((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                    ? data.d_agentcy.find((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                        ?.d_sale_agentcy[0]?.d_agentcy?.agentcy?.agent_name || '-'
+                                                                    : '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_agentcy?.some((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                    ? data.d_agentcy.find((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                        ?.d_sale_agentcy[0]?.d_agentcy?.agent_boat || '-'
+                                                                    : '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_agentcy?.some((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                    ? data.d_agentcy.find((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                        ?.d_sale_agentcy[0]?.d_agentcy?.agentcy_eta || '-'
+                                                                    : '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_agentcy?.some((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                    ? data.d_agentcy.find((agency: any) => agency?.d_sale_agentcy?.length > 0)
+                                                                        ?.d_sale_agentcy[0]?.d_agentcy?.agentcy_etd || '-'
+                                                                    : '-'}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.d_shipment_number || '-'}
                                                             </Table.Td>
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.d_status || '-'}
                                                             </Table.Td>
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
-                                                                {data?.purchase_finance.length > 0 && 
-                                                                <>
-                                                                    <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.payment_status}</div>
-                                                                </>
+                                                                {data?.purchase_finance.length > 0 &&
+                                                                    <>
+                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.payment_status}</div>
+                                                                    </>
                                                                 }
                                                             </Table.Td>
                                                             <Table.Td className="text-center border-slate-200/60 text-gray-900">
@@ -324,7 +442,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             })
                                             :
                                             <Table.Tr>
-                                                <Table.Td colSpan={8} className="text-center py-4 text-gray-500">
+                                                <Table.Td colSpan={14} className="text-center py-4 text-gray-500">
                                                     ไม่พบข้อมูล
                                                 </Table.Td>
                                             </Table.Tr>

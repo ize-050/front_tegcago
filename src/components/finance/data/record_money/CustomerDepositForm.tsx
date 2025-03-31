@@ -21,6 +21,9 @@ export interface ExchangeForm {
   notes: string;
   files?: File[];
   existingTransferSlip?: string;
+  formattedAmount?: string;
+  formattedExchangeRateProfit?: string;
+  formattedIncomePerTransaction?: string;
 }
 
 // Export CustomerDepositForm interface for backward compatibility with ModalComponent
@@ -63,6 +66,7 @@ interface CustomerDepositFormProps extends ExchangeFormProps {
     receivingAccount?: string;
     exchangeRateProfit?: number;
     incomePerTransaction?: number;
+    totalDepositAmount?: number;
   };
 }
 
@@ -117,21 +121,37 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
     const calculatedAmount = rmbAmount * rate + feeAmount;
     setValue('exchange.amount', calculatedAmount > 0 ? calculatedAmount : '');
 
-    // Exchange Rate Profit = (RMB * Exchange Rate) - (Customer RMB * Customer Exchange Rate)
+    // กำไรอัตราแลกเปลี่ยน = ยอดฝากชำระรวม (ของข้อมูลลูกค้าฝากชำระ) - จำนวนเงิน (THB) (ของข้อมูลการโอน)
     let exchangeRateProfit = 0;
-    if(customerDepositData?.amountRMB && customerDepositData?.exchangeRate){
-      exchangeRateProfit = (rmbAmount * rate) - (customerDepositData?.amountRMB * customerDepositData?.exchangeRate);
-    }
-    else{
-      exchangeRateProfit = (rmbAmount * rate);
+    if(customerDepositData?.totalDepositAmount && calculatedAmount > 0){
+      // ใช้ totalDepositAmount จากข้อมูลลูกค้าฝากชำระ และ calculatedAmount ที่เพิ่งคำนวณ
+      const totalDepositAmount = parseFloat(customerDepositData?.totalDepositAmount?.toString() || "0");
+      exchangeRateProfit = totalDepositAmount - calculatedAmount;
     }
 
-    setValue('exchange.exchangeRateProfit', exchangeRateProfit > 0 ? exchangeRateProfit : exchangeRateProfit);
+    setValue('exchange.exchangeRateProfit', exchangeRateProfit);
+    setValue('exchange.formattedExchangeRateProfit', formatNumber(exchangeRateProfit));
 
-    let feeValue = exchangeData?.fee || 0;
-    const incomePerTransaction = feeValue + exchangeRateProfit + priceDiff;
-    setValue('exchange.incomePerTransaction', incomePerTransaction || '');
-  }, [amountRMB, priceDifference, exchangeRate, fee, setValue, exchangeData?.amountRMB, exchangeData?.exchangeRate, exchangeData?.fee, customerDepositData?.amountRMB, customerDepositData?.exchangeRate, customerDepositData?.fee, customerDepositData?.amount]);
+    // รายรับต่อรายการธุรกรรม = จำนวนเงิน (THB) ของข้อมูลลูกค้าฝากชำระ - จำนวนเงิน (THB) ของข้อมูลการโอน
+    let incomePerTransaction = 0;
+    if(customerDepositData?.amount && calculatedAmount > 0){
+      // ใช้ amount จากข้อมูลลูกค้าฝากชำระ และ calculatedAmount ที่เพิ่งคำนวณ
+      const customerAmount = parseFloat(customerDepositData?.amount?.toString() || "0");
+      incomePerTransaction = customerAmount - calculatedAmount;
+    }
+    setValue('exchange.incomePerTransaction', incomePerTransaction);
+    setValue('exchange.formattedIncomePerTransaction', formatNumber(incomePerTransaction));
+    
+    // จัดรูปแบบ amount ด้วย
+    setValue('exchange.formattedAmount', formatNumber(calculatedAmount));
+  }, [amountRMB, priceDifference, exchangeRate, fee, setValue, exchangeData?.amountRMB, exchangeData?.exchangeRate, exchangeData?.fee, customerDepositData?.amountRMB, customerDepositData?.exchangeRate, customerDepositData?.fee, customerDepositData?.amount, customerDepositData?.totalDepositAmount]);
+
+  // ฟังก์ชันสำหรับจัดรูปแบบตัวเลขให้มีเครื่องหมายคั่นหลักพัน (,) และมีทศนิยม 2 ตำแหน่ง (.00)
+  const formatNumber = (value: number | string | undefined): string => {
+    if (value === undefined || value === null || value === '') return '0.00';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   return (
     <div className="mt-6 border-t border-gray-200 pt-6">
@@ -144,7 +164,6 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.transferDate"
             control={control}
-            rules={{ required: "กรุณาระบุวันที่โอน" }}
             render={({ field }) => (
               <input
                 type="date"
@@ -166,7 +185,6 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.receivingAccount"
             control={control}
-            rules={{ required: "กรุณาเลือกบัญชี" }}
             render={({ field }) => (
               <select
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -193,7 +211,6 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.amountRMB"
             control={control}
-            rules={{ required: "กรุณาระบุจำนวนเงิน" }}
             render={({ field }) => (
               <input
                 type="number"
@@ -241,7 +258,6 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.exchangeRate"
             control={control}
-            rules={{ required: "กรุณาระบุอัตราแลกเปลี่ยน" }}
             render={({ field }) => (
               <input
                 type="number"
@@ -289,14 +305,14 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
             จำนวนเงิน (THB)
           </label>
           <Controller
-            name="exchange.amount"
+            name="exchange.formattedAmount"
             control={control}
             render={({ field }) => (
               <input
-                type="number"
-                step="0.01"
+                type="text"
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                placeholder="0.00"
                 {...field}
               />
             )}
@@ -308,13 +324,14 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
             กำไรอัตราแลกเปลี่ยน
           </label>
           <Controller
-            name="exchange.exchangeRateProfit"
+            name="exchange.formattedExchangeRateProfit"
             control={control}
             render={({ field }) => (
               <input
-                type="number"
+                type="text"
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                placeholder="0.00"
                 {...field}
               />
             )}
@@ -326,38 +343,19 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
             รายรับต่อรายการธุรกรรม
           </label>
           <Controller
-            name="exchange.incomePerTransaction"
+            name="exchange.formattedIncomePerTransaction"
             control={control}
             render={({ field }) => (
               <input
-                type="number"
-                defaultValue={0}
+                type="text"
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                placeholder="0.00"
                 {...field}
               />
             )}
           />
         </div>
-
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700">
-            ภาษีมูลค่าเพิ่ม (VAT)
-          </label>
-          <Controller
-            name="exchange.vat"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                step="0.01"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-              />
-            )}
-          />
-        </div> */}
 
       </div>
 
