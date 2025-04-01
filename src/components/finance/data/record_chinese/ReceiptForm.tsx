@@ -1,17 +1,25 @@
 "use client";
 
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
+import { numberFormatTh } from "@/utils/numberFormat";
 
+// Helper function to parse formatted number back to number
+const parseFormattedNumber = (value: string): number => {
+  if (!value) return 0;
+  return parseFloat(value.replace(/,/g, ''));
+};
 
 export interface ReceiptForm {
   date: string;
   title: string;
   account: string;
-  amountRMB: number;
-  amountTHB: number;
+  amountRMB: number | string;
+  formattedAmountRMB?: string; // For display purposes
+  amountTHB: number | string;
+  formattedAmountTHB?: string; // For display purposes
   transferDate: string;
   exchangeRate: string;
   details: string;
@@ -35,6 +43,7 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors }
   } = useForm<ReceiptForm>({
     defaultValues: initialData || {
@@ -42,12 +51,16 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
       title: '',
       account: '',
       amountRMB: 0,
+      formattedAmountRMB: '0.00',
       amountTHB: 0,
+      formattedAmountTHB: '0.00',
       transferDate: new Date().toISOString().split("T")[0],
       exchangeRate: '',
       details: '',
     },
   });
+
+  const [formattedAmount, setFormattedAmount] = useState('0.00');
 
   useEffect(() => {
     if (initialData) {
@@ -57,9 +70,36 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
       if (initialData.existingTransferSlip) {
         setValue("existingTransferSlip", initialData.existingTransferSlip);
       }
+      
+      // Format the amount RMB
+      if (initialData.amountRMB !== undefined) {
+        setFormattedAmount(numberFormatTh(initialData.amountRMB));
+      }
     }
   }, [initialData, reset, setValue]);
 
+  // Handle formatted amount change
+  const handleFormattedAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = e.target.value;
+    // Allow empty input or numeric input with decimal point and commas
+    if (formatted === '' || /^[0-9,]*\.?[0-9]*$/.test(formatted)) {
+      setFormattedAmount(formatted);
+      // Parse the formatted value back to a number for the form data
+      const numericValue = parseFormattedNumber(formatted);
+      setValue('amountRMB', numericValue);
+    }
+  };
+
+  // Watch for changes in amountRMB to update formatted value
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'amountRMB') {
+        setFormattedAmount(numberFormatTh(value.amountRMB || 0));
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const handleFileUpload = (files: File[]) => {
     if (!files || files.length === 0) return;
@@ -76,7 +116,12 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
     const rmb = parseFloat(amountRMB.toString()) || 0;
     const thbAmount = rate * rmb;
     setValue('amountTHB', thbAmount);
+    setValue('formattedAmountTHB', numberFormatTh(thbAmount));
   }, [amountRMB, exchangeRate, setValue]);
+
+  useEffect(() => {
+    setValue('formattedAmountRMB', numberFormatTh(amountRMB));
+  }, [amountRMB, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -175,15 +220,59 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
             <Controller
               name="amountRMB"
               control={control}
-              rules={{ required: "กรุณาระบุจำนวนเงิน" }}
-              render={({ field }) => (
+              rules={{ required: false }}
+              render={({ field: { onChange, value } }) => (
                 <input
-                  type="number"
+                  type="text"
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    
+                    // Allow empty value for deletion
+                    if (inputValue === '') {
+                      onChange('');
+                      setValue('amountRMB', '');
+                      return;
+                    }
+                    
+                    // Allow only numbers and decimal point
+                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                      return; // Invalid input, don't update
+                    }
+                    
+                    // Limit to 2 decimal places if there's a decimal point
+                    let formattedValue = inputValue;
+                    if (inputValue.includes('.')) {
+                      const [whole, decimal] = inputValue.split('.');
+                      formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                    }
+                    
+                    onChange(formattedValue);
+                    setValue('amountRMB', formattedValue);
+                    
+                    // Update THB amount if exchange rate exists
+                    const rate = parseFloat(exchangeRate) || 0;
+                    const rmb = parseFloat(formattedValue) || 0;
+                    const thbAmount = rate * rmb;
+                    setValue('amountTHB', thbAmount.toFixed(2));
+                  }}
+                  onBlur={() => {
+                    // Format to 2 decimal places when leaving the field
+                    if (value !== '' && value !== null && value !== undefined) {
+                      const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                      onChange(numValue.toFixed(2));
+                      setValue('amountRMB', numValue.toFixed(2));
+                      
+                      // Update THB amount
+                      const rate = parseFloat(exchangeRate) || 0;
+                      const thbAmount = rate * numValue;
+                      setValue('amountTHB', thbAmount.toFixed(2));
+                    }
+                  }}
+                  value={typeof value === 'number' ? value.toFixed(2) : value}
+                  placeholder="0.00"
                   className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
                     errors.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                   }`}
-                  {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
                 />
               )}
             />
@@ -196,16 +285,59 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
             <Controller
               name="exchangeRate"
               control={control}
-              render={({ field }) => (
+              rules={{ required: false }}
+              render={({ field: { onChange, value } }) => (
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    
+                    // Allow empty value for deletion
+                    if (inputValue === '') {
+                      onChange('');
+                      setValue('exchangeRate', '');
+                      return;
+                    }
+                    
+                    // Allow only numbers and decimal point
+                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                      return; // Invalid input, don't update
+                    }
+                    
+                    // Limit to 2 decimal places if there's a decimal point
+                    let formattedValue = inputValue;
+                    if (inputValue.includes('.')) {
+                      const [whole, decimal] = inputValue.split('.');
+                      formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                    }
+                    
+                    onChange(formattedValue);
+                    setValue('exchangeRate', formattedValue);
+                    
+                    // Update THB amount
+                    const rate = parseFloat(formattedValue) || 0;
+                    const rmb = parseFloat(amountRMB as string) || 0;
+                    const thbAmount = rate * rmb;
+                    setValue('amountTHB', thbAmount.toFixed(2));
+                  }}
+                  onBlur={() => {
+                    // Format to 2 decimal places when leaving the field
+                    if (value !== '' && value !== null && value !== undefined) {
+                      const numValue = parseFloat(value);
+                      onChange(numValue.toFixed(2));
+                      setValue('exchangeRate', numValue.toFixed(2));
+                      
+                      // Update THB amount
+                      const rmb = parseFloat(amountRMB as string) || 0;
+                      const thbAmount = numValue * rmb;
+                      setValue('amountTHB', thbAmount.toFixed(2));
+                    }
+                  }}
+                  value={value}
                   placeholder="0.00"
                   className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
                     errors.exchangeRate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                   }`}
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value)}
                 />
               )}
             />
@@ -218,11 +350,11 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
             <Controller
               name="amountTHB"
               control={control}
-              render={({ field }) => (
+              render={({ field: { value } }) => (
                 <input
-                  type="number"
+                  type="text"
+                  value={typeof value === 'number' ? value.toFixed(2) : value}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-50"
-                  {...field}
                   disabled
                 />
               )}

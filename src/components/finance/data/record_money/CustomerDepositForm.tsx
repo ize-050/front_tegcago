@@ -7,17 +7,17 @@ import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent"
 import { getCustomerAccounts, getCompanyAccounts } from "@/services/finance";
 
 export interface ExchangeForm {
-  amountRMB: number;
-  priceDifference: number; // ส่วนต่างต่อรองราคา
-  exchangeRate: number;
-  fee: number;
-  amount: number;
-  vat: number;
-  totalWithVat: number;
+  amountRMB: number | string;
+  priceDifference: number | string; // ส่วนต่างต่อรองราคา
+  exchangeRate: number | string;
+  fee: number | string;
+  amount: number | string;
+  vat: number | string;
+  totalWithVat: number | string;
   transferDate: string;
   receivingAccount: string; // บัญชี (อาหยอง, จินนี่)
-  exchangeRateProfit: number;
-  incomePerTransaction: number;
+  exchangeRateProfit: number | string;
+  incomePerTransaction: number | string;
   notes: string;
   files?: File[];
   existingTransferSlip?: string;
@@ -36,16 +36,16 @@ interface ExchangeFormProps {
   setValue: any;
   errors: any;
   exchangeData?: {
-    amountRMB?: number | null;
-    exchangeRate?: number | null;
-    fee?: number;
-    amount?: number;
-    vat?: number;
-    totalWithVat?: number;
+    amountRMB?: number | string | null;
+    exchangeRate?: number | string | null;
+    fee?: number | string;
+    amount?: number | string;
+    vat?: number | string;
+    totalWithVat?: number | string;
     transferDate?: string;
     receivingAccount?: string;
-    exchangeRateProfit?: number;
-    incomePerTransaction?: number;
+    exchangeRateProfit?: number | string;
+    incomePerTransaction?: number | string;
     notes?: string;
     files?: File[];
     existingTransferSlip?: any;
@@ -56,17 +56,17 @@ interface ExchangeFormProps {
 // For backward compatibility
 interface CustomerDepositFormProps extends ExchangeFormProps {
   customerDeposit?: {
-    amountRMB?: number | null;
-    exchangeRate?: number | null;
-    fee?: number;
-    amount?: number;
-    vat?: number;
-    totalWithVat?: number;
+    amountRMB?: number | string | null;
+    exchangeRate?: number | string | null;
+    fee?: number | string;
+    amount?: number | string;
+    vat?: number | string;
+    totalWithVat?: number | string;
     transferDate?: string;
     receivingAccount?: string;
-    exchangeRateProfit?: number;
-    incomePerTransaction?: number;
-    totalDepositAmount?: number;
+    exchangeRateProfit?: number | string;
+    incomePerTransaction?: number | string;
+    totalDepositAmount?: number | string;
   };
 }
 
@@ -109,6 +109,9 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
       setValue('exchange.amount', '');
       setValue('exchange.exchangeRateProfit', '');
       setValue('exchange.incomePerTransaction', '');
+      setValue('exchange.formattedAmount', '0.00');
+      setValue('exchange.formattedExchangeRateProfit', '0.00');
+      setValue('exchange.formattedIncomePerTransaction', '0.00');
       return;
     }
 
@@ -119,7 +122,7 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
 
     // Amount in THB = RMB * Exchange Rate + Fee
     const calculatedAmount = rmbAmount * rate + feeAmount;
-    setValue('exchange.amount', calculatedAmount > 0 ? calculatedAmount : '');
+    setValue('exchange.amount', calculatedAmount > 0 ? calculatedAmount.toFixed(2) : '');
 
     // กำไรอัตราแลกเปลี่ยน = ยอดฝากชำระรวม (ของข้อมูลลูกค้าฝากชำระ) - จำนวนเงิน (THB) (ของข้อมูลการโอน)
     let exchangeRateProfit = 0;
@@ -129,7 +132,7 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
       exchangeRateProfit = totalDepositAmount - calculatedAmount;
     }
 
-    setValue('exchange.exchangeRateProfit', exchangeRateProfit);
+    setValue('exchange.exchangeRateProfit', exchangeRateProfit.toFixed(2));
     setValue('exchange.formattedExchangeRateProfit', formatNumber(exchangeRateProfit));
 
     // รายรับต่อรายการธุรกรรม = จำนวนเงิน (THB) ของข้อมูลลูกค้าฝากชำระ - จำนวนเงิน (THB) ของข้อมูลการโอน
@@ -139,7 +142,7 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
       const customerAmount = parseFloat(customerDepositData?.amount?.toString() || "0");
       incomePerTransaction = customerAmount - calculatedAmount;
     }
-    setValue('exchange.incomePerTransaction', incomePerTransaction);
+    setValue('exchange.incomePerTransaction', incomePerTransaction.toFixed(2));
     setValue('exchange.formattedIncomePerTransaction', formatNumber(incomePerTransaction));
     
     // จัดรูปแบบ amount ด้วย
@@ -211,16 +214,46 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.amountRMB"
             control={control}
-            render={({ field }) => (
+            rules={{ required: false }}
+            render={({ field: { onChange, value } }) => (
               <input
-                type="number"
+                type="text"
                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
-                placeholder="กรุณากรอกจำนวนเงิน"
-                {...field}
+                placeholder="0.00"
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                  
+                  // Allow empty value for deletion
+                  if (inputValue === '') {
+                    onChange('');
+                    setValue('exchange.amountRMB', '');
+                    return;
+                  }
+                  
+                  // Allow only numbers and decimal point
+                  if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                    return; // Invalid input, don't update
+                  }
+                  
+                  // Limit to 2 decimal places if there's a decimal point
+                  let formattedValue = inputValue;
+                  if (inputValue.includes('.')) {
+                    const [whole, decimal] = inputValue.split('.');
+                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                  }
+                  
+                  onChange(formattedValue);
+                  setValue('exchange.amountRMB', formattedValue);
                 }}
+                onBlur={() => {
+                  // Format to 2 decimal places when leaving the field
+                  if (value !== '' && value !== null && value !== undefined) {
+                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                    onChange(numValue.toFixed(2));
+                    setValue('exchange.amountRMB', numValue.toFixed(2));
+                  }
+                }}
+                value={typeof value === 'number' ? value.toFixed(2) : value}
               />
             )}
           />
@@ -236,19 +269,52 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.priceDifference"
             control={control}
-            render={({ field }) => (
+            rules={{ required: false }}
+            render={({ field: { onChange, value } }) => (
               <input
-                type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="กรุณากรอกส่วนต่าง"
-                {...field}
+                type="text"
+                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.priceDifference ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                placeholder="0.00"
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                  
+                  // Allow empty value for deletion
+                  if (inputValue === '') {
+                    onChange('');
+                    setValue('exchange.priceDifference', '');
+                    return;
+                  }
+                  
+                  // Allow only numbers and decimal point
+                  if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                    return; // Invalid input, don't update
+                  }
+                  
+                  // Limit to 2 decimal places if there's a decimal point
+                  let formattedValue = inputValue;
+                  if (inputValue.includes('.')) {
+                    const [whole, decimal] = inputValue.split('.');
+                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                  }
+                  
+                  onChange(formattedValue);
+                  setValue('exchange.priceDifference', formattedValue);
                 }}
+                onBlur={() => {
+                  // Format to 2 decimal places when leaving the field
+                  if (value !== '' && value !== null && value !== undefined) {
+                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                    onChange(numValue.toFixed(2));
+                    setValue('exchange.priceDifference', numValue.toFixed(2));
+                  }
+                }}
+                value={typeof value === 'number' ? value.toFixed(2) : value}
               />
             )}
           />
+          {errors.exchange?.priceDifference && (
+            <p className="mt-1 text-sm text-red-500">{errors.exchange.priceDifference.message}</p>
+          )}
         </div>
 
         <div>
@@ -258,17 +324,46 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.exchangeRate"
             control={control}
-            render={({ field }) => (
+            rules={{ required: false }}
+            render={({ field: { onChange, value } }) => (
               <input
-                type="number"
-                step="0.01"
+                type="text"
                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.exchange?.exchangeRate ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
-                placeholder="กรุณากรอกอัตราแลกเปลี่ยน"
-                {...field}
+                placeholder="0.00"
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                  
+                  // Allow empty value for deletion
+                  if (inputValue === '') {
+                    onChange('');
+                    setValue('exchange.exchangeRate', '');
+                    return;
+                  }
+                  
+                  // Allow only numbers and decimal point
+                  if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                    return; // Invalid input, don't update
+                  }
+                  
+                  // Limit to 2 decimal places if there's a decimal point
+                  let formattedValue = inputValue;
+                  if (inputValue.includes('.')) {
+                    const [whole, decimal] = inputValue.split('.');
+                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                  }
+                  
+                  onChange(formattedValue);
+                  setValue('exchange.exchangeRate', formattedValue);
                 }}
+                onBlur={() => {
+                  // Format to 2 decimal places when leaving the field
+                  if (value !== '' && value !== null && value !== undefined) {
+                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                    onChange(numValue.toFixed(2));
+                    setValue('exchange.exchangeRate', numValue.toFixed(2));
+                  }
+                }}
+                value={typeof value === 'number' ? value.toFixed(2) : value}
               />
             )}
           />
@@ -284,17 +379,46 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
           <Controller
             name="exchange.fee"
             control={control}
-            render={({ field }) => (
+            rules={{ required: false }}
+            render={({ field: { onChange, value } }) => (
               <input
-                type="number"
-                step="0.01"
+                type="text"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="กรุณากรอกค่าธรรมเนียม"
-                {...field}
+                placeholder="0.00"
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                  
+                  // Allow empty value for deletion
+                  if (inputValue === '') {
+                    onChange('');
+                    setValue('exchange.fee', '');
+                    return;
+                  }
+                  
+                  // Allow only numbers and decimal point
+                  if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                    return; // Invalid input, don't update
+                  }
+                  
+                  // Limit to 2 decimal places if there's a decimal point
+                  let formattedValue = inputValue;
+                  if (inputValue.includes('.')) {
+                    const [whole, decimal] = inputValue.split('.');
+                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                  }
+                  
+                  onChange(formattedValue);
+                  setValue('exchange.fee', formattedValue);
                 }}
+                onBlur={() => {
+                  // Format to 2 decimal places when leaving the field
+                  if (value !== '' && value !== null && value !== undefined) {
+                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                    onChange(numValue.toFixed(2));
+                    setValue('exchange.fee', numValue.toFixed(2));
+                  }
+                }}
+                value={typeof value === 'number' ? value.toFixed(2) : value}
               />
             )}
           />

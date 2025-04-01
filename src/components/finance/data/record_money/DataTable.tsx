@@ -201,42 +201,95 @@ const DataTable = ({ onRefresh }: Props) => {
 
     return (
         <>
-            <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2 mb-5">
-                <div className="w-full sm:w-auto flex gap-2">
-                    <FormInput
-                        type="text"
-                        className="w-56 box"
-                        placeholder="ค้นหา..."
-                        value={searchedVal}
-                        onChange={(e) => setSearchedVal(e.target.value)}
-                    />
-                    <FormSelect
-                        className="w-40 box"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                    >
-                        <option value="all">ทั้งหมด</option>
-                        <option value="deposit">ฝากสั่ง</option>
-                        <option value="order">ฝากสั่งซื้อ</option>
-                        <option value="topup">ฝากเติม</option>
-                    </FormSelect>
+            <div className="intro-y col-span-12 mb-5">
+                {/* Filter Section with Card UI */}
+                <div className="bg-white rounded-lg shadow-md p-5 mb-5">
+                 
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* Search Input */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหา</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <FiSearch className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <FormInput
+                                    type="text"
+                                    className="pl-10 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="เลขที่เอกสาร, รหัสลูกค้า..."
+                                    value={searchedVal}
+                                    onChange={(e) => setSearchedVal(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Type Filter */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทรายการ</label>
+                            <FormSelect
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                value={typeFilter}
+                                onChange={(e) => setTypeFilter(e.target.value)}
+                            >
+                                <option value="all">ทั้งหมด</option>
+                                <option value="deposit">ฝากโอน</option>
+                                <option value="order">ฝากสั่งซื้อ</option>
+                                <option value="topup">ฝากเติม</option>
+                            </FormSelect>
+                        </div>
+
+                        {/* Date Range - Start */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">วันที่เริ่มต้น</label>
+                            <FormInput
+                                type="date"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Date Range - End */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">วันที่สิ้นสุด</label>
+                            <FormInput
+                                type="date"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                min={startDate}
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Filter Actions */}
+                    <div className="flex justify-end mt-4 space-x-2">
+                        <Button
+                            variant="outline-secondary"
+                            onClick={() => {
+                                setSearchedVal("");
+                                setTypeFilter("all");
+                                setStartDate("");
+                                setEndDate("");
+                            }}
+                        >
+                            <Lucide icon="RefreshCw" className="w-4 h-4 mr-2" />
+                            รีเซ็ต
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={filterData}
+                        >
+                            <Lucide icon="Filter" className="w-4 h-4 mr-2" />
+                            กรองข้อมูล
+                        </Button>
+                    </div>
                 </div>
-                <div className="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto flex gap-2">
-                    <FormInput
-                        type="date"
-                        className="w-40 box"
-                        placeholder="วันที่เริ่มต้น"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                    />
-                    <FormInput
-                        type="date"
-                        className="w-40 box"
-                        placeholder="วันที่สิ้นสุด"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        min={startDate}
-                    />
+                
+                {/* Add Record Button */}
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-lg font-medium">รายการข้อมูลทั้งหมด</h2>
+                   
                 </div>
             </div>
 

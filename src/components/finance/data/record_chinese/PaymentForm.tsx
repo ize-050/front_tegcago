@@ -5,6 +5,13 @@ import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import { getCustomerAccounts } from "@/services/finance";
+import { numberFormatTh } from "@/utils/numberFormat";
+
+// Helper function to parse formatted number back to number
+const parseFormattedNumber = (value: string): number => {
+  if (!value) return 0;
+  return parseFloat(value.replace(/,/g, ''));
+};
 
 export interface PaymentForm {
   date: string;
@@ -12,13 +19,12 @@ export interface PaymentForm {
   account: string;
   payTo: string;
   transferDate: string;
-  amountRMB: number;
+  amountRMB: number | string; // Updated to allow both number and string
+  formattedAmountRMB?: string; // For display purposes
   details: string;
   files?: File[];
   existingTransferSlip?: string;
 }
-
-
 
 interface PaymentFormProps {
   onSubmit: (data: PaymentForm) => void;
@@ -31,7 +37,8 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
     handleSubmit,
     formState: { errors },
     setValue,
-    reset
+    reset,
+    watch
   } = useForm<PaymentForm>({
     defaultValues: initialData || {
       date: new Date().toISOString().split("T")[0],
@@ -40,11 +47,13 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
       payTo: '',
       transferDate: new Date().toISOString().split("T")[0],
       amountRMB: 0,
+      formattedAmountRMB: '0.00',
       details: '',
     },
   });
 
   const [accountOptions, setAccountOptions] = useState([]);
+  const [formattedAmount, setFormattedAmount] = useState('0.00');
   
 useEffect(() => {
   const fetchAccounts = async () => {
@@ -67,8 +76,34 @@ useEffect(() => {
       if (initialData.existingTransferSlip) {
         setValue("existingTransferSlip", initialData.existingTransferSlip);
       }
+      
+      // Format the amount RMB
+      if (initialData.amountRMB !== undefined) {
+        setFormattedAmount(numberFormatTh(initialData.amountRMB));
+      }
     }
   }, [initialData, reset, setValue]);
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'amountRMB') {
+        setFormattedAmount(numberFormatTh(value.amountRMB || 0));
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const handleFormattedAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = e.target.value;
+    // Allow empty input or numeric input with decimal point and commas
+    if (formatted === '' || /^[0-9,]*\.?[0-9]*$/.test(formatted)) {
+      setFormattedAmount(formatted);
+      // Parse the formatted value back to a number for the form data
+      const numericValue = parseFormattedNumber(formatted);
+      setValue('amountRMB', numericValue);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -186,14 +221,48 @@ useEffect(() => {
           <Controller
             name="amountRMB"
             control={control}
-            rules={{ required: "กรุณาระบุจำนวนเงิน" }}
-            render={({ field }) => (
+            rules={{ required: false }}
+            render={({ field: { onChange, value } }) => (
               <input
-                type="number"
+                type="text"
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  
+                  // Allow empty value for deletion
+                  if (inputValue === '') {
+                    onChange('');
+                    setValue('amountRMB', '');
+                    return;
+                  }
+                  
+                  // Allow only numbers and decimal point
+                  if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                    return; // Invalid input, don't update
+                  }
+                  
+                  // Limit to 2 decimal places if there's a decimal point
+                  let formattedValue = inputValue;
+                  if (inputValue.includes('.')) {
+                    const [whole, decimal] = inputValue.split('.');
+                    formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                  }
+                  
+                  onChange(formattedValue);
+                  setValue('amountRMB', formattedValue);
+                }}
+                onBlur={() => {
+                  // Format to 2 decimal places when leaving the field
+                  if (value !== '' && value !== null && value !== undefined) {
+                    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                    onChange(numValue.toFixed(2));
+                    setValue('amountRMB', numValue.toFixed(2));
+                  }
+                }}
+                value={typeof value === 'number' ? value.toFixed(2) : value}
+                placeholder="0.00"
                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
                   errors.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                 }`}
-                {...field}
               />
             )}
           />

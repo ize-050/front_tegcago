@@ -506,22 +506,41 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     <Controller
                                                         name="customerDeposit.amountRMB"
                                                         control={control}
-                                                        render={({ field }) => (
+                                                        render={({ field: { onChange, value } }) => (
                                                             <input
-                                                                type="number"
+                                                                type="text"
                                                                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'amountRMB' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                                                                     }`}
-                                                                placeholder="กรุณากรอกจำนวนเงิน"
-                                                                {...field}
+                                                                placeholder="0.00"
                                                                 onChange={(e) => {
                                                                     const inputValue = e.target.value;
-                                                                    // Allow empty string or valid number
-                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
+                                                                    
+                                                                    // Allow empty value for deletion
+                                                                    if (inputValue === '') {
+                                                                        onChange('');
+                                                                        setValue('customerDeposit.amountRMB', '');
+                                                                        return;
+                                                                    }
+                                                                    
+                                                                    // Allow only numbers and decimal point
+                                                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                                                        return; // Invalid input, don't update
+                                                                    }
+                                                                    
+                                                                    // Limit to 2 decimal places if there's a decimal point
+                                                                    let formattedValue = inputValue;
+                                                                    if (inputValue.includes('.')) {
+                                                                        const [whole, decimal] = inputValue.split('.');
+                                                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                                                    }
+                                                                    
+                                                                    onChange(formattedValue);
+                                                                    setValue('customerDeposit.amountRMB', formattedValue);
 
                                                                     // Only perform calculations if we have a valid number
-                                                                    if (inputValue !== '') {
+                                                                    if (formattedValue !== '') {
                                                                         const formValues = getValues();
-                                                                        const rmbAmount = parseFloat(inputValue) || 0;
+                                                                        const rmbAmount = parseFloat(formattedValue) || 0;
                                                                         const rate = parseFloat(formValues.customerDeposit?.exchangeRate?.toString() || "0") || 0;
                                                                         const feeAmount = parseFloat(formValues.customerDeposit?.fee?.toString() || "0") || 0;
                                                                         const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
@@ -530,36 +549,42 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                                         let exchangeRateProfit = 0;
                                                                         const customerDeposit = watch('customerDeposit');
                                                                         if (customerDeposit?.amountRMB && customerDeposit?.exchangeRate) {
-                                                                            const customerRMB = customerDeposit.amountRMB || 0;
-                                                                            const customerRate = customerDeposit.exchangeRate || 0;
+                                                                            const customerRMB = parseFloat(customerDeposit.amountRMB.toString()) || 0;
+                                                                            const customerRate = parseFloat(customerDeposit.exchangeRate.toString()) || 0;
                                                                             exchangeRateProfit = (rmbAmount * rate) - (customerRMB * customerRate);
                                                                         } else {
                                                                             exchangeRateProfit = rmbAmount * rate;
                                                                         }
-                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
+                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit.toFixed(2));
 
                                                                         // คำนวณรายรับต่อรายการธุรกรรม
                                                                         const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
-                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
+                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction.toFixed(2));
 
                                                                         // คำนวณจำนวนเงิน THB
                                                                         const calculatedAmount = rmbAmount * rate + feeAmount;
-                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
+                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount.toFixed(2) : '0.00');
                                                                         
                                                                         // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
                                                                         const totalDepositAmount = rmbAmount * rate;
                                                                         setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
-                                                                    } else {
-                                                                        // Reset calculated values when input is empty
-                                                                        setValue('customerDeposit.exchangeRateProfit', 0);
-                                                                        setValue('customerDeposit.incomePerTransaction', 0);
-                                                                        setValue('customerDeposit.amount', 0);
-                                                                        setValue('customerDeposit.totalDepositAmount', 0);
                                                                     }
                                                                 }}
+                                                                onBlur={() => {
+                                                                    // Format to 2 decimal places when leaving the field
+                                                                    if (value !== '' && value !== null && value !== undefined) {
+                                                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                                                        onChange(numValue.toFixed(2));
+                                                                        setValue('customerDeposit.amountRMB', numValue.toFixed(2));
+                                                                    }
+                                                                }}
+                                                                value={typeof value === 'number' ? value.toFixed(2) : value}
                                                             />
                                                         )}
                                                     />
+                                                    {errors.customerDeposit && 'amountRMB' in errors.customerDeposit && (
+                                                        <p className="mt-1 text-sm text-red-500">{(errors.customerDeposit.amountRMB as any)?.message}</p>
+                                                    )}
                                                 </div>
 
                                                 <div>
@@ -569,51 +594,84 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     <Controller
                                                         name="customerDeposit.exchangeRate"
                                                         control={control}
-                                                        render={({ field }) => (
+                                                        render={({ field: { onChange, value } }) => (
                                                             <input
-                                                                type="number"
-                                                                step="0.01"
+                                                                type="text"
                                                                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'exchangeRate' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
                                                                     }`}
                                                                 placeholder="0.00"
-                                                                {...field}
                                                                 onChange={(e) => {
                                                                     const inputValue = e.target.value;
-                                                                    // Allow empty string or valid number
-                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
-                                                                    const formValues = getValues();
-                                                                    const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
-                                                                    const rate = parseFloat(inputValue) || 0;
-                                                                    const feeAmount = parseFloat(formValues.customerDeposit?.fee?.toString() || "0") || 0;
-                                                                    const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
-
-                                                                    // คำนวณกำไรอัตราแลกเปลี่ยน
-                                                                    let exchangeRateProfit = 0;
-                                                                    const customerDeposit = watch('customerDeposit');
-                                                                    if (customerDeposit?.amountRMB && customerDeposit?.exchangeRate) {
-                                                                        const customerRMB = customerDeposit.amountRMB || 0;
-                                                                        const customerRate = customerDeposit.exchangeRate || 0;
-                                                                        exchangeRateProfit = (rmbAmount * rate) - (customerRMB * customerRate);
-                                                                    } else {
-                                                                        exchangeRateProfit = rmbAmount * rate;
-                                                                    }
-                                                                    setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
-
-                                                                    // คำนวณรายรับต่อรายการธุรกรรม
-                                                                    const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
-                                                                    setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
-
-                                                                    // คำนวณจำนวนเงิน THB
-                                                                    const calculatedAmount = rmbAmount * rate + feeAmount;
-                                                                    setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
                                                                     
-                                                                    // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
-                                                                    const totalDepositAmount = rmbAmount * rate;
-                                                                    setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
+                                                                    // Allow empty value for deletion
+                                                                    if (inputValue === '') {
+                                                                        onChange('');
+                                                                        setValue('customerDeposit.exchangeRate', '');
+                                                                        return;
+                                                                    }
+                                                                    
+                                                                    // Allow only numbers and decimal point
+                                                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                                                        return; // Invalid input, don't update
+                                                                    }
+                                                                    
+                                                                    // Limit to 2 decimal places if there's a decimal point
+                                                                    let formattedValue = inputValue;
+                                                                    if (inputValue.includes('.')) {
+                                                                        const [whole, decimal] = inputValue.split('.');
+                                                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                                                    }
+                                                                    
+                                                                    onChange(formattedValue);
+                                                                    setValue('customerDeposit.exchangeRate', formattedValue);
+
+                                                                    if (formattedValue !== '') {
+                                                                        const formValues = getValues();
+                                                                        const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
+                                                                        const rate = parseFloat(formattedValue) || 0;
+                                                                        const feeAmount = parseFloat(formValues.customerDeposit?.fee?.toString() || "0") || 0;
+                                                                        const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
+
+                                                                        // คำนวณกำไรอัตราแลกเปลี่ยน
+                                                                        let exchangeRateProfit = 0;
+                                                                        const customerDeposit = watch('customerDeposit');
+                                                                        if (customerDeposit?.amountRMB && customerDeposit?.exchangeRate) {
+                                                                            const customerRMB = parseFloat(customerDeposit.amountRMB.toString()) || 0;
+                                                                            const customerRate = parseFloat(customerDeposit.exchangeRate.toString()) || 0;
+                                                                            exchangeRateProfit = (rmbAmount * rate) - (customerRMB * customerRate);
+                                                                        } else {
+                                                                            exchangeRateProfit = rmbAmount * rate;
+                                                                        }
+                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit.toFixed(2));
+
+                                                                        // คำนวณรายรับต่อรายการธุรกรรม
+                                                                        const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
+                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction.toFixed(2));
+
+                                                                        // คำนวณจำนวนเงิน THB
+                                                                        const calculatedAmount = rmbAmount * rate + feeAmount;
+                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount.toFixed(2) : '0.00');
+                                                                        
+                                                                        // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
+                                                                        const totalDepositAmount = rmbAmount * rate;
+                                                                        setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
+                                                                    }
                                                                 }}
+                                                                onBlur={() => {
+                                                                    // Format to 2 decimal places when leaving the field
+                                                                    if (value !== '' && value !== null && value !== undefined) {
+                                                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                                                        onChange(numValue.toFixed(2));
+                                                                        setValue('customerDeposit.exchangeRate', numValue.toFixed(2));
+                                                                    }
+                                                                }}
+                                                                value={typeof value === 'number' ? value.toFixed(2) : value}
                                                             />
                                                         )}
                                                     />
+                                                    {errors.customerDeposit && 'exchangeRate' in errors.customerDeposit && (
+                                                        <p className="mt-1 text-sm text-red-500">{(errors.customerDeposit.exchangeRate as any)?.message}</p>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -639,6 +697,130 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                     />
                                                 </div>
 
+
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        ค่าธรรมเนียม
+                                                    </label>
+                                                    <Controller
+                                                        name="customerDeposit.fee"
+                                                        control={control}
+                                                        render={({ field: { onChange, value } }) => (
+                                                            <input
+                                                                type="text"
+                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'fee' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                                                placeholder="0.00"
+                                                                onChange={(e) => {
+                                                                    const inputValue = e.target.value;
+                                                                    
+                                                                    // Allow empty value for deletion
+                                                                    if (inputValue === '') {
+                                                                        onChange('');
+                                                                        setValue('customerDeposit.fee', '');
+                                                                        return;
+                                                                    }
+                                                                    
+                                                                    // Allow only numbers and decimal point
+                                                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                                                        return; // Invalid input, don't update
+                                                                    }
+                                                                    
+                                                                    // Limit to 2 decimal places if there's a decimal point
+                                                                    let formattedValue = inputValue;
+                                                                    if (inputValue.includes('.')) {
+                                                                        const [whole, decimal] = inputValue.split('.');
+                                                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                                                    }
+                                                                    
+                                                                    onChange(formattedValue);
+                                                                    setValue('customerDeposit.fee', formattedValue);
+
+                                                                    if (formattedValue !== '') {
+                                                                        const formValues = getValues();
+                                                                        const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
+                                                                        const rate = parseFloat(formValues.customerDeposit?.exchangeRate?.toString() || "0") || 0;
+                                                                        const feeAmount = parseFloat(formattedValue) || 0;
+                                                                        const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
+
+                                                                        // Recalculate all values
+                                                                        const exchangeRateProfit = (rmbAmount - priceDiff) * rate;
+                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit.toFixed(2));
+
+                                                                        const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
+                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction.toFixed(2));
+
+                                                                        const calculatedAmount = (rmbAmount - priceDiff) * rate + feeAmount;
+                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount.toFixed(2) : '0.00');
+                                                                        
+                                                                        // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
+                                                                        const totalDepositAmount = rmbAmount * rate;
+                                                                        setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    // Format to 2 decimal places when leaving the field
+                                                                    if (value !== '' && value !== null && value !== undefined) {
+                                                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                                                        onChange(numValue.toFixed(2));
+                                                                        setValue('customerDeposit.fee', numValue.toFixed(2));
+                                                                    }
+                                                                }}
+                                                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                                            />
+                                                        )}
+                                                    />
+                                                    {errors.customerDeposit && 'fee' in errors.customerDeposit && (
+                                                        <p className="mt-1 text-sm text-red-500">{(errors.customerDeposit.fee as any)?.message}</p>
+                                                    )}
+                                                </div>
+
+
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        จำนวนเงิน (THB)
+                                                    </label>
+                                                    <Controller
+                                                        name="customerDeposit.amount"
+                                                        control={control}
+                                                        render={({ field }) => (
+                                                            <input
+                                                                type="text"
+                                                                step="0.01"
+                                                                readOnly
+                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                placeholder="0.00"
+                                                                {...field}
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
+
+
+                                              
+                                            </div>
+
+                                          
+                                       
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        ยอดฝากชำระรวม
+                                                    </label>
+                                                    <Controller
+                                                        name="customerDeposit.totalDepositAmount"
+                                                        control={control}
+                                                        render={({ field }) => (
+                                                            <input
+                                                                type="text"
+                                                                readOnly
+                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                placeholder="0.00"
+                                                                {...field}
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
 
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">
@@ -683,34 +865,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         )}
                                                     />
                                                 </div>
-
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        จำนวนเงิน (THB)
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.amount"
-                                                        control={control}
-                                                        render={({ field }) => (
-                                                            <input
-                                                                type="number"
-                                                                step="0.01"
-                                                                readOnly
-                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
-                                                                placeholder="0.00"
-                                                                {...field}
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-
-
-                                              
                                             </div>
-
-                                          
-                                       
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                                 <div className="mt-2">
