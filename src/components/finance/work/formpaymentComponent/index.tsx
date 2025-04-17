@@ -67,6 +67,10 @@ const FormPaymentComponent = ({ BookingId }: any) => {
         const work_by_id: any = await getWorkByid(BookingId as string);
 
         console.log("work_by_id", work_by_id);
+        console.log("cs_purchase data:", work_by_id?.cs_purchase);
+        console.log("d_purchase data:", work_by_id?.d_purchase);
+        console.log("d_purchase.cs_purchase data:", work_by_id?.d_purchase?.cs_purchase);
+        console.log("d_purchase.d_agentcy data:", work_by_id?.d_purchase?.d_agentcy);
         if (work_by_id) {
             setValue('id', work_by_id.id || '');
             // Thailand expenses
@@ -113,6 +117,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('billing_amount', work_by_id.billing_amount || '0');
             setValue('total_payment_all', work_by_id.total_payment_all || '0');
             setValue('miss_payment', work_by_id.miss_payment || '0');
+            setValue('has_vat', work_by_id.has_vat === true || work_by_id.has_vat === 1);
 
             // Calculations
             setValue('profit_loss', work_by_id.profit_loss || '0');
@@ -184,9 +189,16 @@ const FormPaymentComponent = ({ BookingId }: any) => {
         (async () => {
             if (BookingId) {
                 await getWork();
+                // เพิ่ม console.log เพื่อดูข้อมูลที่ได้รับจาก API หลังจากที่ข้อมูลถูกเซ็ตใน state
+                console.log("purchaseFinanceData after set:", purchaseFinanceData);
             }
         })();
     }, []);
+    
+    // เพิ่ม useEffect เพื่อ log ข้อมูลทุกครั้งที่ purchaseFinanceData เปลี่ยนแปลง
+    useEffect(() => {
+        console.log("purchaseFinanceData updated:", purchaseFinanceData);
+    }, [purchaseFinanceData]);
 
     const handlePaymentRowsChange = (rows: number[]) => {
         // Update Redux store
@@ -399,6 +411,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
                 
                 // Billing and Payment
                 total_before_vat: safeToString(data.total_before_vat),
+                has_vat: data.has_vat || false, // เพิ่มฟิลด์ has_vat
                 billing_amount: safeToString(data.billing_amount),
                 total_payment_all: safeToString(data.total_payment_all),
                 miss_payment: safeToString(data.miss_payment),
@@ -509,24 +522,154 @@ const FormPaymentComponent = ({ BookingId }: any) => {
                             <label className="block mb-2 text-gray-700 text-sm">
                                 invoice & Packinglist No.
                             </label>
+                            <p>{purchaseFinanceData.customer_number}</p>
                         </div>
-
-
 
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-gray-700 text-sm">
                             เลข Shipment
                             </label>
-
-                            {purchaseFinanceData.d_shipment_number}
+                            <p>{purchaseFinanceData.d_shipment_number}</p>
                         </div>
 
                         <div className="w-full md:w-1/3 flex flex-col">
                             <label className="block mb-2 text-gray-700 text-sm">
                              สถานะใบจอง
                             </label>
+                            <p>{purchaseFinanceData.d_status}</p>
+                        </div>
+                    </div>
 
-                            {purchaseFinanceData.d_status}
+                    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                Container no
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี cs_purchase และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.cs_purchase)) {
+                                        // ค้นหา item ที่มี receive
+                                        const item = purchaseFinanceData.cs_purchase.find((item: any) => item?.receive);
+                                        return item?.receive?.container_no || '-';
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                B/L no
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี cs_purchase และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.cs_purchase)) {
+                                        // ค้นหา item ที่มี provedeparture
+                                        const item = purchaseFinanceData.cs_purchase.find((item: any) => item?.provedeparture);
+                                        return item?.provedeparture?.bl_no || '-';
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                Consignee
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี cs_purchase และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.cs_purchase)) {
+                                        // ค้นหา item ที่มี bookcabinet
+                                        const item = purchaseFinanceData.cs_purchase.find((item: any) => item?.bookcabinet);
+                                        return item?.bookcabinet?.consignee || '-';
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                Agency
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี d_agentcy และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.d_agentcy)) {    
+                                        // ค้นหา agency ที่มี d_sale_agentcy
+                                        const agency = purchaseFinanceData?.d_agentcy.find((a: any) => a?.d_sale_agentcy?.length > 0);
+                                        if (agency?.d_sale_agentcy?.[0]?.d_agentcy?.agentcy) {
+                                            return agency.d_sale_agentcy[0].d_agentcy.agentcy.agent_name || '-';
+                                        }
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                สายเรือ
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี d_agentcy และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.d_agentcy)) {
+                                        // ค้นหา agency ที่มี d_sale_agentcy
+                                        const agency = purchaseFinanceData.d_agentcy.find((a: any) => a?.d_sale_agentcy?.length > 0);
+                                        if (agency?.d_sale_agentcy?.[0]?.d_agentcy) {
+                                            return agency.d_sale_agentcy[0].d_agentcy.agent_boat || '-';
+                                        }
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                ETD
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี d_agentcy และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.d_agentcy)) {
+                                        // ค้นหา agency ที่มี d_sale_agentcy
+                                        const agency = purchaseFinanceData.d_agentcy.find((a: any) => a?.d_sale_agentcy?.length > 0);
+                                        if (agency?.d_sale_agentcy?.[0]?.d_agentcy?.agentcy_eta) {
+                                            return moment(agency.d_sale_agentcy[0].d_agentcy.agentcy_eta).format('DD/MM/YYYY');
+                                        }
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
+                        <div className="w-full md:w-1/3 flex flex-col">
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                ETA
+                            </label>
+                            <p>
+                                {(() => {
+                                    // ตรวจสอบว่ามี d_agentcy และเป็น array หรือไม่
+                                    if (Array.isArray(purchaseFinanceData?.d_agentcy)) {
+                                        // ค้นหา agency ที่มี d_sale_agentcy
+                                        const agency = purchaseFinanceData.d_agentcy.find((a: any) => a?.d_sale_agentcy?.length > 0);
+                                        if (agency?.d_sale_agentcy?.[0]?.d_agentcy?.agentcy_etd) {
+                                            return moment(agency.d_sale_agentcy[0].d_agentcy.agentcy_etd).format('DD/MM/YYYY');
+                                        }
+                                    }
+                                    return '-';
+                                })()}
+                            </p>
                         </div>
                     </div>
 

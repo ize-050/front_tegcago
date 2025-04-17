@@ -8,12 +8,13 @@ import { FormCheck, FormInput, FormSelect } from "@/components/Base/Form";
 import axios from '../../../../../axios';
 import { useAppDispatch } from "@/stores/hooks";
 import { setModalRecordMoney, setEditRecord } from "@/stores/finance";
+import { getCustomerAccounts } from "@/services/finance";
 
 interface FinancialRecord {
   id: string;
   date: string;
   title: string;
-  accountOwner: 'AHYONG' | 'GINNY';
+  accountOwner: string;
   type: 'PAYMENT' | 'RECEIPT';
   amountRMB: number;
   transferDate: string;
@@ -27,38 +28,12 @@ interface FinancialRecord {
 interface Filters {
   search: string;
   type: 'ALL' | 'PAYMENT' | 'RECEIPT';
-  account: 'AHYONG' | 'GINNY';
+  account: string;
   startDate: string;
   endDate: string;
 }
 
-// Mock data
-const mockData: FinancialRecord[] = [
-  {
-    id: '1',
-    date: '2025-02-25',
-    title: 'รับเงินค่าสินค้า',
-    accountOwner: 'AHYONG',
-    type: 'RECEIPT',
-    amountRMB: 5000,
-    amountTHB: 25000,
-    exchangeRate: 5,
-    transferDate: '2025-02-25',
-    details: 'รับเงินค่าสินค้าจากลูกค้า A',
-  },
-  {
-    id: '2',
-    date: '2025-02-24',
-    title: 'จ่ายค่าขนส่ง',
-    accountOwner: 'GINNY',
-    type: 'PAYMENT',
-    amountRMB: 2000,
-    transferDate: '2025-02-24',
-    payTo: 'บริษัทขนส่ง X',
-    details: 'ค่าขนส่งสินค้าล็อต B',
-  },
-  // Add more mock data as needed
-];
+
 
 const TableComponent = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -66,13 +41,13 @@ const TableComponent = () => {
   const recordsPerPage = 10;
   const dispatch = useAppDispatch();
 
-  const [records, setRecords] = useState<FinancialRecord[]>(mockData);
-  const [filteredRecords, setFilteredRecords] = useState<FinancialRecord[]>(mockData);
+  const [records, setRecords] = useState<FinancialRecord[]>([]);
+  const [filteredRecords, setFilteredRecords] = useState<FinancialRecord[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [filters, setFilters] = useState<Filters>({
     search: '',
     type: 'ALL',
-    account: 'AHYONG', // Default to AHYONG
+    account: '',
     startDate: '',
     endDate: '',
   });
@@ -81,12 +56,35 @@ const TableComponent = () => {
   const [filterForm, setFilterForm] = useState<Filters>({
     search: '',
     type: 'ALL',
-    account: 'AHYONG', // Default to AHYONG
+    account: '',
     startDate: '',
     endDate: '',
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [accountOptions, setAccountOptions] = useState<any[]>([]);
+
+  // Fetch account options
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const accounts = await getCustomerAccounts();
+        if (Array.isArray(accounts) && accounts.length > 0) {
+          setAccountOptions(accounts);
+          // ไม่ต้องกำหนดค่า default เป็นบัญชีแรก ให้เป็น "ทั้งหมด" แทน
+          setFilterForm(prev => ({ ...prev, account: '' }));
+          setFilters(prev => ({ ...prev, account: '' }));
+        } else {
+          setAccountOptions([]);
+        }
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+        setAccountOptions([]);
+      }
+    };
+    
+    fetchAccounts();
+  }, []);
 
   // Fetch records from API
   const fetchRecords = async () => {
@@ -231,7 +229,7 @@ const TableComponent = () => {
     const resetFilters : Filters = {
       search: '',
       type: 'ALL',
-      account: 'AHYONG',
+      account: '',
       startDate: '',
       endDate: '',
     };
@@ -331,8 +329,12 @@ const TableComponent = () => {
               value={filterForm.account}
               onChange={(e) => handleFilterChange('account', e.target.value)}
             >
-              <option value="AHYONG">AHYONG</option>
-              <option value="GINNY">GINNY</option>
+              <option value="">ทั้งหมด</option>
+              {accountOptions.map((account: any) => (
+                <option key={account.id} value={account.finance_name}>
+                  {account.finance_name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -380,12 +382,23 @@ const TableComponent = () => {
       {/* Table */}
       <div className="relative overflow-x-auto bg-white rounded-lg shadow">
         <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
-          <h3 className="text-lg font-semibold text-gray-800">รายการเงิน</h3>
-          <div className="text-right">
-            <p className="text-sm text-gray-600">ยอดรวม</p>
-            <p className={`text-lg font-bold ${totalAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {totalAmount.toLocaleString()} RMB
-            </p>
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-lg font-semibold text-gray-800">รายการเงิน</h3>
+            <div className="flex items-center gap-4">
+              <div className="text-right mr-4">
+                <p className="text-sm text-gray-600">ยอดรวม</p>
+                <p className={`text-lg font-bold ${totalAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {totalAmount.toLocaleString()} RMB
+                </p>
+              </div>
+              <button
+                className="bg-blue-950 hover:bg-blue-800 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
+                onClick={() => dispatch(setModalRecordMoney(true))}
+                type="button"
+              >
+                + เพิ่มข้อมูล
+              </button>
+            </div>
           </div>
         </div>
         <table className="w-full text-sm text-left text-gray-500">

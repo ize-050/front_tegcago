@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import { numberFormatTh } from "@/utils/numberFormat";
+import { getCustomerAccounts } from "@/services/finance";
 
 // Helper function to parse formatted number back to number
 const parseFormattedNumber = (value: string): number => {
@@ -27,10 +28,7 @@ export interface ReceiptForm {
   existingTransferSlip?: string;
 }
 
-const accountOptions = [
-  { value: 'ahyong', label: 'อาหยอง' },
-  { value: 'ginny', label: 'จินนี่' }
-];
+
 
 interface ReceiptFormProps {
   onSubmit: (data: ReceiptForm) => void;
@@ -50,17 +48,32 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
       date: new Date().toISOString().split("T")[0],
       title: '',
       account: '',
-      amountRMB: 0,
-      formattedAmountRMB: '0.00',
-      amountTHB: 0,
-      formattedAmountTHB: '0.00',
+      amountRMB: '',
+      formattedAmountRMB: '',
+      amountTHB: '',
+      formattedAmountTHB: '',
       transferDate: new Date().toISOString().split("T")[0],
       exchangeRate: '',
       details: '',
     },
   });
 
-  const [formattedAmount, setFormattedAmount] = useState('0.00');
+  const [formattedAmount, setFormattedAmount] = useState('');
+
+  const [accountOptions, setAccountOptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const accounts :any = await getCustomerAccounts();
+        setAccountOptions(accounts);
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+      }
+    };
+    
+    fetchAccounts();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -182,9 +195,9 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
                 {...field}
               >
                 <option value="">เลือกบัญชี</option>
-                {accountOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {accountOptions.map((option:any) => (
+                  <option key={option.id} value={option.finance_name}>
+                    {option.finance_name}
                   </option>
                 ))}
               </select>

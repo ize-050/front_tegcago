@@ -20,6 +20,7 @@ interface RecordMoneyData {
   invoiceNumber: string;
   referenceNumber: string;
   type: string;
+  deposit_purpose?: string; // เพิ่มฟิลด์สำหรับเก็บข้อมูลว่าฝากเรื่องอะไร
   customerName: string;
   productType: string;
   productDetail: string;
@@ -57,6 +58,32 @@ const TableComponent = ({ onRefresh }: Props) => {
     setLoading(true);
     try {
       const response = await axios.get('/api/finance/record-money');
+      console.log('API Response:', response.data);
+      console.log('Records from API:', response.data.records);
+      
+      // เพิ่มการแสดงข้อมูล deposit_purpose ในคอนโซล
+      if (response.data.records && response.data.records.length > 0) {
+        console.log('First record:', response.data.records[0]);
+        console.log('deposit_purpose in first record:', response.data.records[0].deposit_purpose);
+        
+        // แปลงข้อมูลเพื่อให้มี deposit_purpose
+        const processedRecords = response.data.records.map((record: any) => {
+          // ถ้ามี customerDeposit และมี deposit_purpose ใน customerDeposit
+          if (record.customerDeposit && record.customerDeposit.deposit_purpose) {
+            return {
+              ...record,
+              deposit_purpose: record.customerDeposit.deposit_purpose
+            };
+          }
+          return record;
+        });
+        
+        setRecords(processedRecords || []);
+        setFilteredRecords(processedRecords || []);
+        setTotalPage(Math.ceil((processedRecords?.length || 0) / 10));
+        return;
+      }
+      
       setRecords(response.data.records || []);
       setFilteredRecords(response.data.records || []);
       setTotalPage(Math.ceil((response.data.records?.length || 0) / 10));
@@ -234,6 +261,7 @@ const TableComponent = ({ onRefresh }: Props) => {
                 <Table.Th className="border-b-0 whitespace-nowrap">วันที่</Table.Th>
                 <Table.Th className="border-b-0 whitespace-nowrap">เลขที่เอกสาร</Table.Th>
                 <Table.Th className="border-b-0 whitespace-nowrap">ประเภท</Table.Th>
+                <Table.Th className="border-b-0 whitespace-nowrap">ฝากเรื่อง</Table.Th>
                 <Table.Th className="border-b-0 whitespace-nowrap">ลูกค้า</Table.Th>
                 <Table.Th className="border-b-0 whitespace-nowrap text-right">จำนวนเงิน (RMB)</Table.Th>
                 <Table.Th className="border-b-0 whitespace-nowrap text-right">จำนวนเงิน (THB)</Table.Th>
@@ -267,6 +295,15 @@ const TableComponent = ({ onRefresh }: Props) => {
                         {/* <Lucide icon="CheckSquare" className="w-4 h-4 mr-2" /> */}
                         {getTypeLabel(record.type).label}
                       </div>
+                    </Table.Td>
+                    <Table.Td>
+                      {record.type === "deposit" ? (
+                        <div className="text-sm font-medium text-blue-600">
+                          {record.deposit_purpose || "-"}
+                        </div>
+                      ) : (
+                        "-"
+                      )}
                     </Table.Td>
                     <Table.Td>{record.customerName}</Table.Td>
                     <Table.Td className="text-right">{formatCurrency(record.amountRMB)}</Table.Td>

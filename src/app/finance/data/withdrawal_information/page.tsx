@@ -96,8 +96,8 @@ export default function WorkPage() {
               onClick={() => {
                 handleAdd()
               }}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
-            >เพิ่มรายการ</Button>
+              className="bg-blue-950 hover:bg-blue-800 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
+            >+ เพิ่มข้อมูล</Button>
           </div>
           
               

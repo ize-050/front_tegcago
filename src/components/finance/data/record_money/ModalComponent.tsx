@@ -22,7 +22,8 @@ interface FormData {
     salesperson: string;
     documentNumber: string;
     customerId: string;
-    type: 'deposit' | 'order' | 'topup' | '';
+    type: 'deposit' | 'order' | '';
+    deposit_purpose?: string; // เพิ่มฟิลด์สำหรับเก็บข้อมูลว่าฝากเรื่องอะไร
     customerDeposit?: any
     exchange?: any
     transferSlipUrl?: string;
@@ -50,35 +51,36 @@ const ModalRecordMoneyComponent: React.FC = () => {
             documentNumber: '',
             customerId: '',
             type: '',
+            deposit_purpose: '',
             customerDeposit: {
-                amountRMB: 0,
-                exchangeRate: 0,
-                fee: 0,
-                amount: 0,
+                amountRMB: '',
+                exchangeRate: '',
+                fee: '',
+                amount: '',
                 includeVat: false,
-                vatAmount: 0,
-                totalWithVat: 0,
+                vatAmount: '',
+                totalWithVat: '',
                 transferDate: new Date().toISOString().split("T")[0],
                 receivingAccount: '',
-                exchangeRateProfit: 0,
-                incomePerTransaction: 0,
+                exchangeRateProfit: '',
+                incomePerTransaction: '',
                 notes: '',
-                totalDepositAmount: 0,
+                totalDepositAmount: '',
             },
             exchange: {
-                amountRMB: 0,
-                priceDifference: 0,
-                exchangeRate: 0,
-                fee: 0,
-                amount: 0,
-                exchangeRateProfit: 0,
-                incomePerTransaction: 0,
+                amountRMB: '',
+                priceDifference: '',
+                exchangeRate: '',
+                fee: '',
+                amount: '',
+                exchangeRateProfit: '',
+                incomePerTransaction: '',
                 transferDate: new Date().toISOString().split("T")[0],
                 receivingAccount: '',
                 notes: '',
                 includeVat: false,
-                vatAmount: 0,
-                totalWithVat: 0,
+                vatAmount: '',
+                totalWithVat: '',
             }
         }
     });
@@ -332,7 +334,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                 <div className="overflow-y-auto max-h-[70vh] p-6">
                                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                         <div className="border-b pb-4 mb-4">
-                                            <h3 className="text-lg font-medium">บันทึกข้อมูล ฝากสั่งฝากเติม:</h3>
+                                            <h3 className="text-lg font-medium">บันทึกข้อมูล ฝากสั่ง:</h3>
 
                                             {/* First row */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
@@ -476,23 +478,35 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                             ฝากสั่งซื้อ
                                                         </label>
                                                     </div>
-                                                    <div className="flex items-center">
-                                                        <input
-                                                            id="topup"
-                                                            type="radio"
-                                                            name="type"
-                                                            value="topup"
-                                                            checked={data.type === "topup"}
-                                                            onChange={() => setValue("type", "topup")}
-                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                                        />
-                                                        <label htmlFor="topup" className="ml-2 block text-sm text-gray-700">
-                                                            ฝากเติม
-                                                        </label>
-                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Deposit Purpose Section - แสดงเมื่อเลือกประเภทรายการเป็น "ฝากโอน" */}
+                                        {data.type === "deposit" && (
+                                            <div className="border-b pb-4 mb-4">
+                                                <div className="grid grid-cols-1 gap-6 mt-4">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700">
+                                                            หัวข้อการฝาก
+                                                        </label>
+                                                        <Controller
+                                                            name="deposit_purpose"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <input
+                                                                    type="text"
+                                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 sm:text-sm"
+                                                                    placeholder="ระบุเรื่องที่ฝากโอน"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Financial Details Section */}
                                         <div className="border-b pb-4 mb-4">
@@ -797,112 +811,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
 
                                               
-                                            </div>
-
-                                          
-                                       
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        ยอดฝากชำระรวม
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.totalDepositAmount"
-                                                        control={control}
-                                                        render={({ field }) => (
-                                                            <input
-                                                                type="text"
-                                                                readOnly
-                                                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-blue-500 sm:text-sm"
-                                                                placeholder="0.00"
-                                                                {...field}
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700">
-                                                        ค่าธรรมเนียม
-                                                    </label>
-                                                    <Controller
-                                                        name="customerDeposit.fee"
-                                                        control={control}
-                                                        render={({ field }) => (
-                                                            <input
-                                                                type="number"
-                                                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${errors.customerDeposit && 'fee' in errors.customerDeposit ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
-                                                                placeholder="กรุณากรอกค่าธรรมเนียม"
-                                                                {...field}
-                                                                onChange={(e) => {
-                                                                    const inputValue = e.target.value;
-                                                                    field.onChange(inputValue === '' ? '' : parseFloat(inputValue) || 0);
-
-                                                                    if (inputValue !== '') {
-                                                                        const formValues = getValues();
-                                                                        const rmbAmount = parseFloat(formValues.customerDeposit?.amountRMB?.toString() || "0") || 0;
-                                                                        const rate = parseFloat(formValues.customerDeposit?.exchangeRate?.toString() || "0") || 0;
-                                                                        const feeAmount = parseFloat(inputValue) || 0;
-                                                                        const priceDiff = parseFloat(formValues.customerDeposit?.priceDifference?.toString() || "0") || 0;
-
-                                                                        // Recalculate all values
-                                                                        const exchangeRateProfit = (rmbAmount - priceDiff) * rate;
-                                                                        setValue('customerDeposit.exchangeRateProfit', exchangeRateProfit);
-
-                                                                        const incomePerTransaction = feeAmount + exchangeRateProfit + priceDiff;
-                                                                        setValue('customerDeposit.incomePerTransaction', incomePerTransaction);
-
-                                                                        const calculatedAmount = (rmbAmount - priceDiff) * rate + feeAmount;
-                                                                        setValue('customerDeposit.amount', calculatedAmount > 0 ? calculatedAmount : 0);
-                                                                        
-                                                                        // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน)
-                                                                        const totalDepositAmount = rmbAmount * rate;
-                                                                        setValue('customerDeposit.totalDepositAmount', totalDepositAmount > 0 ? totalDepositAmount.toFixed(2) : '0.00');
-                                                                    }
-                                                                }}
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                                <div className="mt-2">
-                                                    <div className="flex items-center">
-                                                        <Controller
-                                                            name="customerDeposit.includeVat"
-                                                            control={control}
-                                                            defaultValue={false}
-                                                            render={({ field: { onChange, value, ...field } }) => (
-                                                                <input
-                                                                    type="checkbox"
-                                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                                                    checked={value}
-                                                                    onChange={(e) => {
-                                                                        onChange(e.target.checked);
-                                                                        const amount = parseFloat(watch('customerDeposit.amount')?.toString() || '0');
-                                                                        if (e.target.checked) {
-                                                                            // คำนวณ VAT 7%
-                                                                            const vatAmount = parseFloat((amount * 0.07).toFixed(2));
-                                                                            const totalWithVat = parseFloat((amount + vatAmount).toFixed(2));
-                                                                            setValue('customerDeposit.vatAmount', vatAmount);
-                                                                            setValue('customerDeposit.totalWithVat', totalWithVat);
-                                                                        } else {
-                                                                            // ไม่รวม VAT
-                                                                            setValue('customerDeposit.vatAmount', 0);
-                                                                            setValue('customerDeposit.totalWithVat', amount);
-                                                                        }
-                                                                    }}
-                                                                    {...field}
-                                                                />
-                                                            )}
-                                                        />
-                                                        <label className="ml-2 block text-sm font-medium text-gray-700">
-                                                            มีภาษีมูลค่าเพิ่ม (VAT 7%)
-                                                        </label>
-                                                    </div>
-                                                </div>
                                             </div>
 
                                             {watch('customerDeposit.includeVat') && (

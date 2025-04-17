@@ -17,18 +17,18 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                     <Controller
                         name="amount_payment_do"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
-                                readOnly
+                                
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
                                     
@@ -52,16 +52,21 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                                     }
                                     
                                     onChange(formattedValue);
-                                    setValue('amount_payment_do', formattedValue === '' ? '' : Number(formattedValue));
+                                    setValue('amount_payment_do', formattedValue);
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
-                                        setValue('amount_payment_do', Number(numValue.toFixed(2)));
+                                        onChange(numValue.toFixed(2));
+                                        setValue('amount_payment_do', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('amount_payment_do', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
                                 placeholder="0.00"
                                 className={`${errors.amount_payment_do ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
@@ -78,18 +83,18 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                     <Controller
                         name="price_deposit"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
-                                readOnly
+                                
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
                                     
@@ -113,17 +118,21 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                                     }
                                     
                                     onChange(formattedValue);
-                                    setValue('price_deposit', formattedValue === '' ? '' : Number(formattedValue));
+                                    setValue('price_deposit', formattedValue);
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
                                     if (value !== '' && value !== null && value !== undefined) {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
-                                        setValue('price_deposit', Number(numValue.toFixed(2)));
+                                        onChange(numValue.toFixed(2));
+                                        setValue('price_deposit', numValue.toFixed(2));
+                                    } else {
+                                        onChange('');
+                                        setValue('price_deposit', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
-                                placeholder="0.00"
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                placeholder=""
                                 className={`${errors.price_deposit ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -161,11 +170,11 @@ const DOExpenseForm: React.FC<ExpenseFormProps> = () => {
                     <Controller
                         name="price_return_cabinet"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
-                                value: /^[0-9]*$/,
+                                value: /^[0-9]*\.?[0-9]*$/,
                                 message: "กรุณากรอกตัวเลขเท่านั้น"
                             }
                         }}

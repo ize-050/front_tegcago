@@ -53,10 +53,14 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('th_duty', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('th_duty', '');
                                     }
                                 }}
                                 value={typeof value === 'number' ? value.toFixed(2) : value}
@@ -76,7 +80,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_tax"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -138,7 +142,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_employee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -206,7 +210,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_warehouse"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -267,7 +271,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_custom_fees"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -328,7 +332,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_overtime"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -395,7 +399,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_check_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -456,7 +460,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_product_account"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -517,7 +521,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_license_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -583,7 +587,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_gasoline"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -644,7 +648,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_hairy"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -705,7 +709,7 @@ const ThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, s
                     <Controller
                         name="th_other_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {

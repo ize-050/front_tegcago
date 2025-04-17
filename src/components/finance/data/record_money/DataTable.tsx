@@ -28,6 +28,7 @@ interface Transaction {
     transferDate: string;
     createdAt: string;
     updatedAt: string;
+    deposit_purpose?: string;
     customerDeposit?: any;
     exchange?: any;
 }
@@ -47,18 +48,36 @@ const DataTable = ({ onRefresh }: Props) => {
     const [typeFilter, setTypeFilter] = useState("all");
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
+    const [minAmountRMB, setMinAmountRMB] = useState<string>("");
+    const [maxAmountRMB, setMaxAmountRMB] = useState<string>("");
+    const [minExchangeRate, setMinExchangeRate] = useState<string>("");
+    const [maxExchangeRate, setMaxExchangeRate] = useState<string>("");
+    const [minAmountTHB, setMinAmountTHB] = useState<string>("");
+    const [maxAmountTHB, setMaxAmountTHB] = useState<string>("");
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     
     const fetchTransactions = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
             const response = await axios.get('/finance/record-money');
-            if (response.data && response.data.data) {
-                setTransactions(response.data.data);
-                setFilteredTransactions(response.data.data);
-                setTotalPage(Math.ceil(response.data.data.length / 10));
-            }
+            console.log('API Response in DataTable:', response.data);
+            
+            // แปลงข้อมูลเพื่อให้มี deposit_purpose
+            const processedRecords = response.data.data.map((record: Transaction) => {
+                // ถ้ามี customerDeposit และมี deposit_purpose ใน customerDeposit
+                if (record.customerDeposit && record.customerDeposit.deposit_purpose) {
+                    return {
+                        ...record,
+                        deposit_purpose: record.customerDeposit.deposit_purpose
+                    };
+                }
+                return record;
+            });
+            
+            setTransactions(processedRecords || []);
+            setFilteredTransactions(processedRecords || []);
+            setTotalPage(Math.ceil((processedRecords?.length || 0) / 10));
         } catch (error) {
             console.error('Error fetching transactions:', error);
             Swal.fire({
@@ -78,7 +97,7 @@ const DataTable = ({ onRefresh }: Props) => {
 
     useEffect(() => {
         filterData();
-    }, [searchedVal, typeFilter, startDate, endDate, transactions]);
+    }, [searchedVal, typeFilter, startDate, endDate, minAmountRMB, maxAmountRMB, minExchangeRate, maxExchangeRate, minAmountTHB, maxAmountTHB, transactions]);
 
     const filterData = () => {
         let filtered = [...transactions];
@@ -108,6 +127,69 @@ const DataTable = ({ onRefresh }: Props) => {
             filtered = filtered.filter(
                 (transaction) => new Date(transaction.date) <= new Date(endDate)
             );
+        }
+        
+        // Filter by amount RMB range
+        if (minAmountRMB) {
+            filtered = filtered.filter(transaction => {
+                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.amountRMB : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.amountRMB : 0;
+                return amountRMB >= parseFloat(minAmountRMB);
+            });
+        }
+        
+        if (maxAmountRMB) {
+            filtered = filtered.filter(transaction => {
+                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.amountRMB : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.amountRMB : 0;
+                return amountRMB <= parseFloat(maxAmountRMB);
+            });
+        }
+        
+        // Filter by exchange rate range
+        if (minExchangeRate) {
+            filtered = filtered.filter(transaction => {
+                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.exchangeRate : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.exchangeRate : 0;
+                return exchangeRate >= parseFloat(minExchangeRate);
+            });
+        }
+        
+        if (maxExchangeRate) {
+            filtered = filtered.filter(transaction => {
+                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.exchangeRate : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.exchangeRate : 0;
+                return exchangeRate <= parseFloat(maxExchangeRate);
+            });
+        }
+        
+        // Filter by amount THB range
+        if (minAmountTHB) {
+            filtered = filtered.filter(transaction => {
+                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.amount : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.amount : 0;
+                return amountTHB >= parseFloat(minAmountTHB);
+            });
+        }
+        
+        if (maxAmountTHB) {
+            filtered = filtered.filter(transaction => {
+                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ? 
+                    transaction.customerDeposit.amount : 
+                    transaction.type === "order" && transaction.exchange ? 
+                    transaction.exchange.amount : 0;
+                return amountTHB <= parseFloat(maxAmountTHB);
+            });
         }
 
         setFilteredTransactions(filtered);
@@ -166,12 +248,9 @@ const DataTable = ({ onRefresh }: Props) => {
 
     const formatCurrency = (amount: number | null | undefined) => {
         if (amount === null || amount === undefined) return '-';
-        return new Intl.NumberFormat("th-TH", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
+        return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     };
-
+    
     const formatDate = (date: string | null | undefined) => {
         if (!date) return '-';
         return format(new Date(date), 'dd/MM/yyyy', { locale: th });
@@ -234,7 +313,6 @@ const DataTable = ({ onRefresh }: Props) => {
                                 <option value="all">ทั้งหมด</option>
                                 <option value="deposit">ฝากโอน</option>
                                 <option value="order">ฝากสั่งซื้อ</option>
-                                <option value="topup">ฝากเติม</option>
                             </FormSelect>
                         </div>
 
@@ -262,6 +340,83 @@ const DataTable = ({ onRefresh }: Props) => {
                         </div>
                     </div>
                     
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-4">
+                        {/* Amount RMB Range */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">ยอดฝากชำระ/โอน (RMB)</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="ต่ำสุด"
+                                    value={minAmountRMB}
+                                    onChange={(e) => setMinAmountRMB(e.target.value)}
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="สูงสุด"
+                                    value={maxAmountRMB}
+                                    onChange={(e) => setMaxAmountRMB(e.target.value)}
+                                    min={minAmountRMB || "0"}
+                                    step="0.01"
+                                />
+                            </div>
+                        </div>
+                        
+                        {/* Exchange Rate Range */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">อัตราแลกเปลี่ยน</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="ต่ำสุด"
+                                    value={minExchangeRate}
+                                    onChange={(e) => setMinExchangeRate(e.target.value)}
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="สูงสุด"
+                                    value={maxExchangeRate}
+                                    onChange={(e) => setMaxExchangeRate(e.target.value)}
+                                    min={minExchangeRate || "0"}
+                                    step="0.01"
+                                />
+                            </div>
+                        </div>
+                        
+                        {/* Amount THB Range */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">ยอดฝาก/โอนรวม (THB)</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="ต่ำสุด"
+                                    value={minAmountTHB}
+                                    onChange={(e) => setMinAmountTHB(e.target.value)}
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <FormInput
+                                    type="number"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="สูงสุด"
+                                    value={maxAmountTHB}
+                                    onChange={(e) => setMaxAmountTHB(e.target.value)}
+                                    min={minAmountTHB || "0"}
+                                    step="0.01"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
                     {/* Filter Actions */}
                     <div className="flex justify-end mt-4 space-x-2">
                         <Button
@@ -271,6 +426,12 @@ const DataTable = ({ onRefresh }: Props) => {
                                 setTypeFilter("all");
                                 setStartDate("");
                                 setEndDate("");
+                                setMinAmountRMB("");
+                                setMaxAmountRMB("");
+                                setMinExchangeRate("");
+                                setMaxExchangeRate("");
+                                setMinAmountTHB("");
+                                setMaxAmountTHB("");
                             }}
                         >
                             <Lucide icon="RefreshCw" className="w-4 h-4 mr-2" />
@@ -289,7 +450,13 @@ const DataTable = ({ onRefresh }: Props) => {
                 {/* Add Record Button */}
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-lg font-medium">รายการข้อมูลทั้งหมด</h2>
-                   
+                    <button
+                        className="bg-blue-950 hover:bg-blue-800 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
+                        onClick={() => dispatch(setModalRecordMoney(true))}
+                        type="button"
+                    >
+                        + เพิ่มข้อมูล
+                    </button>
                 </div>
             </div>
 
@@ -301,8 +468,12 @@ const DataTable = ({ onRefresh }: Props) => {
                                 <Table.Th className="border-b-0 whitespace-nowrap">ลำดับ</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">เลขที่เอกสาร</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">ประเภท</Table.Th>
+                                <Table.Th className="border-b-0 whitespace-nowrap">ฝากเรื่อง</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">รหัสลูกค้า</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">พนักงานขาย</Table.Th>
+                                <Table.Th className="border-b-0 whitespace-nowrap text-right">ยอดฝาก/โอน (RMB)</Table.Th>
+                                <Table.Th className="border-b-0 whitespace-nowrap text-right">อัตราแลกเปลี่ยน</Table.Th>
+                                <Table.Th className="border-b-0 whitespace-nowrap text-right">ยอดฝาก/โอนรวม (THB)</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">วันที่โอน</Table.Th>
                                
                                 <Table.Th className="text-center border-b-0 whitespace-nowrap">จัดการ</Table.Th>
@@ -311,13 +482,13 @@ const DataTable = ({ onRefresh }: Props) => {
                         <Table.Tbody>
                             {loading ? (
                                 <Table.Tr>
-                                    <Table.Td colSpan={8} className="text-center py-4">
+                                    <Table.Td colSpan={11} className="text-center py-4">
                                         กำลังโหลดข้อมูล...
                                     </Table.Td>
                                 </Table.Tr>
                             ) : getCurrentPageData().length === 0 ? (
                                 <Table.Tr>
-                                    <Table.Td colSpan={8} className="text-center py-4">
+                                    <Table.Td colSpan={11} className="text-center py-4">
                                         ไม่พบข้อมูลธุรกรรม
                                     </Table.Td>
                                 </Table.Tr>
@@ -338,10 +509,37 @@ const DataTable = ({ onRefresh }: Props) => {
                                                 </div>
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
+                                                {transaction.type === "deposit" ? (
+                                                    <div className="text-sm font-medium text-blue-600">
+                                                        {transaction.deposit_purpose || transaction.customerDeposit?.deposit_purpose || "-"}
+                                                    </div>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </Table.Td>
+                                            <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
                                                 {transaction.customerId}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
                                              {transaction.user.fullname}
+                                            </Table.Td>
+                                            <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
+                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
+                                                    formatCurrency(transaction.customerDeposit.amountRMB || 0) : 
+                                                    transaction.type === "order" && transaction.exchange ? 
+                                                    formatCurrency(transaction.exchange.amountRMB || 0) : "-"}
+                                            </Table.Td>
+                                            <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
+                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
+                                                    formatCurrency(transaction.customerDeposit.exchangeRate || 0) : 
+                                                    transaction.type === "order" && transaction.exchange ? 
+                                                    formatCurrency(transaction.exchange.exchangeRate || 0) : "-"}
+                                            </Table.Td>
+                                            <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
+                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
+                                                    formatCurrency(transaction.customerDeposit.amount || 0) : 
+                                                    transaction.type === "order" && transaction.exchange ? 
+                                                    formatCurrency(transaction.exchange.amount || 0) : "-"}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
                                                 {formatDate(transaction.date)}

@@ -4,12 +4,12 @@ import { ExpenseFormProps } from './types';
 import { numberFormatTh } from "@/utils/numberFormat";
 
 const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch, setValue }) => {
-    const ch_freight = watch('ch_freight') || 0;
-    const ch_exchange_rate = watch('ch_exchange_rate') || 0;
-    const ch_freight_total = Number(ch_freight) * Number(ch_exchange_rate);
+    const ch_freight = watch('ch_freight') || '';
+    const ch_exchange_rate = watch('ch_exchange_rate') || '';
+    const ch_freight_total = (ch_freight && ch_exchange_rate) ? Number(ch_freight) * Number(ch_exchange_rate) : 0;
 
     useEffect(() => {
-        setValue('ch_freight_total', ch_freight_total.toFixed(2));
+        setValue('ch_freight_total', ch_freight_total ? ch_freight_total.toFixed(2) : '');
     }, [ch_freight_total, setValue]);
 
     return (
@@ -60,10 +60,14 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('ch_freight', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('ch_freight', '');
                                     }
                                 }}
                                 value={typeof value === 'number' ? value.toFixed(2) : value}
@@ -83,7 +87,7 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                     <Controller
                         name="ch_exchange_rate"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -121,10 +125,14 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('ch_exchange_rate', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('ch_exchange_rate', '');
                                     }
                                 }}
                                 value={typeof value === 'number' ? value.toFixed(2) : value}
@@ -144,7 +152,7 @@ const ChineseExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors, watch
                     <Controller
                         name="ch_freight_total"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         render={({ field: { value } }) => (
                             <input
                                 type="text"

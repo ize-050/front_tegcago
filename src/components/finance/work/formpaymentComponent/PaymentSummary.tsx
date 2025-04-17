@@ -59,6 +59,29 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
     const dispatch = useDispatch();
     const paymentRows = useSelector((state: { financeReducer: FinanceState }) => state.financeReducer.paymentRows);
 
+    // ตัวแปรสำหรับเก็บสถานะว่ามีการเลือก VAT หรือไม่
+    const hasVat = watch('has_vat') || false;
+    const totalBeforeVat = Number(watch('total_before_vat') || 0);
+    
+    // คำนวณยอดรวมทั้งหมดรวม VAT (ถ้ามี)
+    useEffect(() => {
+        if (hasVat && totalBeforeVat > 0) {
+            // คำนวณ VAT 7%
+            const vatAmount = totalBeforeVat * 0.07;
+            // คำนวณยอดรวมทั้งหมด
+            const totalWithVat = totalBeforeVat + vatAmount;
+            // อัพเดทยอดเรียกเก็บทั้งหมด
+            setValue('billing_amount', totalWithVat.toFixed(2));
+            // คำนวณยอดที่ต้องจ่ายคงเหลือ
+            calculateRemainingPayment();
+        } else if (totalBeforeVat > 0) {
+            // ถ้าไม่มี VAT ให้ใช้ยอดก่อน VAT เป็นยอดรวมทั้งหมด
+            setValue('billing_amount', totalBeforeVat.toFixed(2));
+            // คำนวณยอดที่ต้องจ่ายคงเหลือ
+            calculateRemainingPayment();
+        }
+    }, [hasVat, totalBeforeVat]);
+
     useEffect(() => {
         // คำนวณกำไรขาดทุน
         const initialProfit = Number(watch('total_before_vat') || 0) - totalAllExpenses;
@@ -212,7 +235,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="th_shipping_advance"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         
                         rules={{
                             required: false,
@@ -224,7 +247,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
-                                readOnly
+                                
                                 onChange={(e) => {
                                     const newValue = e.target.value === '' ? '' : e.target.value;
                                     onChange(newValue);
@@ -267,7 +290,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="th_shipping_remaining"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         
                         render={({ field }) => <input type="hidden" {...field} />}
                     />
@@ -315,14 +338,14 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
             <hr></hr>
 
             <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
-                <div className="w-full md:w-1/2 flex flex-col">
+                <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-gray-700 text-sm font-semibold">
                         ยอดเรียกเก็บก่อน VAT
                     </label>
                     <Controller
                         name="total_before_vat"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -360,28 +383,56 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('total_before_vat', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('total_before_vat', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
                                 placeholder="0.00"
                                 className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
                             />
                         )}
                     />
                 </div>
-
-                <div className="w-full md:w-1/2 flex flex-col">
+                
+                <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                        ยอดเรียกเก็บทั้งหมด
+                        มี VAT 7%
+                    </label>
+                    <div className="flex items-center h-[42px]">
+                        <Controller
+                            name="has_vat"
+                            control={control}
+                            defaultValue={false}
+                            render={({ field: { onChange, value } }) => (
+                                <input
+                                    type="checkbox"
+                                    checked={value}
+                                    onChange={(e) => {
+                                        onChange(e.target.checked);
+                                    }}
+                                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                            )}
+                        />
+                        <span className="ml-2 text-gray-700">{watch('has_vat') ? 'คิด VAT 7%' : 'ไม่คิด VAT'}</span>
+                    </div>
+                </div>
+
+                <div className="w-full md:w-1/3 flex flex-col">
+                    <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                        ยอดเรียกเก็บทั้งหมด {watch('has_vat') && '(รวม VAT 7%)'}
                     </label>
                     <Controller
                         name="billing_amount"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -392,7 +443,13 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                         render={({ field: { onChange, value } }) => (
                             <input
                                 type="text"
+                                readOnly={watch('has_vat') && watch('total_before_vat') !== ''}
                                 onChange={(e) => {
+                                    // ถ้ามีการเลือก VAT และมีค่าในช่องยอดเรียกเก็บก่อน VAT ไม่ให้แก้ไขช่องนี้
+                                    if (watch('has_vat') && watch('total_before_vat') !== '') {
+                                        return;
+                                    }
+                                    
                                     const inputValue = e.target.value;
                                     
                                     // Allow empty value for deletion
@@ -419,17 +476,27 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                     calculateRemainingPayment();
                                 }}
                                 onBlur={() => {
+                                    // ถ้ามีการเลือก VAT และมีค่าในช่องยอดเรียกเก็บก่อน VAT ไม่ต้องทำอะไร
+                                    if (watch('has_vat') && watch('total_before_vat') !== '') {
+                                        return;
+                                    }
+                                    
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('billing_amount', numValue.toFixed(2));
                                         calculateRemainingPayment();
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('billing_amount', '');
+                                        calculateRemainingPayment();
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
                                 placeholder="0.00"
-                                className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
+                                className={`px-4 py-2 outline-none rounded-md border border-gray-300 text-base ${watch('has_vat') && watch('total_before_vat') !== '' ? 'bg-gray-100' : ''}`}
                             />
                         )}
                     />
@@ -499,7 +566,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                 <Controller
                                     name={`payment_amount_${rowNumber}`}
                                     control={control}
-                                    defaultValue={0}
+                                    defaultValue=""
                                     rules={{
                                         required: false,
                                         pattern: {
@@ -548,8 +615,8 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                                     calculateRemainingPayment();
                                                 }
                                             }}
-                                            value={typeof value === 'number' ? value.toFixed(2) : value}
-                                            placeholder="0.00"
+                                            value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                            placeholder=""
                                             className="px-4 py-2 outline-none rounded-md border border-gray-300 text-base"
                                         />
                                     )}
@@ -563,7 +630,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                 <Controller
                                     name={`remaining_amount_${rowNumber}`}
                                     control={control}
-                                    defaultValue={0}
+                                    defaultValue=""
                                     render={({ field: { value } }) => (
                                         <div className="px-4 py-2 bg-gray-100 rounded-md">
                                             {numberFormatTh(value)} THB
@@ -584,7 +651,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="profit_loss"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         render={({ field: { value } }) => (
                             <div className="px-4 py-2 bg-gray-100 rounded-md">
                                 {numberFormatTh(value)} THB
@@ -600,7 +667,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="management_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -631,7 +698,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="percentage_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -662,7 +729,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                     <Controller
                         name="net_profit"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         render={({ field: { value } }) => (
                             <div className="px-4 py-2 bg-gray-100 rounded-md">
                                 {numberFormatTh(value)} THB
@@ -739,7 +806,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                                 <Controller
                                     name="tax_return_amount"
                                     control={control}
-                                    defaultValue={0}
+                                    defaultValue=""
                                     rules={{
                                         required: watch('tax_return_checked'),
                                         pattern: {

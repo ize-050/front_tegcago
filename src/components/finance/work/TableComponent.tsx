@@ -143,8 +143,10 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     );
 
     const handleSearch = (e: any) => {
-        setSearchedVal(e.target.value);
-        setShowSuggestions(true);
+        const value = e.target.value;
+        setSearchedVal(value);
+        // แสดงผลลัพธ์เฉพาะเมื่อมีการพิมพ์ข้อความเท่านั้น
+        setShowSuggestions(value.trim().length > 0);
     }
 
     const handleSelectSuggestion = (value: string) => {
@@ -223,10 +225,21 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             placeholder="ค้นหา"
                                             value={searchedVal}
                                             onChange={handleSearch}
-                                            onFocus={() => setShowSuggestions(true)}
+                                            onFocus={() => {
+                                                // แสดงผลลัพธ์เฉพาะเมื่อมีการพิมพ์ข้อความเท่านั้น
+                                                if (searchedVal.trim().length > 0) {
+                                                    setShowSuggestions(true);
+                                                }
+                                            }}
+                                            onBlur={() => {
+                                                // ใช้ setTimeout เพื่อให้สามารถคลิกเลือกรายการได้ก่อนที่ dropdown จะหายไป
+                                                setTimeout(() => {
+                                                    setShowSuggestions(false);
+                                                }, 200);
+                                            }}
                                             className="w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-transparent"
                                         />
-                                        {showSuggestions && filteredSuggestions.length > 0 && (
+                                        {showSuggestions && searchedVal.trim().length > 0 && filteredSuggestions.length > 0 && (
                                             <div className="absolute z-10 w-64 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
                                                 {filteredSuggestions.map((suggestion, index) => (
                                                     <div
@@ -310,6 +323,9 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
                                                 No
                                             </Table.Td>
+                                            <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
+                                                เลข Shipment
+                                            </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center   border-t  border-slate-200/60 text-black">
                                                 เลขที่ตีราคา
                                             </Table.Td>
@@ -340,9 +356,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                                                 ETA
                                             </Table.Td>
-                                            <Table.Td className="py-4 font-medium truncate text-center  border-t  border-slate-200/60 text-black">
-                                                เลข Shipment
-                                            </Table.Td>
+                                          
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 สถานะใบจอง
                                             </Table.Td>
@@ -362,6 +376,9 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                         <Table.Tr className="text-sm">
                                                             <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                 {key + 1}
+                                                            </Table.Td>
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.d_shipment_number || '-'}
                                                             </Table.Td>
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.book_number}
@@ -405,9 +422,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                                         ?.d_sale_agentcy[0]?.d_agentcy?.agentcy_etd || '-'
                                                                     : '-'}
                                                             </Table.Td>
-                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
-                                                                {data?.d_shipment_number || '-'}
-                                                            </Table.Td>
+                                                           
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.d_status || '-'}
                                                             </Table.Td>

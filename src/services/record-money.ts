@@ -50,6 +50,7 @@ interface RecordMoneyData {
   documentNumber: string;
   customerId: string;
   type: 'deposit' | 'order' | 'topup';
+  deposit_purpose?: string; // เพิ่มฟิลด์สำหรับเก็บข้อมูลว่าฝากเรื่องอะไร
   customerDeposit?: CustomerDepositData;
   exchange?: ExchangeData;
   transferSlipUrl?: string;

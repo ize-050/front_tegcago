@@ -33,13 +33,6 @@ export default function WorkPage() {
         </div>
        
         <div className="flex-none p-5 flex gap-2">
-          <button
-            className="bg-green-600 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
-            onClick={handleOpenModal}
-            type="button"
-          >
-            + เพิ่มข้อมูล
-          </button>
           {/* <button
             className="bg-blue-950 text-white font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg mr-1 mb-1"
             onClick={() => {

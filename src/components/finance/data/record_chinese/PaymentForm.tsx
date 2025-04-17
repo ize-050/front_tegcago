@@ -46,14 +46,14 @@ const PaymentFormComponent: React.FC<PaymentFormProps> = ({ onSubmit, initialDat
       account: '',
       payTo: '',
       transferDate: new Date().toISOString().split("T")[0],
-      amountRMB: 0,
-      formattedAmountRMB: '0.00',
+      amountRMB: '',
+      formattedAmountRMB: '',
       details: '',
     },
   });
 
   const [accountOptions, setAccountOptions] = useState([]);
-  const [formattedAmount, setFormattedAmount] = useState('0.00');
+  const [formattedAmount, setFormattedAmount] = useState('');
   
 useEffect(() => {
   const fetchAccounts = async () => {
@@ -258,7 +258,7 @@ useEffect(() => {
                     setValue('amountRMB', numValue.toFixed(2));
                   }
                 }}
-                value={typeof value === 'number' ? value.toFixed(2) : value}
+                value={value}
                 placeholder="0.00"
                 className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 sm:text-sm ${
                   errors.amountRMB ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'

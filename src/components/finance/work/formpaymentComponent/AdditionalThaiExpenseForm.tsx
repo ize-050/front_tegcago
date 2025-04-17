@@ -16,13 +16,21 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
     ]);
 
     const calculateTotalThaiExpense = () => {
-        const total = 
-            Number(watch('th_port_fee') || 0) +
-            Number(watch('th_lift_on_off') || 0) +
-            Number(watch('th_ground_fee') || 0) +
-            Number(watch('th_port_other_fee') || 0);
+        // ตรวจสอบว่ามีค่าใดค่าหนึ่งก่อนคำนวณ
+        const hasValues = watch('th_port_fee') || watch('th_lift_on_off') || watch('th_ground_fee') || watch('th_port_other_fee');
         
-        setValue('th_total_port_fee', total.toFixed(2));
+        if (hasValues) {
+            const total = 
+                Number(watch('th_port_fee') || 0) +
+                Number(watch('th_lift_on_off') || 0) +
+                Number(watch('th_ground_fee') || 0) +
+                Number(watch('th_port_other_fee') || 0);
+            
+            setValue('th_total_port_fee', total.toFixed(2));
+        } else {
+            // ถ้าไม่มีค่าใดๆ ให้เซ็ตเป็นค่าว่าง
+            setValue('th_total_port_fee', '');
+        }
     };
     
     return (
@@ -59,7 +67,7 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                     <Controller
                         name="th_port_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -97,14 +105,18 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('th_port_fee', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('th_port_fee', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
-                                placeholder="0.00"
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                placeholder=""
                                 className={`${errors.th_port_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -120,7 +132,7 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                     <Controller
                         name="th_lift_on_off"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -158,14 +170,18 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('th_lift_on_off', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('th_lift_on_off', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
-                                placeholder="0.00"
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                placeholder=""
                                 className={`${errors.th_lift_on_off ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -183,7 +199,7 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                     <Controller
                         name="th_ground_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -221,14 +237,18 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('th_ground_fee', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('th_ground_fee', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
-                                placeholder="0.00"
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                placeholder=""
                                 className={`${errors.th_ground_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />
@@ -244,7 +264,7 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                     <Controller
                         name="th_port_other_fee"
                         control={control}
-                        defaultValue={0}
+                        defaultValue=""
                         rules={{
                             required: false,
                             pattern: {
@@ -282,14 +302,18 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
                                 }}
                                 onBlur={() => {
                                     // Format to 2 decimal places when leaving the field
-                                    if (value !== '' && value !== null && value !== undefined) {
+                                    if (value !== '' && value !== null && value !== undefined && value !== 0 && value !== '0' && value !== '0.00') {
                                         const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                         onChange(numValue.toFixed(2));
                                         setValue('th_port_other_fee', numValue.toFixed(2));
+                                    } else if (value === 0 || value === '0' || value === '0.00') {
+                                        // ถ้าค่าเป็น 0 ให้เซ็ตเป็นค่าว่าง
+                                        onChange('');
+                                        setValue('th_port_other_fee', '');
                                     }
                                 }}
-                                value={typeof value === 'number' ? value.toFixed(2) : value}
-                                placeholder="0.00"
+                                value={value === 0 || value === '0' || value === '0.00' ? '' : (typeof value === 'string' ? value : (value ? value.toString() : ''))}
+                                placeholder=""
                                 className={`${errors.th_port_other_fee ? "border-red-500" : "border-gray-200"}
                                     px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                             />

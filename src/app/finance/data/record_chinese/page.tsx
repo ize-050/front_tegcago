@@ -44,15 +44,7 @@ export default  function WorkPage() {
           }}
         >
 
-        <div className="justify-between flex items-center p-5">
-          <button
-          className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 
-          "
-          onClick={handleAdd}
-          type="button"
-          >+ เพิ่มข้อมูลการโอนเงิน</button>
 
-        </div>  
 
           <TableComponent  />
 
