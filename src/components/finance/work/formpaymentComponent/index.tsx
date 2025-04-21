@@ -519,10 +519,10 @@ const FormPaymentComponent = ({ BookingId }: any) => {
 
                     <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 mb-5">
                         <div className="w-full md:w-1/3 flex flex-col">
-                            <label className="block mb-2 text-gray-700 text-sm">
-                                invoice & Packinglist No.
+                            <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                                ประเภท Shipment
                             </label>
-                            <p>{purchaseFinanceData.customer_number}</p>
+                            <p>{purchaseFinanceData.d_transport || '-'}</p>
                         </div>
 
                         <div className="w-full md:w-1/3 flex flex-col">

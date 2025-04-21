@@ -127,9 +127,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_route ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+                    className={`${errors.d_route ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
                   >
                     <option selected>เลือก</option>
                     {RouteData.map((item, index) => {
@@ -160,9 +159,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_transport ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
+                    className={`${errors.d_transport ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
                                          dark:focus:border-blue-500`}
                   >
                     <option selected>เลือก</option>
@@ -196,9 +194,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_term ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg 
+                    className={`${errors.d_term ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg 
                                         focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
                                          dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
                                           dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
@@ -222,7 +219,7 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
 
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-10 mt-5">
 
-          <div className="w-full md:w-1/3 flex flex-col">
+            <div className="w-full md:w-1/3 flex flex-col">
               <label className="block flex mb-1 text-gray-600 font-semibold">
                 รูปแบบงาน
               </label>
@@ -254,30 +251,28 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
             </div>
 
             <div className="w-full md:w-1/3 flex flex-col">
-              <label className=" flex mb-1 text-gray-600 font-semibold">
+              <label className="block flex mb-1 text-gray-600 font-semibold">
                 เลือกประเภทงาน
               </label>
               <Controller
                 name="d_group_work"
-                defaultValue={purchase.d_group_work}
                 control={control}
+                defaultValue={purchase.d_group_work}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <select
                     onChange={onChange}
+                    onBlur={onBlur}
                     value={value}
                     className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
                   >
                     <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
-                    <option value="งานเหมา Allin">งานเหมา Allin</option>
-                    <option value="งาน Shipping">งาน Shipping</option>
-                    <option value="งาน Green ตามจริง">งาน Green ตามจริง</option>
-                    <option value="งานเคลียร์ขาเข้าทางเรือ">
-                      งานเคลียร์ขาเข้าทางเรือ
-                    </option>
-                    <option value="งานเคลียร์ขาเข้าทางรถ">
-                      งานเคลียร์ขาเข้าทางรถ
-                    </option>
+                    <option value="EXW ALL IN">EXW ALL IN</option>
+                    <option value="EXW GREEN">EXW GREEN</option>
+                    <option value="CLEAR">CLEAR</option>
+                    <option value="GREEN">GREEN</option>
+                    <option value="SHIPPING">SHIPPING</option>
+                    <option value="CIF CN">CIF CN</option>
                   </select>
                 )}
               />
@@ -367,9 +362,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_origin ? "border-red-500" : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                    className={`${errors.d_origin ? "border-red-500" : "border-gray-200"
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -392,11 +386,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_destination
+                    className={`${errors.d_destination
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -423,11 +416,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                       onChange={onChange}
                       value={value}
                       placeholder="กรอก"
-                      className={`${
-                        errors.d_size_cabinet
+                      className={`${errors.d_size_cabinet
                           ? "border-red-500"
                           : "border-gray-200"
-                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                     />
                   )}
                 />
@@ -450,9 +442,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                       onChange={onChange}
                       value={value}
                       placeholder="กรอก"
-                      className={`${
-                        errors.d_weight ? "border-red-500" : "border-gray-200"
-                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      className={`${errors.d_weight ? "border-red-500" : "border-gray-200"
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                     />
                   )}
                 />
@@ -478,8 +469,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                             const newValue = e.target.checked
                               ? [...(value || []), e.target.value]
                               : (value || []).filter(
-                                  (v: any) => v !== e.target.value
-                                );
+                                (v: any) => v !== e.target.value
+                              );
                             onChange(newValue);
                           }}
                           id="bordered-radio-2"
@@ -500,8 +491,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                             const newValue = e.target.checked
                               ? [...(value || []), e.target.value]
                               : (value || []).filter(
-                                  (v: any) => v !== e.target.value
-                                );
+                                (v: any) => v !== e.target.value
+                              );
                             onChange(newValue);
                           }}
                           id="bordered-radio-2"
@@ -551,11 +542,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin
+                    className={`${errors.d_address_origin
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -577,9 +567,8 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_weight ? "border-red-500" : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                    className={`${errors.d_weight ? "border-red-500" : "border-gray-200"
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -605,11 +594,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin_la
+                    className={`${errors.d_address_origin_la
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -632,11 +620,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin_long
+                    className={`${errors.d_address_origin_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -660,11 +647,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_la
+                    className={`${errors.d_address_destination_la
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -687,11 +673,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_long
+                    className={`${errors.d_address_destination_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -717,11 +702,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.link_d_origin
+                    className={`${errors.link_d_origin
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -745,11 +729,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.link_d_destination
+                    className={`${errors.link_d_destination
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -811,11 +794,10 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                       onChange={onChange}
                       value={value}
                       placeholder="กรอก"
-                      className={`${
-                        errors.d_refund_tag
+                      className={`${errors.d_refund_tag
                           ? "border-red-500"
                           : "border-gray-200"
-                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                     />
                   )}
                 />
@@ -865,7 +847,7 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
             <button
               className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 "
               type="submit"
-              // onClick={() => setShowModal(false)}
+            // onClick={() => setShowModal(false)}
             >
               Submit
             </button>

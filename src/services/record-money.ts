@@ -105,9 +105,13 @@ export const getRecordMoneyList = async () => {
  */
 export const getRecordMoneyById = async (id: string) => {
   try {
+    console.log(`กำลังดึงข้อมูลรายการเงินด้วย ID: ${id}`);
+    // ใช้ endpoint ที่เพิ่งสร้างใหม่
     const response = await axios.get(`/finance/record-money/${id}`);
+    console.log('ผลลัพธ์จาก API:', response.data);
     return response.data;
   } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลรายการเงิน:', error);
     throw error;
   }
 };

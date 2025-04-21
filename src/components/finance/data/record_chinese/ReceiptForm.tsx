@@ -402,6 +402,7 @@ const ReceiptFormComponent: React.FC<ReceiptFormProps> = ({ onSubmit, initialDat
               <UploadImageComponent
                 setValue={setValue}
                 control={control}
+                existingImage={initialData?.existingTransferSlip}
               ></UploadImageComponent>
             )}
           />

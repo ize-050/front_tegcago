@@ -53,7 +53,7 @@ const defaultWithdrawalItem = {
 }
 
 type FormValues = {
-    transfer_amount: number;
+    transfer_amount: any;
     transfer_date: string;
     pay_gasoline: number;
     pay_price: number;
@@ -61,12 +61,13 @@ type FormValues = {
     return_people: string;
     withdrawal_date: string;
     withdrawal_person: string;
+    formatted_transfer_amount?: string;
 };
 
 const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     const dispatch = useAppDispatch()
     const router = useRouter()
-    const { modalWithdrawal, formwithdrawal , action } = useAppSelector(financeData)
+    const { modalWithdrawal, formwithdrawal, action } = useAppSelector(financeData)
     const [selectedInvoiceId, setSelectedInvoiceId] = useState("")
     const [withdrawalItems, setWithdrawalItems] = useState<WithdrawalItem[]>([defaultWithdrawalItem])
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -86,7 +87,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         register
     } = useForm<FormValues>({
         defaultValues: {
-            transfer_amount: 0,
+            transfer_amount: '',
             transfer_date: new Date().toISOString().split('T')[0],
             pay_gasoline: 0,
             pay_price: 0,
@@ -115,7 +116,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         } else {
             // เคลียร์ฟอร์มเมื่อไม่มีข้อมูล formwithdrawal (กรณีเพิ่มรายการใหม่)
             reset({
-                transfer_amount: 0,
+                transfer_amount: '',
                 transfer_date: new Date().toISOString().split('T')[0],
                 pay_gasoline: 0,
                 pay_price: 0,
@@ -260,7 +261,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 text: 'กรุณาเลือก Invoice & PackingList No. ในรายการปัจจุบันก่อนเพิ่มรายการใหม่',
                 confirmButtonText: 'ตกลง'
             });
-            return; 
+            return;
         }
 
         const newItem = {
@@ -274,7 +275,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             gasoline_cost: '',
             other_cost: '',
         };
-        
+
         setWithdrawalItems([...withdrawalItems, newItem]);
         setQueries([...queries, '']);
     }
@@ -305,20 +306,20 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
     useEffect(() => {
         // Calculate total withdrawal amount
         const totalWithdrawalAmount = withdrawalItems.reduce((sum, item) => sum + Number(item.withdrawal_amount || 0), 0);
-        
+
         // Calculate total gasoline and other costs from individual items
         const totalGasolineCost = withdrawalItems.reduce((sum, item) => sum + Number(item.gasoline_cost || 0), 0);
         const totalOtherCost = withdrawalItems.reduce((sum, item) => sum + Number(item.other_cost || 0), 0);
-        
+
         // Set the total values to the form
         setValue('pay_gasoline', totalGasolineCost);
         setValue('pay_price', totalOtherCost);
-        
+
         // Calculate total
         const gasoline = Number(watch('pay_gasoline')) || 0;
         const price = Number(watch('pay_price')) || 0;
         const transferAmount = Number(watch('transfer_amount')) || 0;
-        
+
         // Calculate total amount to return
         const total = transferAmount - gasoline - price;
         setValue('pay_total', total);
@@ -329,10 +330,10 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
         const gasoline = Number(watch('pay_gasoline')) || 0;
         const price = Number(watch('pay_price')) || 0;
         const transferAmount = Number(watch('transfer_amount')) || 0;
-        
+
         const total = totalWithdrawal + gasoline + price - transferAmount;
         setValue('pay_total', total);
-        
+
         // Automatically set return_people based on pay_total value
         if (total > 0) {
             setValue('return_people', 'คืนบริษัท');
@@ -358,8 +359,8 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
             }
 
             setIsSubmitting(true);
-            
-            const endpoint = formwithdrawal?.id 
+
+            const endpoint = formwithdrawal?.id
                 ? `${process.env.NEXT_PUBLIC_URL_API}/finance/updateWidhdrawalInformation`
                 : `${process.env.NEXT_PUBLIC_URL_API}/finance/submitwidhdrawalInformation`
 
@@ -369,7 +370,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                 withdrawalItems,
                 d_purchase_id: selectedInvoiceId,
             }
-            
+
             // เพิ่ม group_id เมื่อทำการแก้ไขข้อมูล
             if (formwithdrawal?.id) {
                 payload.id = formwithdrawal.id;
@@ -378,21 +379,21 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
 
             const response = await axios.post(endpoint, payload)
 
-            if(response.status === 200 && response.data.statusCode == 200) {
+            if (response.status === 200 && response.data.statusCode == 200) {
                 await Swal.fire({
                     icon: 'success',
                     title: formwithdrawal?.id ? 'แก้ไขข้อมูลสำเร็จ' : 'บันทึกข้อมูลสำเร็จ',
                     showConfirmButton: false,
                     timer: 1500
                 })
-                
+
                 // Reset form and state
                 reset();
                 setWithdrawalItems([defaultWithdrawalItem]);
                 setQueries(['']);
                 setOptions([]);
                 setActiveIndex(null);
-                
+
                 dispatch(setModalWithdrawal(false))
                 dispatch(setFormWithdrawal(null))
                 onSuccess()
@@ -738,7 +739,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             </div>
 
                                                             <div className="grid grid-cols-2 gap-4">
-                        
+
 
 
                                                                 <div>
@@ -764,11 +765,54 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                                     <Controller
                                                                         name="transfer_amount"
                                                                         control={control}
-                                                                        render={({ field }) => (
+                                                                        defaultValue=""
+                                                                        rules={{
+                                                                            required: false,
+                                                                            pattern: {
+                                                                                value: /^[0-9]*\.?[0-9]*$/,
+                                                                                message: "กรุณากรอกตัวเลขเท่านั้น"
+                                                                            }
+                                                                        }}
+                                                                        render={({ field: { onChange, value } }) => (
                                                                             <input
-                                                                                type="number"
-                                                                                {...field}
-                                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                                                                type="text"
+                                                                                onChange={(e) => {
+                                                                                    const inputValue = e.target.value;
+
+                                                                                    // Allow empty value for deletion
+                                                                                    if (inputValue === '') {
+                                                                                        onChange('');
+                                                                                        setValue('transfer_amount', '');
+                                                                                        return;
+                                                                                    }
+
+                                                                                    // Allow only numbers and decimal point
+                                                                                    if (!/^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+                                                                                        return; // Invalid input, don't update
+                                                                                    }
+
+                                                                                    // Limit to 2 decimal places if there's a decimal point
+                                                                                    let formattedValue = inputValue;
+                                                                                    if (inputValue.includes('.')) {
+                                                                                        const [whole, decimal] = inputValue.split('.');
+                                                                                        formattedValue = `${whole}.${decimal.slice(0, 2)}`;
+                                                                                    }
+
+                                                                                    onChange(formattedValue);
+                                                                                    setValue('transfer_amount', formattedValue);
+                                                                                }}
+                                                                                onBlur={() => {
+                                                                                    // Format to 2 decimal places when leaving the field
+                                                                                    if (value !== '' && value !== null && value !== undefined) {
+                                                                                        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+                                                                                        onChange(numValue.toFixed(2));
+                                                                                        setValue('transfer_amount', numValue.toFixed(2));
+                                                                                    }
+                                                                                }}
+                                                                                value={typeof value === 'number' ? value.toFixed(2) : value}
+                                                                                placeholder="0.00"
+                                                                                className={`${errors.transfer_amount ? "border-red-500" : "border-gray-200"}
+                                                                                                       px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                                                                             />
                                                                         )}
                                                                     />
@@ -776,7 +820,7 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
                                                             </div>
                                                         </div>
 
-                                                    
+
 
                                                         <div className="grid grid-cols-2 gap-4 mt-4">
                                                             <div>
@@ -798,8 +842,8 @@ const ModalWithdrawalInformation = ({ onSuccess }: Props) => {
 
                                                         </div>
 
-                                                            {/* Live calculation summary */}
-                                                            {/* <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                                        {/* Live calculation summary */}
+                                                        {/* <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                                                             <h4 className="font-medium text-gray-700 mb-2">สรุปการคำนวณ (ตัวอย่าง)</h4>
                                                             <div className="space-y-2 text-sm">
                                                                 <p>จำนวนรายการเบิก: <span className="font-medium">{withdrawalItems.length} รายการ</span></p>

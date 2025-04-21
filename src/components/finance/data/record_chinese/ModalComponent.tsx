@@ -47,11 +47,18 @@ const ModalRecordMoneyComponent: React.FC = () => {
         
         // Add the full URL for the transfer slip if it exists
         if (recordData.transferSlip) {
-          recordData.transferSlip = recordData.transferSlip.startsWith('http') 
-            ? recordData.transferSlip 
-            : `${process.env.NEXT_PUBLIC_URL_API}${recordData.transferSlip}`;
+          // Ensure the URL is properly formatted with http:// or https://
+          if (recordData.transferSlip.startsWith('/')) {
+            // If it's a relative path starting with /, add the base URL
+            recordData.transferSlip = `${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${recordData.transferSlip}`;
+          } else if (!recordData.transferSlip.startsWith('http://') && !recordData.transferSlip.startsWith('https://')) {
+            // If it doesn't start with http:// or https://, add the base URL with a /
+            recordData.transferSlip = `${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${recordData.transferSlip}`;
+          }
+          // If it already starts with http:// or https://, leave it as is
         }
         
+        console.log('Transfer slip URL:', recordData.transferSlip);
         setRecordData(recordData);
         return recordData;
       } catch (error) {
@@ -113,6 +120,17 @@ const ModalRecordMoneyComponent: React.FC = () => {
       formData.append('transferDate', data.transferDate);
       formData.append('details', data.details || '');
       formData.append('payTo', data.payTo || '');
+      
+      // Check if user wants to delete the existing image
+      // We need to explicitly send this information to the backend
+      if (editRecord.id && recordData?.transferSlip) {
+        // If we're editing and there was an existing image
+        if (data.existingTransferSlip === null) {
+          // If existingTransferSlip is explicitly set to null, it means user clicked delete
+          formData.append('deleteTransferSlip', 'true');
+          console.log('User wants to delete the existing transfer slip');
+        }
+      }
       
       // Add file if a new one was uploaded
       if (newTransferSlip) {
@@ -183,6 +201,17 @@ const ModalRecordMoneyComponent: React.FC = () => {
       }
       if (data.exchangeRate) {
         formData.append('exchangeRate', data.exchangeRate);
+      }
+      
+      // Check if user wants to delete the existing image
+      // We need to explicitly send this information to the backend
+      if (editRecord.id && recordData?.transferSlip) {
+        // If we're editing and there was an existing image
+        if (data.existingTransferSlip === null) {
+          // If existingTransferSlip is explicitly set to null, it means user clicked delete
+          formData.append('deleteTransferSlip', 'true');
+          console.log('User wants to delete the existing transfer slip');
+        }
       }
       
       // Add file if a new one was uploaded
@@ -295,76 +324,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                         </h2>
                       </div>
 
-                      {/* Display transfer slip if editing and it exists */}
-                      {editRecord.id && (
-                        <div className="mb-6 border-b pb-4">
-                          <h3 className="text-lg font-medium mb-2">สลิปโอนเงิน</h3>
-                          
-                          {/* Show existing image if available */}
-                          {recordData?.transferSlip && (
-                            <div className="flex items-center mb-4">
-                              <div className="relative w-32 h-32 overflow-hidden border rounded-md mr-4">
-                                <Image
-                                  src={recordData.transferSlip}
-                                  alt="Transfer Slip"
-                                  width={128}
-                                  height={128}
-                                  objectFit="cover"
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    setPreviewImageUrl(recordData.transferSlip);
-                                    setShowImagePreview(true);
-                                  }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setPreviewImageUrl(recordData.transferSlip);
-                                    setShowImagePreview(true);
-                                  }}
-                                  className="text-blue-600 hover:text-blue-800 flex items-center mb-2"
-                                >
-                                  <Lucide icon="Eye" className="w-4 h-4 mr-1" />
-                                  ดูรูปขนาดใหญ่
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    window.open(recordData.transferSlip, '_blank');
-                                  }}
-                                  className="text-blue-600 hover:text-blue-800 flex items-center"
-                                >
-                                  <Lucide icon="ExternalLink" className="w-4 h-4 mr-1" />
-                                  เปิดในแท็บใหม่
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Upload component for editing the image */}
-                          <div className="mt-2">
-                            <p className="text-sm text-gray-600 mb-2">
-                              {recordData?.transferSlip 
-                                ? 'อัพโหลดรูปใหม่เพื่อแทนที่รูปเดิม' 
-                                : 'อัพโหลดสลิปโอนเงิน'}
-                            </p>
-                            <UploadImageComponent
-                              setValue={(name: string, value: any) => {
-                                if (name === 'files' && value && value.length > 0) {
-                                  handleFileUpload(value);
-                                }
-                              }}
-                              control={null}
-                              existingImage={undefined}
-                            />
-                          </div>
-                        </div>
-                      )
                       
-                      }
-
                       <div className="flex items-center space-x-4 mb-4">
                         <label className={`inline-flex items-center ${editRecord.id ? 'opacity-60' : ''}`}>
                           <input

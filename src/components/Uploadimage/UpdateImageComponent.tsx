@@ -112,7 +112,7 @@ const UploadImageComponent = ({
                   alt="Existing Transfer Slip"
                   width={128}
                   height={128}
-                  objectFit="cover"
+                  style={{ objectFit: 'cover' }}
                   className="cursor-pointer"
                   onClick={handleExistingImagePreview}
                 />

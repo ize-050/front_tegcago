@@ -295,6 +295,7 @@ useEffect(() => {
               <UploadImageComponent
                 setValue={setValue}
                 control={control}
+                existingImage={initialData?.existingTransferSlip}
               ></UploadImageComponent>
             )}
           />

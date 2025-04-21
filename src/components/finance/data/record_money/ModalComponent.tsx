@@ -15,7 +15,7 @@ import { CustomerDepositFormComponent, CustomerDepositForm } from './CustomerDep
 import { getSalesSupportEmployees, Employee } from '@/services/finance/employee';
 import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent';
 import { getCompanyAccounts } from '@/services/finance';
-import { createRecordMoney, updateRecordMoney } from '@/services/record-money';
+import { createRecordMoney, updateRecordMoney, getRecordMoneyById } from '@/services/record-money';
 
 interface FormData {
     date: string;
@@ -136,55 +136,93 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
     // Load record data when editing
     useEffect(() => {
-        // const fetchRecordData = async () => {
-        //     if (editRecord?.id && editRecord?.type) {
-        //         try {
-        //             setLoading(true);
-        //             let response;
-        //             if (editRecord.type === 'deposit') {
-        //                 response = await axios.get(`/api/finance/record-money/${editRecord.id}`);
-        //                 if (response.data) {
-        //                     const recordData = response.data;
-        //                     setValue('date', recordData.date || new Date().toISOString().split('T')[0]);
-        //                     setValue('salesperson', recordData.salespersonId || '');
-        //                     setValue('documentNumber', recordData.documentNumber || '');
-        //                     setValue('customerId', recordData.customerId || '');
-        //                     setValue('type', 'deposit');
-
-        //                     // Set customer deposit specific fields
-        //                     setValue('customerDeposit.amountRMB', recordData.amountRMB || 0);
-        //                     setValue('customerDeposit.exchangeRate', recordData.exchangeRate || 0);
-        //                     setValue('customerDeposit.fee', recordData.fee || 0);
-        //                     setValue('customerDeposit.amount', recordData.amount || 0);
-        //                     setValue('customerDeposit.vat', recordData.vat || 0);
-        //                     setValue('customerDeposit.totalWithVat', recordData.totalWithVat || 0);
-        //                     setValue('customerDeposit.transferDate', recordData.transferDate || new Date().toISOString().split('T')[0]);
-        //                     setValue('customerDeposit.receivingAccount', recordData.receivingAccount || '');
-        //                     setValue('customerDeposit.exchangeRateProfit', recordData.exchangeRateProfit || 0);
-        //                     setValue('customerDeposit.incomePerTransaction', recordData.incomePerTransaction || 0);
-
-        //                     if (recordData.transferSlipUrl) {
-        //                         setValue('customerDeposit.existingTransferSlip', recordData.transferSlipUrl);
-        //                     }
-        //                 }
-        //             }
-        //         } catch (error) {
-        //             console.error("Error fetching record data:", error);
-        //             Swal.fire({
-        //                 icon: 'error',
-        //                 title: 'เกิดข้อผิดพลาด',
-        //                 text: 'ไม่สามารถดึงข้อมูลรายการได้ กรุณาลองใหม่อีกครั้ง',
-        //                 confirmButtonText: 'ตกลง'
-        //             });
-        //         } finally {
-        //             setLoading(false);
-        //         }
-        //     }
-        // };
-
-        // if (modalRecordMoney && editRecord?.id) {
-        //     fetchRecordData();
-        // }
+        const fetchRecordData = async () => {
+            if (editRecord?.id) {
+                try {
+                    setLoading(true);
+                    console.log('Fetching record data for ID:', editRecord.id);
+                    const response = await getRecordMoneyById(editRecord.id);
+                    
+                    if (response && response.data) {
+                        console.log('Record data fetched successfully:', response.data);
+                        const recordData = response.data;
+                        
+                        // Set common fields
+                        setValue('date', recordData.date || new Date().toISOString().split('T')[0]);
+                        setValue('salesperson', recordData.salespersonId || '');
+                        setValue('documentNumber', recordData.documentNumber || '');
+                        setValue('customerId', recordData.customerId || '');
+                        setValue('type', recordData.type || 'deposit');
+                        setValue('deposit_purpose', recordData.deposit_purpose || '');
+                        
+                        // Handle customer deposit data if available
+                        if (recordData.customerDeposit) {
+                            console.log('Setting customer deposit data:', recordData.customerDeposit);
+                            setValue('customerDeposit.amountRMB', recordData.customerDeposit.amountRMB || '');
+                            setValue('customerDeposit.priceDifference', recordData.customerDeposit.priceDifference || '');
+                            setValue('customerDeposit.exchangeRate', recordData.customerDeposit.exchangeRate || '');
+                            setValue('customerDeposit.fee', recordData.customerDeposit.fee || '');
+                            setValue('customerDeposit.amount', recordData.customerDeposit.amount || '');
+                            setValue('customerDeposit.vat', recordData.customerDeposit.vat || '');
+                            setValue('customerDeposit.totalWithVat', recordData.customerDeposit.totalWithVat || '');
+                            setValue('customerDeposit.transferDate', recordData.customerDeposit.transferDate || new Date().toISOString().split('T')[0]);
+                            setValue('customerDeposit.receivingAccount', recordData.customerDeposit.receivingAccount || '');
+                            setValue('customerDeposit.exchangeRateProfit', recordData.customerDeposit.exchangeRateProfit || '');
+                            setValue('customerDeposit.incomePerTransaction', recordData.customerDeposit.incomePerTransaction || '');
+                            setValue('customerDeposit.notes', recordData.customerDeposit.notes || '');
+                            setValue('customerDeposit.totalDepositAmount', recordData.customerDeposit.totalDepositAmount || '');
+                            setValue('customerDeposit.includeVat', recordData.customerDeposit.includeVat || false);
+                        }
+                        
+                        // Handle exchange data if available
+                        if (recordData.exchange) {
+                            console.log('Setting exchange data:', recordData.exchange);
+                            setValue('exchange.amountRMB', recordData.exchange.amountRMB || '');
+                            setValue('exchange.priceDifference', recordData.exchange.priceDifference || '');
+                            setValue('exchange.exchangeRate', recordData.exchange.exchangeRate || '');
+                            setValue('exchange.fee', recordData.exchange.fee || '');
+                            setValue('exchange.amount', recordData.exchange.amount || '');
+                            setValue('exchange.transferDate', recordData.exchange.transferDate || new Date().toISOString().split('T')[0]);
+                            setValue('exchange.receivingAccount', recordData.exchange.receivingAccount || '');
+                            setValue('exchange.exchangeRateProfit', recordData.exchange.exchangeRateProfit || '');
+                            setValue('exchange.incomePerTransaction', recordData.exchange.incomePerTransaction || '');
+                            setValue('exchange.notes', recordData.exchange.notes || '');
+                            setValue('exchange.includeVat', recordData.exchange.includeVat || false);
+                            setValue('exchange.vatAmount', recordData.exchange.vatAmount || '');
+                            setValue('exchange.totalWithVat', recordData.exchange.totalWithVat || '');
+                        }
+                        
+                        // Handle transfer slip if available
+                        if (recordData.transferSlipUrl) {
+                            if (recordData.type === 'deposit') {
+                                setValue('customerDeposit.existingTransferSlip', recordData.transferSlipUrl);
+                            } else {
+                                setValue('exchange.existingTransferSlip', recordData.transferSlipUrl);
+                            }
+                        }
+                    } else {
+                        throw new Error('ไม่พบข้อมูลรายการที่ต้องการแก้ไข');
+                    }
+                } catch (error) {
+                    console.error("Error fetching record data:", error);
+                    Swal.fire({
+                        title: "เกิดข้อผิดพลาด",
+                        text: "ไม่สามารถดึงข้อมูลรายการได้ กรุณาลองใหม่อีกครั้ง",
+                        icon: "error",
+                        confirmButtonText: "ตกลง"
+                    });
+                    // ปิด Modal เมื่อเกิด error
+                    dispatch(setModalRecordMoney(false));
+                    dispatch(setEditRecord(null));
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        
+        if (modalRecordMoney && editRecord?.id) {
+            fetchRecordData();
+        }
     }, [modalRecordMoney, editRecord, setValue]);
 
     const onClose = () => {

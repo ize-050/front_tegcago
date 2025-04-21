@@ -38,7 +38,7 @@ const AddPurchase = ({ BookingId }: any) => {
   } = methods;
 
   const router = useRouter();
-  const [openTag,setOpenTag] = useState<boolean>(false)
+  const [openTag, setOpenTag] = useState<boolean>(false)
   const [data, setData] = useState<Partial<any>>({});
   const [Bookdate, SetBookingDate] = useState<string>(
     moment().format("DD/MM/DD HH:mm")
@@ -46,23 +46,23 @@ const AddPurchase = ({ BookingId }: any) => {
 
   async function onSubmit(request: any) {
     try {
-      if(request.customer_id == null || request.customer_id == undefined || request.customer_id == ''){
+      if (request.customer_id == null || request.customer_id == undefined || request.customer_id == '') {
         Swal.fire({
-         title: 'กรุณาเลือกรายชื่อลูกค้า',
-         icon: 'info',
-         confirmButtonText: 'ตกลง'
+          title: 'กรุณาเลือกรายชื่อลูกค้า',
+          icon: 'info',
+          confirmButtonText: 'ตกลง'
         })
-         return
-       }
+        return
+      }
       request.book_number = BookingId;
       request.d_truck = request.d_truck.join(",");
-      dispatch(submitPrePurchase(request)).then((response:any) => {
+      dispatch(submitPrePurchase(request)).then((response: any) => {
         if (response.payload.data.statusCode === 200) {
           router.push("/purchase");
-        } 
+        }
       })
     } catch (err) {
-      console.log("errorSubmit",err);
+      console.log("errorSubmit", err);
 
       Swal.fire({
         title: 'ไม่สามารถสร้างตีราคาได้ กรุณาลองใหม่อีกครั้ง',
@@ -153,9 +153,8 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_route ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+                    className={`${errors.d_route ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
                   >
                     <option selected>เลือก</option>
                     {RouteData.map((item, index) => {
@@ -185,9 +184,8 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_transport ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
+                    className={`${errors.d_transport ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
                                          dark:focus:border-blue-500`}
                   >
                     <option selected>เลือก</option>
@@ -220,9 +218,8 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     id="countries"
-                    className={`${
-                      errors.d_term ? "border-red-500" : "border-gray-200"
-                    } border border-gray-200 text-gray-900 text-sm rounded-lg 
+                    className={`${errors.d_term ? "border-red-500" : "border-gray-200"
+                      } border border-gray-200 text-gray-900 text-sm rounded-lg 
                                         focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
                                          dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
                                           dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
@@ -244,12 +241,12 @@ const AddPurchase = ({ BookingId }: any) => {
             </div>
           </div>
 
-        
+
 
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
 
-            
-          <div className="w-full md:w-1/3 flex flex-col">
+
+            <div className="w-full md:w-1/3 flex flex-col">
               <label className="block flex mb-1 text-gray-600 font-semibold">
                 รูปแบบงาน
               </label>
@@ -279,7 +276,7 @@ const AddPurchase = ({ BookingId }: any) => {
                 <p className="text-red-500">กรุณากรอกประเภทงาน.</p>
               )}
             </div>
-          
+
 
             <div className="w-full md:w-1/3 flex flex-col">
               <label className="block flex mb-1 text-gray-600 font-semibold">
@@ -295,15 +292,12 @@ const AddPurchase = ({ BookingId }: any) => {
                     className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
                   >
                     <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
-                    <option value="งานเหมา Allin">งานเหมา Allin</option>
-                    <option value="งาน Shipping">งาน Shipping</option>
-                    <option value="งาน Green ตามจริง">งาน Green ตามจริง</option>
-                    <option value="งานเคลียร์ขาเข้าทางเรือ">
-                      งานเคลียร์ขาเข้าทางเรือ
-                    </option>
-                    <option value="งานเคลียร์ขาเข้าทางรถ">
-                      งานเคลียร์ขาเข้าทางรถ
-                    </option>
+                    <option value="EXW ALL IN">EXW ALL IN</option>
+                    <option value="EXW GREEN">EXW GREEN</option>
+                    <option value="CLEAR">CLEAR</option>
+                    <option value="GREEN">GREEN</option>
+                    <option value="SHIPPING">SHIPPING</option>
+                    <option value="CIF CN">CIF CN</option>
                   </select>
                 )}
               />
@@ -389,9 +383,8 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_origin ? "border-red-500" : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                    className={`${errors.d_origin ? "border-red-500" : "border-gray-200"
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -413,11 +406,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_destination
+                    className={`${errors.d_destination
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -443,11 +435,10 @@ const AddPurchase = ({ BookingId }: any) => {
                       onChange={onChange}
                       value={value}
                       placeholder="กรอก"
-                      className={`${
-                        errors.d_size_cabinet
+                      className={`${errors.d_size_cabinet
                           ? "border-red-500"
                           : "border-gray-200"
-                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                     />
                   )}
                 />
@@ -469,9 +460,8 @@ const AddPurchase = ({ BookingId }: any) => {
                       onChange={onChange}
                       value={value}
                       placeholder="กรอก"
-                      className={`${
-                        errors.d_weight ? "border-red-500" : "border-gray-200"
-                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      className={`${errors.d_weight ? "border-red-500" : "border-gray-200"
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                     />
                   )}
                 />
@@ -495,7 +485,7 @@ const AddPurchase = ({ BookingId }: any) => {
                           onChange={(e) => {
                             const newValue = e.target.checked
                               ? [...(value || []), e.target.value]
-                              : (value || []).filter((v:any) => v !== e.target.value);
+                              : (value || []).filter((v: any) => v !== e.target.value);
                             onChange(newValue);
                           }}
                           id="bordered-radio-2"
@@ -514,7 +504,7 @@ const AddPurchase = ({ BookingId }: any) => {
                           onChange={(e) => {
                             const newValue = e.target.checked
                               ? [...(value || []), e.target.value]
-                              : (value || []).filter((v:any) => v !== e.target.value);
+                              : (value || []).filter((v: any) => v !== e.target.value);
                             onChange(newValue);
                           }}
                           id="bordered-radio-2"
@@ -560,11 +550,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin
+                    className={`${errors.d_address_origin
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -585,9 +574,8 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_weight ? "border-red-500" : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                    className={`${errors.d_weight ? "border-red-500" : "border-gray-200"
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -612,11 +600,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin_la
+                    className={`${errors.d_address_origin_la
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -638,11 +625,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_origin_long
+                    className={`${errors.d_address_origin_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -665,11 +651,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_la
+                    className={`${errors.d_address_destination_la
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -691,11 +676,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_long
+                    className={`${errors.d_address_destination_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -706,9 +690,9 @@ const AddPurchase = ({ BookingId }: any) => {
           </div>
 
           <div className=" flex  flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5 ">
-          <div className="w-full md:w-1/2 flex flex-col">
+            <div className="w-full md:w-1/2 flex flex-col">
               <label className="block mb-2  text-gray-700  text-sm font-semibold">
-              Link map ต้นทาง{" "}
+                Link map ต้นทาง{" "}
               </label>
               <Controller
                 name="link_d_origin"
@@ -720,11 +704,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_long
+                    className={`${errors.d_address_destination_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -735,7 +718,7 @@ const AddPurchase = ({ BookingId }: any) => {
 
             <div className="w-full md:w-1/2 flex flex-col">
               <label className="block mb-2  text-gray-700  text-sm font-semibold">
-              Link map ปลายทาง{" "}
+                Link map ปลายทาง{" "}
               </label>
               <Controller
                 name="link_d_destination"
@@ -747,11 +730,10 @@ const AddPurchase = ({ BookingId }: any) => {
                     onChange={onChange}
                     value={value}
                     placeholder="กรอก"
-                    className={`${
-                      errors.d_address_destination_long
+                    className={`${errors.d_address_destination_long
                         ? "border-red-500"
                         : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                      } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
                   />
                 )}
               />
@@ -800,28 +782,27 @@ const AddPurchase = ({ BookingId }: any) => {
                   </label>
                 </div>
               </div>
-            {openTag &&
-              <Controller
-                name="d_refund_tag"
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <input
-                    type="text"
-                    onChange={onChange}
-                    value={value}
-                    placeholder="กรอก"
-                    className={`${
-                      errors.d_refund_tag ? "border-red-500" : "border-gray-200"
-                    } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
-                  />
-                )}
-              />
-            }
+              {openTag &&
+                <Controller
+                  name="d_refund_tag"
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <input
+                      type="text"
+                      onChange={onChange}
+                      value={value}
+                      placeholder="กรอก"
+                      className={`${errors.d_refund_tag ? "border-red-500" : "border-gray-200"
+                        } px-4 py-2 outline-none rounded-md border border-gray-300 text-base`}
+                    />
+                  )}
+                />
+              }
               {errors.d_weight && (
                 <p className="text-red-500">กรุณากรอก Refund Tax ต้นททาง.</p>
               )}
-            
+
             </div>
             <div className="w-full md:w-1/2 flex flex-col">
               <label className="block mb-2  text-gray-700  text-sm font-semibold">
@@ -860,7 +841,7 @@ const AddPurchase = ({ BookingId }: any) => {
             <button
               className="bg-blue-950 text-white  font-bold uppercase text-sm px-6 py-2 rounded shadow hover:shadow-lg   mr-1 mb-1 "
               type="submit"
-              // onClick={() => setShowModal(false)}
+            // onClick={() => setShowModal(false)}
             >
               Submit
             </button>

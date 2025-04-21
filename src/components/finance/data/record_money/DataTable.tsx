@@ -198,8 +198,22 @@ const DataTable = ({ onRefresh }: Props) => {
     };
 
     const handleEdit = (transaction: Transaction) => {
-        dispatch(setEditRecord(transaction));
-        dispatch(setModalRecordMoney(true));
+        try {
+            console.log('Editing transaction:', transaction);
+            
+            // ส่งข้อมูลทั้งหมดของ transaction ไปยัง Redux store โดยตรง
+            // เพื่อไม่ต้องเรียก API ใหม่
+            dispatch(setEditRecord(transaction));
+            dispatch(setModalRecordMoney(true));
+        } catch (error) {
+            console.error('Error preparing edit data:', error);
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: "ไม่สามารถเปิดฟอร์มแก้ไขได้ กรุณาลองใหม่อีกครั้ง",
+                icon: "error",
+                confirmButtonText: "ตกลง"
+            });
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -554,13 +568,13 @@ const DataTable = ({ onRefresh }: Props) => {
                                                     >
                                                         <FiEye className="w-4 h-4" />
                                                     </Button>
-                                                    {/* <Button
-                                                        variant="secondary"
-                                                        className="flex items-center mr-2"
+                                                    <Button
+                                                        variant="primary"
+                                                        className="flex items-center mr-2 bg-blue-600 hover:bg-blue-700 text-white"
                                                         onClick={() => handleEdit(transaction)}
                                                     >
-                                                        <FiEdit2 className="w-4 h-4" />
-                                                    </Button> */}
+                                                        <FiEdit2 className="w-4 h-4 mr-1" /> แก้ไข
+                                                    </Button>
                                                     <Button
                                                         variant="soft-danger"
                                                         className="flex items-center"

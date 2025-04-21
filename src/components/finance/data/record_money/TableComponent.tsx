@@ -317,10 +317,10 @@ const TableComponent = ({ onRefresh }: Props) => {
                     <Table.Td className="table-report__action w-56">
                       <div className="flex justify-center items-center">
                         <a
-                          className="flex items-center mr-3 text-primary cursor-pointer"
+                          className="flex items-center mr-3 bg-blue-100 hover:bg-blue-200 text-primary px-2 py-1 rounded cursor-pointer"
                           onClick={() => handleEdit(record)}
                         >
-                          {/* <Lucide icon="CheckSquare" className="w-4 h-4 mr-1" /> */}
+                          <Lucide icon="PenLine" className="w-4 h-4 mr-1" />
                           แก้ไข
                         </a>
                         <a

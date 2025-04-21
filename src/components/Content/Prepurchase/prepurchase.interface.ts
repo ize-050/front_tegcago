@@ -81,6 +81,10 @@ export const TermData:Term[] = [
     {
       id:"CIF",
       name:"CIF"
+    },
+    {
+      id:"CUS",
+      name:"CUSTOMER CLEAR"
     }
 
 ]
