@@ -26,7 +26,7 @@ export const getPurchaseById = async (id: string) => {
 }
 
 
-export const getPurchase = async (currentPage: number, status: string, tag: string) => {
+export const getPurchase = async (currentPage: number, status: string, tag: string, search: string = '') => {
     return new Promise(async (resolve, reject) => {
 
         const url = `${process.env.NEXT_PUBLIC_URL_API}/cs/getPurchase`;
@@ -40,6 +40,7 @@ export const getPurchase = async (currentPage: number, status: string, tag: stri
                     page: currentPage,
                     status: status,
                     tag: tag,
+                    search: search,
                     limit: 10
                 }
             }).then(res => {

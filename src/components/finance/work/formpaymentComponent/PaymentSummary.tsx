@@ -18,14 +18,20 @@ interface FinanceState {
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch, setValue, onPaymentRowsChange }) => {
     // คำนวณรวมเคลียร์ทั้งหมด
-    const totalClear = Number(watch('th_duty') || 0) +
-        Number(watch('th_tax') || 0) +
-        Number(watch('th_custom_fees') || 0) +
-        Number(watch('th_employee') || 0) +
-        Number(watch('th_warehouse') || 0) +
-        Number(watch('th_gasoline') || 0) +
-        Number(watch('th_other_shipping') || 0) +
-        Number(watch('th_overtime') || 0);
+    const totalClear =  Number(watch('th_duty') || 0) +
+    Number(watch('th_tax') || 0) +
+    Number(watch('th_custom_fees') || 0) +
+    Number(watch('th_employee') || 0) +
+    Number(watch('th_warehouse') || 0) +
+    Number(watch('th_gasoline') || 0) +
+    Number(watch('th_hairy') || 0) +
+    Number(watch('th_overtime') || 0) +
+    Number(watch('th_check_fee') || 0) +
+    Number(watch('th_product_account') || 0) +
+    Number(watch('th_license_fee') || 0) +
+    Number(watch('th_other_fee') || 0);
+
+
 
     // คำนวณค่าใช้จ่ายฝั่งไทย
     const totalThaiExpenses = Number(watch('th_total_shipping') || 0) + 

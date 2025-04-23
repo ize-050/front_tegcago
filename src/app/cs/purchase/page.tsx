@@ -111,36 +111,35 @@ function Purchase() {
   };
 
   const GetAllpurchase = useCallback(async () => {
-    const purchase = await getPurchase(currentPage, status, tag);
+    const purchase = await getPurchase(currentPage, status, tag, searchedVal);
     console.log('purchaseAll',purchase)
 
     dispatch(setAllPurchase(purchase));
 
-  }, [currentPage, status, tag]);
+  }, [currentPage, status, tag, searchedVal]);
 
   useEffect(() => {
     dispatch(resetStore())
   },[])
 
   useEffect(() => {
-
+    // เมื่อมีการค้นหา ให้รีเซ็ตหน้าเป็นหน้าแรก
+    if (searchedVal.trim() !== '') {
+      setCurrentPage(1);
+    }
     GetAllpurchase();
-  }, [currentPage]);
+  }, [currentPage, searchedVal]);
 
 
   useEffect(() => {
+    // ถ้ามีการค้นหา ให้แสดงข้อมูลทั้งหมดที่ได้จากการค้นหา
+    // ถ้าไม่มีการค้นหา ให้ใช้ pagination ตามปกติ
     const totalPages = Math.ceil(totalData / 10);
-
-    const startIndex = Math.min((currentPage - 1) * 10, purchaseAll.length);
-    const endIndex = Math.min(startIndex + 10, purchaseAll.length);
-
     const currentData:any = purchaseAll;
-
-
-
+    
     setCurrentData(currentData);
     setTotalPage(totalPages);
-  }, [purchaseAll]);
+  }, [purchaseAll, totalData]);
 
   
   const AcceptJob = (id:string) => {
@@ -251,7 +250,13 @@ function Purchase() {
                 type="text"
                 placeholder="Search"
                 className="pl-9 sm:w-34 rounded-[0.5rem] text-black"
-                onChange={(e) => setSearchedVal(e.target.value)}
+                onChange={(e) => {
+                  // ใช้ debounce เพื่อไม่ให้ส่ง request บ่อยเกินไป
+                  const delayDebounceFn = setTimeout(() => {
+                    setSearchedVal(e.target.value);
+                  }, 500);
+                  return () => clearTimeout(delayDebounceFn);
+                }}
               />
 
 
@@ -341,25 +346,6 @@ function Purchase() {
                       </Table.Thead>
                       <Table.Tbody>
                         {currentData
-                        .filter((row: any) =>
-                            !searchedVal.length
-                            || row?.book_number.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_route.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_status.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_term.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                            || row?.d_transport.toString()
-                            .toLowerCase()
-                            .includes(searchedVal.toString().toLowerCase())
-                            || (row?.d_shipment_number && row.d_shipment_number.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()))
-                        )
                         .map((data: any, key: number) => {
                           return (
                             <>
@@ -448,21 +434,23 @@ function Purchase() {
 
                   </div>
 
-                  <div className="flex justify-end mt-5 bg-gray-100  flex-wrap items-center p-1 flex-reverse gap-y-2 sm:flex-row">
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md   text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <span className="sr-only">Previous</span>
-                        {/* Previous Icon (replace with your preferred icon library) */}
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                        </svg>
-                      </button>
-                      {[...Array(totalPage)].map((_, index) => {
-                        const pageNumber = index + 1;
+                  {/* ถ้ามีการค้นหา ไม่ต้องแสดง pagination */}
+                  {!searchedVal.trim() && (
+                    <div className="flex justify-end mt-5 bg-gray-100  flex-wrap items-center p-1 flex-reverse gap-y-2 sm:flex-row">
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        <button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md   text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <span className="sr-only">Previous</span>
+                          {/* Previous Icon (replace with your preferred icon library) */}
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                          </svg>
+                        </button>
+                        {[...Array(totalPage)].map((_, index) => {
+                          const pageNumber = index + 1;
                         return (
                           <button
                             key={pageNumber}
@@ -490,7 +478,7 @@ function Purchase() {
                     </nav>
 
                   </div>
-
+                  )}
                 </div>
               </div>
             </div>
