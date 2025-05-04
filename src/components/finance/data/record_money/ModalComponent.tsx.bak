@@ -17,59 +17,16 @@ import UploadImageComponent from '@/components/Uploadimage/UpdateImageComponent'
 import { getCompanyAccounts } from '@/services/finance';
 import { createRecordMoney, updateRecordMoney, getRecordMoneyById, RecordMoneyData, CustomerDepositData, ExchangeData } from '@/services/record-money';
 
-interface CustomerDepositFormData {
-    amountRMB?: number | string;
-    priceDifference?: number | string;
-    exchangeRate?: number | string;
-    fee?: number | string;
-    amount?: number | string;
-    vat?: number | string;
-    vatAmount?: number | string;
-    totalWithVat?: number | string;
-    transferDate?: string;
-    receivingAccount?: string;
-    exchangeRateProfit?: number | string;
-    incomePerTransaction?: number | string;
-    totalDepositAmount?: number | string;
-    includeVat?: boolean;
-    notes?: string;
-    files?: File[];
-    existingTransferSlip?: string;
-    transferSlipUrl?: string;
-}
-
-interface ExchangeFormData {
-    amountRMB?: number | string;
-    priceDifference?: number | string;
-    exchangeRate?: number | string;
-    fee?: number | string;
-    amount?: number | string;
-    vat?: number | string;
-    vatAmount?: number | string;
-    totalWithVat?: number | string;
-    transferDate?: string;
-    receivingAccount?: string;
-    exchangeRateProfit?: number | string;
-    incomePerTransaction?: number | string;
-    notes?: string;
-    files?: File[];
-    existingTransferSlip?: string;
-    transferSlipUrl?: string;
-    includeVat?: boolean;
-}
-
-interface RecordMoneyForm {
+interface FormData {
     date: string;
     salesperson: string;
     documentNumber: string;
     customerId: string;
     type: 'deposit' | 'order' | '';
     deposit_purpose?: string; // เพิ่มฟิลด์สำหรับเก็บข้อมูลว่าฝากเรื่องอะไร
-    customerDeposit?: CustomerDepositFormData;
-    exchange?: ExchangeFormData;
+    customerDeposit?: any
+    exchange?: any
     transferSlipUrl?: string;
-    files?: File[];
-    notes?: string;
 }
 
 const ModalRecordMoneyComponent: React.FC = () => {
@@ -87,7 +44,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
         getValues,
         reset,
         formState: { errors }
-    } = useForm<RecordMoneyForm>({
+    } = useForm<FormData>({
         defaultValues: {
             date: new Date().toISOString().split('T')[0],
             salesperson: '',
@@ -254,7 +211,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
                             } else {
                                 setValue('exchange.transferDate', new Date().toISOString().split('T')[0]);
                             }
-                           
                             setValue('exchange.receivingAccount', recordData.exchange.receivingAccount || '');
                             setValue('exchange.exchangeRateProfit', recordData.exchange.exchangeRateProfit || '');
                             setValue('exchange.incomePerTransaction', recordData.exchange.incomePerTransaction || '');
@@ -266,7 +222,6 @@ const ModalRecordMoneyComponent: React.FC = () => {
                         
                         // ดึงข้อมูลรูปภาพจากทุกแหล่งที่เป็นไปได้
                         let transferSlipUrl = null;
-                        let transferSlipUrlExchange = null;
                         
                         // ตรวจสอบจาก recordData.transferSlipUrl
                         if (recordData.transferSlipUrl) {
@@ -274,25 +229,30 @@ const ModalRecordMoneyComponent: React.FC = () => {
                             transferSlipUrl = process.env.NEXT_PUBLIC_URL_API + recordData.transferSlipUrl;
                         }
                         // ตรวจสอบจาก customerDeposit.transferSlipUrl
-                        if (recordData.customerDeposit?.transferSlipUrl) {
+                        else if (recordData.customerDeposit?.transferSlipUrl) {
                             console.log('Found transferSlipUrl in customerDeposit:', recordData.customerDeposit.transferSlipUrl);
                             transferSlipUrl = process.env.NEXT_PUBLIC_URL_API + recordData.customerDeposit.transferSlipUrl;
                         }
                         // ตรวจสอบจาก exchange.transferSlipUr
-                      
-                         if (recordData.exchange?.transferSlipUrl) {
-                            console.log('Found transferSlipUrl in exchange:', recordData.exchange.transferSlipUrl);
-                            transferSlipUrlExchange = process.env.NEXT_PUBLIC_URL_API + recordData.exchange.transferSlipUrl;
-                        }
-                     
-                        
-                            // ตั้งค่าตามประเภทรายการ
-                            
-                                setValue('customerDeposit.existingTransferSlip', transferSlipUrl);
 
-                                setValue('exchange.existingTransferSlip', transferSlipUrlExchange);
-                            
                         
+                        else if (recordData.exchange?.transferSlipUrl) {
+                            console.log('Found transferSlipUrl in exchange:', recordData.exchange.transferSlipUrl);
+                            transferSlipUrl = process.env.NEXT_PUBLIC_URL_API + recordData.exchange.transferSlipUrl;
+                        }
+                        
+                        // ถ้าพบ URL รูปภาพ ให้ตั้งค่าในฟอร์ม
+                        if (transferSlipUrl) {
+                            console.log('Setting transferSlipUrl in form:', transferSlipUrl);
+                            setValue('transferSlipUrl', transferSlipUrl);
+                            
+                            // ตั้งค่าตามประเภทรายการ
+                            if (recordData.type === 'deposit') {
+                                setValue('customerDeposit.existingTransferSlip', transferSlipUrl);
+                            } else {
+                                setValue('exchange.existingTransferSlip', transferSlipUrl);
+                            }
+                        }
                     } else {
                         throw new Error('ไม่พบข้อมูลรายการที่ต้องการแก้ไข');
                     }
@@ -324,126 +284,146 @@ const ModalRecordMoneyComponent: React.FC = () => {
         reset();
     };
 
-    const onSubmit = async (data: RecordMoneyForm) => {
+    const onSubmit = async (data: any) => {
         try {
             setLoading(true);
             console.log('Form data submitted:', data);
 
-            // สร้าง FormData สำหรับส่งข้อมูลและไฟล์
-            const formData = new FormData();
+            // เตรียมข้อมูลที่จะส่งไปยัง API
+            let formattedData: RecordMoneyData = { 
+                date: data.date,
+                salesperson: data.salesperson,
+                documentNumber: data.documentNumber,
+                customerId: data.customerId,
+                type: data.type as 'deposit' | 'order' | 'topup',
+                deposit_purpose: data.deposit_purpose || '',
+                transferSlipUrl: '',
+                customerDeposit: undefined,
+                exchange: undefined
+            };
             
-            // เพิ่มข้อมูลพื้นฐานลงใน FormData
-            formData.append('date', data.date || '');
-            formData.append('salesperson', data.salesperson || '');
-            formData.append('documentNumber', data.documentNumber || '');
-            formData.append('customerId', data.customerId || '');
-            formData.append('type', data.type || '');
+            // ตรวจสอบว่ามีไฟล์ใหม่ที่อัพโหลดหรือไม่
+            let uploadFile: File | undefined = undefined;
+            let customerDepositFile: File | undefined = undefined;
+            let exchangeFile: File | undefined = undefined;
             
-            if (data.deposit_purpose) {
-                formData.append('deposit_purpose', data.deposit_purpose);
+            // ตรวจสอบไฟล์ที่อัพโหลดจากทุกตำแหน่ง
+            if (data.files && data.files.length > 0) {
+                // เก็บไฟล์ที่อัพโหลดใหม่จาก data.files
+                uploadFile = data.files[0];
+                console.log('Found main file to upload:', uploadFile.name);
             }
             
-            if (data.notes) {
-                formData.append('notes', data.notes);
+            if (data.customerDeposit?.files && data.customerDeposit.files.length > 0) {
+                // เก็บไฟล์ที่อัพโหลดใหม่จาก data.customerDeposit.files
+                customerDepositFile = data.customerDeposit.files[0];
+                console.log('Found customerDeposit file to upload:', customerDepositFile.name);
             }
             
-            // เพิ่มไฟล์หลัก (ถ้ามี)
-            const uploadFile = document.querySelector('input[name="file"]') as HTMLInputElement;
-            if (uploadFile && uploadFile.files && uploadFile.files.length > 0) {
-                formData.append('file', uploadFile.files[0]);
+            if (data.exchange?.files && data.exchange.files.length > 0) {
+                // เก็บไฟล์ที่อัพโหลดใหม่จาก data.exchange.files
+                exchangeFile = data.exchange.files[0];
+                console.log('Found exchange file to upload:', exchangeFile.name);
             }
             
-            // เพิ่มข้อมูล customerDeposit
-            if (data.customerDeposit) {
-                // เพิ่มข้อมูล customerDeposit ทีละฟิลด์
-                if (data.customerDeposit.amountRMB) formData.append('customerDeposit.amountRMB', data.customerDeposit.amountRMB.toString());
-                if (data.customerDeposit.priceDifference) formData.append('customerDeposit.priceDifference', data.customerDeposit.priceDifference.toString());
-                if (data.customerDeposit.exchangeRate) formData.append('customerDeposit.exchangeRate', data.customerDeposit.exchangeRate.toString());
-                if (data.customerDeposit.fee) formData.append('customerDeposit.fee', data.customerDeposit.fee.toString());
-                if (data.customerDeposit.amount) formData.append('customerDeposit.amount', data.customerDeposit.amount.toString());
-                if (data.customerDeposit.vat) formData.append('customerDeposit.vat', data.customerDeposit.vat.toString());
-                if (data.customerDeposit.totalWithVat) formData.append('customerDeposit.totalWithVat', data.customerDeposit.totalWithVat.toString());
-                
-                if (data.customerDeposit.transferDate) {
-                    formData.append('customerDeposit.transferDate', data.customerDeposit.transferDate);
-                }
-                
-                if (data.customerDeposit.receivingAccount) formData.append('customerDeposit.receivingAccount', data.customerDeposit.receivingAccount.toString());
-                if (data.customerDeposit.exchangeRateProfit) formData.append('customerDeposit.exchangeRateProfit', data.customerDeposit.exchangeRateProfit.toString());
-                if (data.customerDeposit.incomePerTransaction) formData.append('customerDeposit.incomePerTransaction', data.customerDeposit.incomePerTransaction.toString());
-                if (data.customerDeposit.notes) formData.append('customerDeposit.notes', data.customerDeposit.notes.toString());
-                if (data.customerDeposit.totalDepositAmount) formData.append('customerDeposit.totalDepositAmount', data.customerDeposit.totalDepositAmount.toString());
-                if (data.customerDeposit.includeVat !== undefined) formData.append('customerDeposit.includeVat', data.customerDeposit.includeVat.toString());
-                
-                // เพิ่มไฟล์ customerDeposit (ถ้ามี)
-                if (data.customerDeposit.files && data.customerDeposit.files.length > 0) {
-                    formData.append('customerDepositFile', data.customerDeposit.files[0]);
-                }
-                
-                // เพิ่มข้อมูล transferSlipUrl เดิม (ถ้ามี)
-                if (data.customerDeposit.existingTransferSlip) {
-                    formData.append('existingCustomerDepositTransferSlip', data.customerDeposit.existingTransferSlip);
-                }
+            // ใช้ไฟล์ที่มีอยู่แล้วสำหรับ formattedData.transferSlipUrl
+            if (data.type === 'deposit' && data.customerDeposit?.existingTransferSlip) {
+                formattedData.transferSlipUrl = data.customerDeposit.existingTransferSlip;
+                console.log('Using existing deposit transfer slip:', formattedData.transferSlipUrl);
+            } else if ((data.type === 'order' || data.type === 'exchange') && data.exchange?.existingTransferSlip) {
+                formattedData.transferSlipUrl = data.exchange.existingTransferSlip;
+                console.log('Using existing exchange transfer slip:', formattedData.transferSlipUrl);
+            } else if (data.transferSlipUrl) {
+                formattedData.transferSlipUrl = data.transferSlipUrl;
+                console.log('Using existing transfer slip from data:', formattedData.transferSlipUrl);
             }
             
-            // เพิ่มข้อมูล exchange
-            if (data.exchange) {
-                // เพิ่มข้อมูล exchange ทีละฟิลด์
-                if (data.exchange.amountRMB) formData.append('exchange.amountRMB', data.exchange.amountRMB.toString());
-                if (data.exchange.priceDifference) formData.append('exchange.priceDifference', data.exchange.priceDifference.toString());
-                if (data.exchange.exchangeRate) formData.append('exchange.exchangeRate', data.exchange.exchangeRate.toString());
-                if (data.exchange.fee) formData.append('exchange.fee', data.exchange.fee.toString());
-                if (data.exchange.amount) formData.append('exchange.amount', data.exchange.amount.toString());
-                if (data.exchange.vat) formData.append('exchange.vat', data.exchange.vat.toString());
-                if (data.exchange.totalWithVat) formData.append('exchange.totalWithVat', data.exchange.totalWithVat.toString());
-                
-                if (data.exchange.transferDate) {
-                    formData.append('exchange.transferDate', data.exchange.transferDate);
-                }
-                
-                if (data.exchange.receivingAccount) formData.append('exchange.receivingAccount', data.exchange.receivingAccount.toString());
-                if (data.exchange.exchangeRateProfit) formData.append('exchange.exchangeRateProfit', data.exchange.exchangeRateProfit.toString());
-                if (data.exchange.incomePerTransaction) formData.append('exchange.incomePerTransaction', data.exchange.incomePerTransaction.toString());
-                if (data.exchange.notes) formData.append('exchange.notes', data.exchange.notes.toString());
-                
-                // เพิ่มไฟล์ exchange (ถ้ามี)
-                if (data.exchange.files && data.exchange.files.length > 0) {
-                    formData.append('exchangeFile', data.exchange.files[0]);
-                }
-                
-                // เพิ่มข้อมูล transferSlipUrl เดิม (ถ้ามี)
-                if (data.exchange.existingTransferSlip) {
-                    formData.append('existingExchangeTransferSlip', data.exchange.existingTransferSlip);
-                }
+            console.log('CustomerDeposit transferSlipUrl:', customerDepositTransferSlipUrl);
+            
+            formattedData.customerDeposit = {
+                amountRMB: parseFloat(data.customerDeposit.amountRMB) || 0,
+                priceDifference: parseFloat(data.customerDeposit.priceDifference) || 0,
+                exchangeRate: parseFloat(data.customerDeposit.exchangeRate) || 0,
+                fee: parseFloat(data.customerDeposit.fee) || 0,
+                amount: parseFloat(data.customerDeposit.amount) || 0,
+                vat: parseFloat(data.customerDeposit.vat) || 0,
+                totalWithVat: parseFloat(data.customerDeposit.totalWithVat) || 0,
+                transferDate: data.customerDeposit.transferDate,
+                receivingAccount: data.customerDeposit.receivingAccount,
+                exchangeRateProfit: parseFloat(data.customerDeposit.exchangeRateProfit) || 0,
+                incomePerTransaction: parseFloat(data.customerDeposit.incomePerTransaction) || 0,
+                totalDepositAmount: parseFloat(data.customerDeposit.totalDepositAmount) || 0,
+                includeVat: data.customerDeposit.includeVat || false,
+                notes: data.customerDeposit.notes || '',
+                transferSlipUrl: customerDepositTransferSlipUrl, // เพิ่ม transferSlipUrl ในข้อมูล customerDeposit
+                // เพิ่มข้อมูลที่จัดรูปแบบแล้ว
+                formattedAmount: typeof data.customerDeposit.amount === 'number' ? data.customerDeposit.amount.toFixed(2) : '0.00',
+                formattedExchangeRateProfit: typeof data.customerDeposit.exchangeRateProfit === 'number' ? data.customerDeposit.exchangeRateProfit.toFixed(2) : '0.00',
+                formattedIncomePerTransaction: typeof data.customerDeposit.incomePerTransaction === 'number' ? data.customerDeposit.incomePerTransaction.toFixed(2) : '0.00'
+            };
+        }
+        
+        // เพิ่มข้อมูลการโอน
+        if ((data.type === 'order' || data.type === 'exchange') && data.exchange) {
+            console.log('Adding exchange data for type:', data.type);
+            
+            // ตรวจสอบไฟล์ที่อัพโหลดจากทั้ง data.files และ data.exchange.files
+            let exchangeTransferSlipUrl  :any = '';
+            
+            // ตรวจสอบว่ามีการอัพโหลดไฟล์ใหม่หรือไม่
+            if (data.files && data.files.length > 0) {
+                // ใช้ไฟล์ที่อัพโหลดใหม่จาก data.files
+                console.log('Using file from data.files');
+                exchangeTransferSlipUrl = formattedData.transferSlipUrl || '';
+            } else if (data.exchange?.files && data.exchange.files.length > 0) {
+                // ใช้ไฟล์ที่อัพโหลดใหม่จาก data.exchange.files
+                console.log('Using file from data.exchange.files');
+                exchangeTransferSlipUrl = formattedData.transferSlipUrl || '';
+            } else if (data.exchange.existingTransferSlip) {
+                // ใช้ไฟล์ที่มีอยู่แล้ว
+                console.log('Using existing transfer slip:', data.exchange.existingTransferSlip);
+                exchangeTransferSlipUrl = data.exchange.existingTransferSlip || '';
             }
             
-            // เพิ่ม ID สำหรับการอัปเดต (ถ้ามี)
-            if (editRecord?.id) {
-                formData.append('id', editRecord.id.toString());
-            }
+            console.log('Exchange transferSlipUrl:', exchangeTransferSlipUrl);
             
-            // ตรวจสอบว่ามี transferSlipUrl เดิมหรือไม่
-            if (editRecord?.transferSlipUrl) {
-                formData.append('existingTransferSlip', editRecord.transferSlipUrl);
-            }
-            
-            console.log('FormData prepared for submission');
-            
-            let response;
-            if (editRecord?.id) {
-                // อัปเดตข้อมูลที่มีอยู่แล้ว
-                response = await updateRecordMoney(editRecord.id, formData);
-            } else {
-                // สร้างข้อมูลใหม่
-                response = await createRecordMoney(formData);
-            }
+            formattedData.exchange = {
+                amountRMB: parseFloat(data.exchange.amountRMB) || 0,
+                priceDifference: parseFloat(data.exchange.priceDifference) || 0,
+                exchangeRate: parseFloat(data.exchange.exchangeRate) || 0,
+                fee: parseFloat(data.exchange.fee) || 0,
+                amount: parseFloat(data.exchange.amount) || 0,
+                transferDate: data.exchange.transferDate,
+                receivingAccount: data.exchange.receivingAccount,
+                exchangeRateProfit: parseFloat(data.exchange.exchangeRateProfit) || 0,
+                incomePerTransaction: parseFloat(data.exchange.incomePerTransaction) || 0,
+                includeVat: data.exchange.includeVat || false,
+                vatAmount: parseFloat(data.exchange.vatAmount) || 0,
+                totalWithVat: parseFloat(data.exchange.totalWithVat) || 0,
+                notes: data.exchange.notes || '',
+                transferSlipUrl: exchangeTransferSlipUrl, // เพิ่ม transferSlipUrl ในข้อมูล exchange
+                // เพิ่มข้อมูลที่จัดรูปแบบแล้ว
+                formattedAmount: typeof data.exchange.amount === 'number' ? data.exchange.amount.toFixed(2) : '0.00',
+                formattedExchangeRateProfit: typeof data.exchange.exchangeRateProfit === 'number' ? data.exchange.exchangeRateProfit.toFixed(2) : '0.00',
+                formattedIncomePerTransaction: typeof data.exchange.incomePerTransaction === 'number' ? data.exchange.incomePerTransaction.toFixed(2) : '0.00'
+            };
+        }
 
-            if (response && (response.statusCode === 200 || response.statusCode === 201)) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'สำเร็จ',
-                    text: 'บันทึกข้อมูลเรียบร้อยแล้ว',
-                    confirmButtonText: 'ตกลง'
+        console.log("formattedData to be sent:", formattedData);
+        if (uploadFile) {
+            console.log("Uploading file with data:", uploadFile.name);
+        }
+
+        let response;
+        if (editRecord?.id) {
+            // อัปเดตข้อมูลที่มีอยู่แล้ว พร้อมไฟล์ (ถ้ามี)
+            response = await updateRecordMoney(editRecord.id, formattedData, uploadFile, customerDepositFile, exchangeFile);
+        } else {
+            // สร้างข้อมูลใหม่ พร้อมไฟล์ (ถ้ามี)
+            response = await createRecordMoney(formattedData, uploadFile, customerDepositFile, exchangeFile);
+        }
+
+        if (response && (response.statusCode === 200 || response.statusCode === 201)) {
                 });
 
                 onClose();
@@ -1068,7 +1048,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                                                         setValue={setValue}
                                                         control={control}
                                                         name="customerDeposit.files"
-                                                        existingImage={watch('customerDeposit.existingTransferSlip') || (editRecord?.id && editRecord?.type === 'deposit' ? watch('exchange.existingTransferSlip') : undefined)}
+                                                        existingImage={watch('customerDeposit.existingTransferSlip') || (editRecord?.id && editRecord?.type === 'deposit' ? watch('transferSlipUrl') : undefined)}
                                                     />
                                                 </div>
                                             </div>

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import Button from "@/components/Base/Button";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
 import { getCustomerAccounts, getCompanyAccounts } from "@/services/finance";
-
 export interface ExchangeForm {
   amountRMB: number | string;
   priceDifference: number | string; // ส่วนต่างต่อรองราคา
@@ -36,6 +35,7 @@ interface ExchangeFormProps {
   setValue: any;
   errors: any;
   exchangeData?: {
+    
     amountRMB?: number | string | null;
     exchangeRate?: number | string | null;
     fee?: number | string;
@@ -64,6 +64,7 @@ interface CustomerDepositFormProps extends ExchangeFormProps {
     totalWithVat?: number | string;
     transferDate?: string;
     receivingAccount?: string;
+    existingTransferSlip?: any;
     exchangeRateProfit?: number | string;
     incomePerTransaction?: number | string;
     totalDepositAmount?: number | string;
@@ -88,18 +89,40 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
   const exchangeRate = useWatch({ control, name: "exchange.exchangeRate" });
   const fee = useWatch({ control, name: "exchange.fee" });
   const amount = useWatch({ control, name: "exchange.amount" });
+  const existingTransferSlip = useWatch({ control, name: "exchange.existingTransferSlip" });
   const [accountOptions, setAccountOptions] = useState<any[]>([]);
+  
+  // ข้อมูลตัวอย่างสำหรับบัญชี
+  const sampleAccounts = [
+    { id: '1', finance_name: 'อาหยอง' },
+    { id: '2', finance_name: 'จินนี่' },
+    { id: '3', finance_name: 'บัญชีบริษัท' }
+  ];
  
   // ดึงข้อมูลบัญชีลูกค้า
   useEffect(() => {
+    // ตั้งค่าข้อมูลตัวอย่างก่อนเพื่อให้แสดงผลทันที
+    setAccountOptions(sampleAccounts);
+    
     const fetchAccounts = async () => {
       try {
+        console.log('กำลังดึงข้อมูลบัญชี...');
         const accounts = await getCustomerAccounts();
-        setAccountOptions(accounts as any[]);
+        console.log('ข้อมูลบัญชีที่ได้:', accounts);
+        
+        if (accounts && Array.isArray(accounts) && accounts.length > 0) {
+          setAccountOptions(accounts);
+        } else {
+          console.warn('ไม่สามารถดึงข้อมูลบัญชีได้หรือข้อมูลว่าง ใช้ข้อมูลตัวอย่างแทน');
+          // ไม่ต้องทำอะไรเพราะเราตั้งค่าข้อมูลตัวอย่างไว้แล้ว
+        }
       } catch (error) {
         console.error('Error fetching accounts:', error);
+        // ไม่ต้องทำอะไรเพราะเราตั้งค่าข้อมูลตัวอย่างไว้แล้ว
       }
     };
+    
+    // พยายามดึงข้อมูลจริงจาก API
     fetchAccounts();
   }, []);
 
@@ -126,21 +149,46 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
 
     // กำไรอัตราแลกเปลี่ยน = ยอดฝากชำระรวม (ของข้อมูลลูกค้าฝากชำระ) - จำนวนเงิน (THB) (ของข้อมูลการโอน)
     let exchangeRateProfit = 0;
-    if(customerDepositData?.totalDepositAmount && calculatedAmount > 0){
-      // ใช้ totalDepositAmount จากข้อมูลลูกค้าฝากชำระ และ calculatedAmount ที่เพิ่งคำนวณ
-      const totalDepositAmount = parseFloat(customerDepositData?.totalDepositAmount?.toString() || "0");
+    
+    // คำนวณยอดฝากชำระรวม (RMB * อัตราแลกเปลี่ยน) ถ้าไม่มีค่าจาก customerDepositData
+    let totalDepositAmount = 0;
+    
+    if (customerDepositData?.totalDepositAmount) {
+      // ใช้ค่าที่มีอยู่แล้วจาก customerDepositData
+      totalDepositAmount = parseFloat(customerDepositData.totalDepositAmount.toString() || "0");
+    } else if (customerDepositData?.amountRMB && customerDepositData?.exchangeRate) {
+      // คำนวณจาก amountRMB และ exchangeRate ของ customerDeposit
+      const customerRMB = parseFloat(customerDepositData.amountRMB.toString() || "0");
+      const customerRate = parseFloat(customerDepositData.exchangeRate.toString() || "0");
+      totalDepositAmount = customerRMB * customerRate;
+    }
+    
+    // คำนวณกำไรอัตราแลกเปลี่ยนถ้ามีข้อมูลพอ
+    if (totalDepositAmount > 0 && calculatedAmount > 0) {
       exchangeRateProfit = totalDepositAmount - calculatedAmount;
     }
-
+    
+    console.log('totalDepositAmount', totalDepositAmount);
+    console.log('calculatedAmount', calculatedAmount);
+    console.log('exchangeRateProfit', exchangeRateProfit);
+    
     setValue('exchange.exchangeRateProfit', exchangeRateProfit.toFixed(2));
     setValue('exchange.formattedExchangeRateProfit', formatNumber(exchangeRateProfit));
 
-    // รายรับต่อรายการธุรกรรม = จำนวนเงิน (THB) ของข้อมูลลูกค้าฝากชำระ - จำนวนเงิน (THB) ของข้อมูลการโอน
+    // รายรับต่อรายการธุรกรรม = จำนวนเงิน (THB) ของข้อมูลลูกค้าฝากชำระ - จำนวนเงิน (THB) ของข้อมูลการโอน + ส่วนต่างต่อรองราคา
     let incomePerTransaction = 0;
     if(customerDepositData?.amount && calculatedAmount > 0){
       // ใช้ amount จากข้อมูลลูกค้าฝากชำระ และ calculatedAmount ที่เพิ่งคำนวณ
       const customerAmount = parseFloat(customerDepositData?.amount?.toString() || "0");
-      incomePerTransaction = customerAmount - calculatedAmount;
+      const priceDiffValue = parseFloat(priceDifference?.toString() || "0");
+      
+      // คำนวณรายรับต่อรายการธุรกรรม = จำนวนเงินลูกค้า - จำนวนเงินที่คำนวณได้ + ส่วนต่างต่อรองราคา
+      incomePerTransaction = customerAmount - calculatedAmount + priceDiffValue;
+      
+      console.log('customerAmount:', customerAmount);
+      console.log('calculatedAmount:', calculatedAmount);
+      console.log('priceDiffValue:', priceDiffValue);
+      console.log('incomePerTransaction:', incomePerTransaction);
     }
     setValue('exchange.incomePerTransaction', incomePerTransaction.toFixed(2));
     setValue('exchange.formattedIncomePerTransaction', formatNumber(incomePerTransaction));
@@ -490,10 +538,10 @@ const ExchangeFormComponent: React.FC<ExchangeFormProps | CustomerDepositFormPro
         <UploadImageComponent
           setValue={setValue}
           control={control}
-
-          existingImage={exchangeData?.existingTransferSlip}
+          name="exchange.files"
+          existingImage={existingTransferSlip || undefined}
         />
-      </div>
+      </div>  
 
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700">

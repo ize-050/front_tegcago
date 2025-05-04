@@ -47,11 +47,16 @@ const ModalRecordMoneyComponent: React.FC = () => {
         
         // Add the full URL for the transfer slip if it exists
         if (recordData.transferSlip) {
+
+          if(recordData.financial_transaction_id){
+            recordData.transferSlip = `${process.env.NEXT_PUBLIC_URL_API}${recordData.transferSlip}`;
+          }
           // Ensure the URL is properly formatted with http:// or https://
-          if (recordData.transferSlip.startsWith('/')) {
+          if (!recordData.financial_transaction_id && recordData.transferSlip.startsWith('/')) {
+            
             // If it's a relative path starting with /, add the base URL
             recordData.transferSlip = `${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${recordData.transferSlip}`;
-          } else if (!recordData.transferSlip.startsWith('http://') && !recordData.transferSlip.startsWith('https://')) {
+          } else if (!recordData.financial_transaction_id && (!recordData.transferSlip.startsWith('http://') && !recordData.transferSlip.startsWith('https://'))) {
             // If it doesn't start with http:// or https://, add the base URL with a /
             recordData.transferSlip = `${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${recordData.transferSlip}`;
           }
@@ -167,7 +172,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
       });
       
       onClose();
-      refreshData();
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting payment form:", error);
       Swal.fire({
@@ -249,7 +254,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
       });
       
       onClose();
-      refreshData();
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting receipt form:", error);
       Swal.fire({
@@ -364,7 +369,7 @@ const ModalRecordMoneyComponent: React.FC = () => {
                             transferDate: recordData.transferDate?.split('T')[0] || '',
                             amountRMB: recordData.amountRMB || 0,
                             details: recordData.details || '',
-                            existingTransferSlip: recordData.transferSlip || undefined
+                            existingTransferSlip: recordData.financial_transaction_id ? recordData.transferSlip || undefined : recordData.transferSlip || undefined
                           } : undefined}
                         />
                       ) : (

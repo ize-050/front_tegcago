@@ -561,19 +561,19 @@ const DataTable = ({ onRefresh }: Props) => {
                                       
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <Button
+                                                    {/* <Button
                                                         variant="secondary"
                                                         className="flex items-center mr-2"
                                                         onClick={() => handleViewDetails(transaction)}
                                                     >
                                                         <FiEye className="w-4 h-4" />
-                                                    </Button>
+                                                    </Button> */}
                                                     <Button
                                                         variant="primary"
                                                         className="flex items-center mr-2 bg-blue-600 hover:bg-blue-700 text-white"
                                                         onClick={() => handleEdit(transaction)}
                                                     >
-                                                        <FiEdit2 className="w-4 h-4 mr-1" /> แก้ไข
+                                                        <FiEdit2 className="w-4 h-4 mr-1" /> 
                                                     </Button>
                                                     <Button
                                                         variant="soft-danger"

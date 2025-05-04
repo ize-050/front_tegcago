@@ -18,6 +18,7 @@ interface FinancialRecord {
   type: 'PAYMENT' | 'RECEIPT';
   amountRMB: number;
   transferDate: string;
+  financial_transaction_id?: string;
   details?: string;
   transferSlip?: string;
   amountTHB?: number;
@@ -139,57 +140,65 @@ const TableComponent = () => {
 
     calculateTotal();
   }, [filteredRecords]);
+  
+  useEffect(() => {
+    console.log("filteredRecords",filteredRecords)
+  }, [filteredRecords]);
+
+
 
   // Apply filters when filters change
-  useEffect(() => {
-    let result = [...records];
+  // useEffect(() => {
+  //   let result = [...records];
 
-    // Filter by search term
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(record => 
-        record.title.toLowerCase().includes(searchLower) ||
-        record.details?.toLowerCase().includes(searchLower) ||
-        record.payTo?.toLowerCase().includes(searchLower)
-      );
-    }
+  //   // Filter by search term
+  //   if (filters.search) {
+  //     const searchLower = filters.search.toLowerCase();
+  //     result = result.filter(record => 
+  //       record.title.toLowerCase().includes(searchLower) ||
+  //       record.details?.toLowerCase().includes(searchLower) ||
+  //       record.payTo?.toLowerCase().includes(searchLower)
+  //     );
+  //   }
 
-    // Filter by type
-    if (filters.type !== 'ALL') {
-      result = result.filter(record => record.type === filters.type);
-    }
+  //   // Filter by type
+  //   if (filters.type !== 'ALL') {
+  //     result = result.filter(record => record.type === filters.type);
+  //   }
 
-    // Filter by account
-    if (filters.account) {
-      result = result.filter(record => record.accountOwner === filters.account);
-    }
+  //   // Filter by account
+  //   if (filters.account) {
+  //     result = result.filter(record => record.accountOwner === filters.account);
+  //   }
 
-    // Filter by date range
-    if (filters.startDate) {
-      result = result.filter(record => record.date >= filters.startDate);
-    }
-    if (filters.endDate) {
-      result = result.filter(record => record.date <= filters.endDate);
-    }
+  //   // Filter by date range
+  //   if (filters.startDate) {
+  //     result = result.filter(record => record.date >= filters.startDate);
+  //   }
+  //   if (filters.endDate) {
+  //     result = result.filter(record => record.date <= filters.endDate);
+  //   }
 
-    setFilteredRecords(result);
-  }, [filters, records]);
+  //   setFilteredRecords(result);
+  // }, [filters, records]);
 
   // Add event listener for refreshing data
-  useEffect(() => {
-    // Function to handle refresh event
-    const handleRefresh = () => {
-      fetchRecords();
-    };
+  // useEffect(() => {
+  //   // Function to handle refresh event
+  //   const handleRefresh = () => {
+  //     fetchRecords();
+  //   };
 
-    // Add event listener
-    window.addEventListener('refreshFinancialRecords', handleRefresh);
+  //   handleRefresh();
 
-    // Clean up
-    return () => {
-      window.removeEventListener('refreshFinancialRecords', handleRefresh);
-    };
-  }, [filters]); // Re-add event listener when filters change
+  //   // Add event listener
+  //   // window.addEventListener('refreshFinancialRecords', handleRefresh);
+
+  //   // Clean up
+  //   // return () => {
+  //   //   window.removeEventListener('refreshFinancialRecords', handleRefresh);
+  //   // };
+  // }, [filters]); // Re-add event listener when filters change
 
   const handleEdit = async (id: string, type: 'PAYMENT' | 'RECEIPT') => {
     try {
@@ -221,7 +230,8 @@ const TableComponent = () => {
   };
 
   const handleSearch = () => {
-    setFilters(filterForm);
+    console.log("filterForm",filterForm);
+    setFilters({...filterForm});
     setCurrentPage(1); // Reset to first page when filters change
   };
 
@@ -439,11 +449,17 @@ const TableComponent = () => {
                   )}
                 </td>
                 <td className="px-6 py-4">
-                  {record.transferSlip ? (
-                    <a href={`${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${record.transferSlip}`} target="_blank" rel="noopener noreferrer" 
+                  {record.transferSlip && record?.financial_transaction_id ? (
+                    <a href={`${process.env.NEXT_PUBLIC_URL_API}${record.transferSlip}`} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:underline">
                       ดูสลิป
                     </a>
+                  ) :
+                  record.transferSlip ? (
+                    <a href={`${process.env.NEXT_PUBLIC_URL_API}/images/transferSlip/${record.transferSlip}`} target="_blank" rel="noopener noreferrer" 
+                    className="text-blue-600 hover:underline">
+                   ดูสลิป
+                 </a>
                   ) : (
                     <span className="text-gray-400">ไม่มีสลิป</span>
                   )}

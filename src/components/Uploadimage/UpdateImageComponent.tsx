@@ -17,10 +17,12 @@ const UploadImageComponent = ({
   setValue,
   control,
   existingImage,
+  name = "files",
 }: {
   setValue: any;
   control: any;
   existingImage?: string;
+  name?: string;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const dispatch = useAppDispatch();
@@ -32,7 +34,26 @@ const UploadImageComponent = ({
 
   // Update existingImageUrl when existingImage prop changes
   useEffect(() => {
-    setExistingImageUrl(existingImage);
+    if (existingImage) {
+      console.log('Existing image URL:', existingImage);
+      // ตรวจสอบว่า URL เริ่มต้นด้วย http หรือ / หรือไม่
+      if (existingImage.startsWith('http')) {
+        // URL เต็มรูปแบบ ใช้ได้เลย
+        setExistingImageUrl(existingImage);
+      } else if (existingImage.startsWith('/')) {
+        // URL แบบ relative path ต้องเพิ่ม domain
+        // ใช้ API_URL จาก environment หรือใช้ window.location.origin
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+        const fullUrl = `${baseUrl}${existingImage}`;
+        console.log('Full image URL:', fullUrl);
+        setExistingImageUrl(fullUrl);
+      } else {
+        // กรณีอื่นๆ ให้ใช้ค่าเดิม
+        setExistingImageUrl(existingImage);
+      }
+    } else {
+      setExistingImageUrl(undefined);
+    }
   }, [existingImage]);
 
   // Handle modal preview for existing image
@@ -70,7 +91,7 @@ const UploadImageComponent = ({
     });
     console.log("urls", urls);
     setPreviewUrls(urls);
-    setValue("files", files);
+    setValue(name, files);
   }, [files]);
 
   const DeleteImage = (index: number) => {
@@ -107,15 +128,26 @@ const UploadImageComponent = ({
           {existingImageUrl && (
             <div className="relative m-2">
               <div className="relative w-32 h-32 overflow-hidden border rounded-md">
-                <Image
-                  src={existingImageUrl}
-                  alt="Existing Transfer Slip"
-                  width={128}
-                  height={128}
-                  style={{ objectFit: 'cover' }}
-                  className="cursor-pointer"
-                  onClick={handleExistingImagePreview}
-                />
+                {existingImageUrl ? (
+                  <Image
+                    src={existingImageUrl}
+                    alt="Existing Transfer Slip"
+                    width={128}
+                    height={128}
+                    style={{ objectFit: 'cover' }}
+                    className="cursor-pointer"
+                    onClick={handleExistingImagePreview}
+                    onError={(e) => {
+                      console.error('Error loading image:', existingImageUrl);
+                      // แสดงข้อความแทนรูปภาพที่โหลดไม่สำเร็จ
+                      e.currentTarget.src = '/images/error-image.png';
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                    <span className="text-sm text-gray-500">ไม่พบรูปภาพ</span>
+                  </div>
+                )}
               </div>
               <button
                 type="button"

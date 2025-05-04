@@ -1,7 +1,7 @@
 import axios from '../../axios';
 
 // Interface สำหรับข้อมูลการฝากชำระ
-interface CustomerDepositData {
+export interface CustomerDepositData {
   amountRMB?: number | null;
   priceDifference?: number | null;
   exchangeRate?: number | null;
@@ -17,13 +17,14 @@ interface CustomerDepositData {
   includeVat?: boolean;
   notes?: string;
   existingTransferSlip?: string;
+  transferSlipUrl?: string; // เพิ่ม property สำหรับเก็บ URL ของรูปภาพ
   formattedAmount?: string;
   formattedExchangeRateProfit?: string;
   formattedIncomePerTransaction?: string;
 }
 
 // Interface สำหรับข้อมูลการโอน
-interface ExchangeData {
+export interface ExchangeData {
   amountRMB?: number | null;
   priceDifference?: number | null;
   exchangeRate?: number | null;
@@ -38,13 +39,14 @@ interface ExchangeData {
   totalWithVat?: number;
   notes?: string;
   existingTransferSlip?: string;
+  transferSlipUrl?: string; // เพิ่ม property สำหรับเก็บ URL ของรูปภาพ
   formattedAmount?: string;
   formattedExchangeRateProfit?: string;
   formattedIncomePerTransaction?: string;
 }
 
 // Interface สำหรับข้อมูลการบันทึกรายการเงิน
-interface RecordMoneyData {
+export interface RecordMoneyData {
   date: string;
   salesperson: string;
   documentNumber: string;
@@ -58,14 +60,23 @@ interface RecordMoneyData {
 
 /**
  * บันทึกข้อมูลรายการเงิน
- * @param data ข้อมูลรายการเงิน
+ * @param formData FormData ที่มีข้อมูลและไฟล์ทั้งหมด
  * @returns Promise ที่ resolve เมื่อบันทึกสำเร็จ
  */
-export const createRecordMoney = async (data: RecordMoneyData) => {
+export const createRecordMoney = async (formData: FormData) => {
   try {
-    const response = await axios.post('/finance/record-money', data);
+    console.log('Sending FormData to API');
+    
+    // ส่งข้อมูลไปยัง API
+    const response = await axios.post('/finance/record-money', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
     return response.data;
   } catch (error) {
+    console.error('Error creating record money:', error);
     throw error;
   }
 };
@@ -73,14 +84,23 @@ export const createRecordMoney = async (data: RecordMoneyData) => {
 /**
  * อัปเดตข้อมูลรายการเงิน
  * @param id ID ของรายการเงิน
- * @param data ข้อมูลรายการเงิน
+ * @param formData FormData ที่มีข้อมูลและไฟล์ทั้งหมด
  * @returns Promise ที่ resolve เมื่ออัปเดตสำเร็จ
  */
-export const updateRecordMoney = async (id: string, data: RecordMoneyData) => {
+export const updateRecordMoney = async (id: string, formData: FormData) => {
   try {
-    const response = await axios.put(`/finance/record-money/${id}`, data);
+    console.log('Sending FormData to API for update, ID:', id);
+    
+    // ส่งข้อมูลไปยัง API
+    const response = await axios.put(`/finance/record-money/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
     return response.data;
   } catch (error) {
+    console.error('Error updating record money:', error);
     throw error;
   }
 };

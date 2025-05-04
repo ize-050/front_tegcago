@@ -226,10 +226,13 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
               <Controller
                 name="t_group_work"
                 control={control}
+                defaultValue={purchase.t_group_work}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <select
                     onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
                     className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
                   >
                     <option value="EXW">EXW ขาเข้าทั้งเส้นทาง</option>
@@ -263,8 +266,9 @@ const FormEdit = ({ purchase }: { purchase: Partial<any> }) => {
                   <select
                     onChange={onChange}
                     onBlur={onBlur}
+                    defaultValue={purchase.d_group_work}
                     value={value}
-                    className=" border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
+                    className="border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 "
                   >
                     <option value="เลือกประเภทงาน">เลือกประเภทงาน</option>
                     <option value="EXW ALL IN">EXW ALL IN</option>
