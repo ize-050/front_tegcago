@@ -448,11 +448,11 @@ const ModalRecordMoneyComponent: React.FC = () => {
 
                 onClose();
 
-            //    window.location.reload();
+                window.location.reload();
 
             } else {
                 throw new Error(response?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-            //    window.location.reload();
+              window.location.reload();
             }
         } catch (error: any) {
             console.error("Error submitting form:", error);
