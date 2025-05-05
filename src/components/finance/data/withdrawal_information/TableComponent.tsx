@@ -34,6 +34,14 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    
+    // เพิ่มตัวกรองสำหรับแต่ละคอลัมน์
+    const [filterOptions, setFilterOptions] = useState({
+        invoiceNo: "",
+        consignee: "",
+        withdrawalAmount: "",
+        transferAmount: ""
+    });
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page)
@@ -96,6 +104,7 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
         setFilteredData(currentData);
     }, [currentData]);
 
+    // ฟังก์ชันสำหรับการค้นหาข้อมูลจาก API
     const handleSearchData = async () => {
         try {
             setIsLoading(true);
@@ -121,6 +130,76 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
         } finally {
             setIsLoading(false);
         }
+    };
+    
+    // ฟังก์ชันสำหรับการค้นหาข้อมูลในตารางโดยตรง (ไม่ต้องเรียก API)
+    const handleLocalSearch = () => {
+        if (!currentData || currentData.length === 0) return;
+        
+        let result = [...currentData];
+        
+        // ค้นหาตามคำค้นหาทั่วไป
+        if (searchedVal) {
+            const searchLower = searchedVal.toLowerCase();
+            result = result.filter(item => 
+                // ค้นหาจากทุกคอลัมน์ที่แสดงในตาราง
+                (item.invoice_package && item.invoice_package.toLowerCase().includes(searchLower)) ||
+                (item.consignee && item.consignee.toLowerCase().includes(searchLower)) ||
+                (item.withdrawal_amount && item.withdrawal_amount.toString().includes(searchLower)) ||
+                (item.transfer_amount && item.transfer_amount.toString().includes(searchLower)) ||
+                (item.head_tractor && item.head_tractor.toLowerCase().includes(searchLower))
+            );
+        }
+        
+        // กรองตามคอลัมน์เฉพาะ
+        if (filterOptions.invoiceNo) {
+            const searchLower = filterOptions.invoiceNo.toLowerCase();
+            result = result.filter(item => 
+                item.invoice_package && item.invoice_package.toLowerCase().includes(searchLower)
+            );
+        }
+        
+        if (filterOptions.consignee) {
+            const searchLower = filterOptions.consignee.toLowerCase();
+            result = result.filter(item => 
+                item.consignee && item.consignee.toLowerCase().includes(searchLower)
+            );
+        }
+        
+        if (filterOptions.withdrawalAmount) {
+            const searchVal = filterOptions.withdrawalAmount;
+            result = result.filter(item => 
+                item.withdrawal_amount && item.withdrawal_amount.toString().includes(searchVal)
+            );
+        }
+        
+        if (filterOptions.transferAmount) {
+            const searchVal = filterOptions.transferAmount;
+            result = result.filter(item => 
+                item.transfer_amount && item.transfer_amount.toString().includes(searchVal)
+            );
+        }
+        
+        // กรองตามช่วงวันที่
+        if (startDate || endDate) {
+            result = result.filter(item => isDateInRange(item.withdrawal_date, startDate, endDate));
+        }
+        
+        setFilteredData(result);
+    };
+    
+    // ฟังก์ชันสำหรับการรีเซ็ตตัวกรองทั้งหมด
+    const resetAllFilters = () => {
+        setSearchedVal("");
+        setStartDate("");
+        setEndDate("");
+        setFilterOptions({
+            invoiceNo: "",
+            consignee: "",
+            withdrawalAmount: "",
+            transferAmount: ""
+        });
+        setFilteredData(currentData);
     };
 
     const handleExportExcel = async () => {
@@ -333,8 +412,8 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                         <div className="flex p-4 flex-col box box--stacked">
                             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
 
-                                <div className="flex justify-between mb-5">
-                                    <div className="flex items-center gap-5">
+                                <div className="flex flex-col mb-5 gap-4">
+                                    <div className="flex items-center gap-5 flex-wrap">
                                         <div className="flex items-center gap-2">
                                             <label className="font-medium text-gray-700">วันที่เริ่มต้น:</label>
                                             <input
@@ -353,17 +432,78 @@ const TableComponent = ({ datawidhdrawalInformation, onRefresh }: Props) => {
                                                 className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหาทั้งหมด..."
+                                                value={searchedVal}
+                                                onChange={(e) => setSearchedVal(e.target.value)}
+                                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* ตัวกรองตามคอลัมน์ */}
+                                    <div className="flex items-center gap-5 flex-wrap">
+                                        <div className="flex items-center gap-2">
+                                            <label className="font-medium text-gray-700">Invoice No:</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหา Invoice..."
+                                                value={filterOptions.invoiceNo}
+                                                onChange={(e) => setFilterOptions({...filterOptions, invoiceNo: e.target.value})}
+                                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <label className="font-medium text-gray-700">Consignee:</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหาผู้รับ..."
+                                                value={filterOptions.consignee}
+                                                onChange={(e) => setFilterOptions({...filterOptions, consignee: e.target.value})}
+                                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <label className="font-medium text-gray-700">ยอดเบิก:</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหายอดเบิก..."
+                                                value={filterOptions.withdrawalAmount}
+                                                onChange={(e) => setFilterOptions({...filterOptions, withdrawalAmount: e.target.value})}
+                                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <label className="font-medium text-gray-700">ยอดโอน:</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหายอดโอน..."
+                                                value={filterOptions.transferAmount}
+                                                onChange={(e) => setFilterOptions({...filterOptions, transferAmount: e.target.value})}
+                                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-5">
                                         <button
-                                            onClick={() => {
-                                                setStartDate("");
-                                                setEndDate("");
-                                            }}
+                                            onClick={resetAllFilters}
                                             className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                                         >
-                                            ล้างตัวกรอง
+                                            ล้างตัวกรองทั้งหมด
                                         </button>
                                         <button
-                                            onClick={handleSearchData}
+                                            onClick={() => {
+                                                if (startDate || endDate) {
+                                                    // ถ้ามีการกรองตามวันที่ ให้ค้นหาจาก API
+                                                    handleSearchData();
+                                                } else {
+                                                    // ถ้าไม่มีการกรองตามวันที่ ให้ค้นหาจากข้อมูลในตารางโดยตรง
+                                                    handleLocalSearch();
+                                                }
+                                            }}
                                             className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                                             disabled={isLoading}
                                         >

@@ -24,7 +24,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
     Number(watch('th_employee') || 0) +
     Number(watch('th_warehouse') || 0) +
     Number(watch('th_gasoline') || 0) +
-    Number(watch('th_hairy') || 0) +
     Number(watch('th_overtime') || 0) +
     Number(watch('th_check_fee') || 0) +
     Number(watch('th_product_account') || 0) +
@@ -59,7 +58,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
     // คำนวณรวม Shipping เบิก
     const totalShippingAdvance = Number(watch('th_shipping_advance') || 0);
 
-    // คำนวณยอดคงเหลือ Shipping เบิก
+    // คำนวณยอดคงเหลือ Shipping เบิก (หักค่ายิงใบขนด้วย)
     const remainingShipping = totalShippingAdvance - totalClear;
 
     const dispatch = useDispatch();
@@ -97,7 +96,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
         // คำนวณยอดที่ต้องจ่ายคงเหลือ
         calculateRemainingPayment();
 
-        // คำนวณยอดคงเหลือ Shipping เบิก
+        // คำนวณping เบิก
         const remaining = totalShippingAdvance - totalClear;
         setValue('th_shipping_remaining', remaining);
         
@@ -273,7 +272,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
 
                 <div className="w-full md:w-1/3 flex flex-col">
                     <label className="block mb-2 text-gray-700 text-sm font-semibold">
-                        ยอดคงเหลือ Shipping เบิก
+                        ยอดคงเหลือShipping เบิก
                     </label>
                     <div className="px-4 py-2 bg-gray-100 rounded-md">
                         {numberFormatTh(remainingShipping)} THB
@@ -303,7 +302,70 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ control, errors, watch,
                 </div>
             </div>
 
-            <hr/>
+
+            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mt-5">
+                <div className="w-full md:w-1/3 flex flex-col">
+                    <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                        วันที่เบิก
+                    </label>
+                    <Controller
+                        name="withdrawal_date"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <input 
+                                type="date" 
+                                {...field} 
+                                disabled
+                                className="bg-gray-100 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="w-full md:w-1/3 flex flex-col">
+                    <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                        วันที่เตรียมจ่ายเงิน Shipping เบิก
+                    </label>
+                    <Controller
+                        name="shipping_payment_date"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <input 
+                                type="date" 
+                                {...field} 
+                                disabled
+                                className="bg-gray-100 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                        )}
+                    />
+                </div>
+                
+                <div className="w-full md:w-1/3 flex flex-col">
+                    <label className="block mb-2 text-gray-700 text-sm font-semibold">
+                        สถานะ Shipping เบิก
+                    </label>
+                    <Controller
+                        name="shipping_advance_status"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <select
+                                {...field}
+                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="">เลือกสถานะ</option>
+                                <option value="เคลียร์ครบแล้ว">เคลียร์ครบแล้ว</option>
+                                <option value="ยังไม่ได้เคลียร์">ยังไม่ได้เคลียร์</option>
+                                <option value="เคลียร์บางส่วน">เคลียร์บางส่วน</option>
+                            </select>
+                        )}
+                    />
+                </div>
+            </div>
+
+            
             <br></br>
             <h1>รวมค่าใช้จ่ายทั้งหมด</h1>
 

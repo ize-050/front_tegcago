@@ -538,6 +538,7 @@ const ContainComponent = ({ purchase }: { purchase: any }) => {
                           <option value="EXEK">EXEK</option>
                           <option value="EXRW">EXRW</option>
                           <option value="SLG">SLG</option>
+                          <option value="AIS">AIS</option>
                         </select>
                       )}
                     />

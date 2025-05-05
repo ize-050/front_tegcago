@@ -148,57 +148,60 @@ const TableComponent = () => {
 
 
   // Apply filters when filters change
-  // useEffect(() => {
-  //   let result = [...records];
+  useEffect(() => {
+    let result = [...records];
 
-  //   // Filter by search term
-  //   if (filters.search) {
-  //     const searchLower = filters.search.toLowerCase();
-  //     result = result.filter(record => 
-  //       record.title.toLowerCase().includes(searchLower) ||
-  //       record.details?.toLowerCase().includes(searchLower) ||
-  //       record.payTo?.toLowerCase().includes(searchLower)
-  //     );
-  //   }
+    // Filter by search term
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(record => 
+        (record.title && record.title.toLowerCase().includes(searchLower)) ||
+        (record.details && record.details.toLowerCase().includes(searchLower)) ||
+        (record.payTo && record.payTo.toLowerCase().includes(searchLower)) ||
+        (record.accountOwner && record.accountOwner.toLowerCase().includes(searchLower)) ||
+        (record.amountRMB && record.amountRMB.toString().includes(searchLower)) ||
+        (record.amountTHB && record.amountTHB.toString().includes(searchLower))
+      );
+    }
 
-  //   // Filter by type
-  //   if (filters.type !== 'ALL') {
-  //     result = result.filter(record => record.type === filters.type);
-  //   }
+    // Filter by type
+    if (filters.type !== 'ALL') {
+      result = result.filter(record => record.type === filters.type);
+    }
 
-  //   // Filter by account
-  //   if (filters.account) {
-  //     result = result.filter(record => record.accountOwner === filters.account);
-  //   }
+    // Filter by account
+    if (filters.account) {
+      result = result.filter(record => record.accountOwner === filters.account);
+    }
 
-  //   // Filter by date range
-  //   if (filters.startDate) {
-  //     result = result.filter(record => record.date >= filters.startDate);
-  //   }
-  //   if (filters.endDate) {
-  //     result = result.filter(record => record.date <= filters.endDate);
-  //   }
+    // Filter by date range
+    if (filters.startDate) {
+      result = result.filter(record => new Date(record.date) >= new Date(filters.startDate));
+    }
+    if (filters.endDate) {
+      result = result.filter(record => new Date(record.date) <= new Date(filters.endDate));
+    }
 
-  //   setFilteredRecords(result);
-  // }, [filters, records]);
+    setFilteredRecords(result);
+  }, [filters, records]);
 
   // Add event listener for refreshing data
-  // useEffect(() => {
-  //   // Function to handle refresh event
-  //   const handleRefresh = () => {
-  //     fetchRecords();
-  //   };
+  useEffect(() => {
+    // Function to handle refresh event
+    const handleRefresh = () => {
+      fetchRecords();
+    };
 
-  //   handleRefresh();
+    handleRefresh();
 
-  //   // Add event listener
-  //   // window.addEventListener('refreshFinancialRecords', handleRefresh);
+    // Add event listener
+    window.addEventListener('refreshFinancialRecords', handleRefresh);
 
-  //   // Clean up
-  //   // return () => {
-  //   //   window.removeEventListener('refreshFinancialRecords', handleRefresh);
-  //   // };
-  // }, [filters]); // Re-add event listener when filters change
+    // Clean up
+    return () => {
+      window.removeEventListener('refreshFinancialRecords', handleRefresh);
+    };
+  }, [filters]); // Re-add event listener when filters change
 
   const handleEdit = async (id: string, type: 'PAYMENT' | 'RECEIPT') => {
     try {

@@ -32,10 +32,20 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
     const [bookNumbers, setBookNumbers] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    // เพิ่ม state สำหรับตัวกรองวันที่และประเภท shipment
+    // เพิ่ม state สำหรับตัวกรองต่างๆ
     const [startDate, setStartDate] = useState<string>("")
     const [endDate, setEndDate] = useState<string>("")
     const [shipmentType, setShipmentType] = useState<string>("")
+    const [bookNumberFilter, setBookNumberFilter] = useState<string>("") // เลขที่ตีราคา
+    const [containerNoFilter, setContainerNoFilter] = useState<string>("") // Container No
+    const [blNoFilter, setBlNoFilter] = useState<string>("") // B/L No
+    const [consigneeFilter, setConsigneeFilter] = useState<string>("") // Consignee
+    const [agencyFilter, setAgencyFilter] = useState<string>("") // Agency
+    const [shipLineFilter, setShipLineFilter] = useState<string>("") // สายเรือ
+    const [bookStatusFilter, setBookStatusFilter] = useState<string>("") // สถานะใบจอง
+    const [accountStatusFilter, setAccountStatusFilter] = useState<string>("") // สถานะทางบัญชี
+    const [etdFilter, setEtdFilter] = useState<string>("") // ETD
+    const [etaFilter, setEtaFilter] = useState<string>("") // ETA
 
     // รายการประเภท shipment ตามที่ระบบ CS ใช้ในแท็บอัพเดทสถานะ
     const shipmentTypes = [
@@ -51,7 +61,8 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         { value: "EXSEA", label: "EXSEA" },
         { value: "EXEK", label: "EXEK" },
         { value: "EXRW", label: "EXRW" },
-        { value: "SLG", label: "SLG" }
+        { value: "SLG", label: "SLG" },
+        { value: "AIS", label: "AIS" }
     ]
 
     const handlePageChange = (page: number) => {
@@ -160,22 +171,83 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
         setStartDate("");
         setEndDate("");
         setShipmentType("");
+        setBookNumberFilter("");
+        setContainerNoFilter("");
+        setBlNoFilter("");
+        setConsigneeFilter("");
+        setAgencyFilter("");
+        setShipLineFilter("");
+        setBookStatusFilter("");
+        setAccountStatusFilter("");
+        setEtdFilter("");
+        setEtaFilter("");
+    }
+    
+    // ฟังก์ชันค้นหาข้อมูล
+    const handleSearchClick = () => {
+        // ไม่ต้องทำอะไรเพิ่มเติม เพราะการกรองจะทำงานในฟังก์ชัน filteredData อยู่แล้ว
+        // แต่เราสามารถเพิ่มโค้ดเพื่อแสดงการทำงานได้ เช่น แสดงข้อความว่ากำลังค้นหา
+        console.log("Searching with filters:", {
+            searchedVal,
+            startDate,
+            endDate,
+            shipmentType,
+            bookNumberFilter,
+            containerNoFilter,
+            blNoFilter,
+            consigneeFilter,
+            agencyFilter,
+            shipLineFilter,
+            bookStatusFilter,
+            accountStatusFilter,
+            etdFilter,
+            etaFilter
+        });
     }
 
     // ฟังก์ชันกรองข้อมูลตามเงื่อนไขทั้งหมด
     const filteredData = currentData?.filter((item: any) => {
-        // กรองตามข้อความค้นหา (ค้นหาได้ทุกช่อง)
-        const searchMatch = !searchedVal ? true : (
-            (item?.book_number?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_route?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_status?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_term?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_transport?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_shipment_number?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.customer?.name?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_origin?.toLowerCase().includes(searchedVal.toLowerCase())) ||
-            (item?.d_destination?.toLowerCase().includes(searchedVal.toLowerCase()))
-        );
+        // กรองตามเลข Shipment
+        const shipmentNumberMatch = !searchedVal ? true : 
+            (item?.d_shipment_number?.toLowerCase().includes(searchedVal.toLowerCase()));
+
+        // กรองตามเลขที่ตีราคา
+        const bookNumberMatch = !bookNumberFilter ? true : 
+            (item?.book_number?.toLowerCase().includes(bookNumberFilter.toLowerCase()));
+
+        // กรองตาม Container No
+        const containerNoMatch = !containerNoFilter ? true : 
+            (item?.cs_purchase[0]?.receive?.container_no?.toLowerCase().includes(containerNoFilter.toLowerCase()));
+
+        // กรองตาม B/L No
+        const blNoMatch = !blNoFilter ? true : 
+            (item?.cs_purchase?.find((res: any) => res.status_key === "Departure")?.provedeparture?.bl_no?.toLowerCase().includes(blNoFilter.toLowerCase()));
+
+        // กรองตาม Consignee
+        const consigneeMatch = !consigneeFilter ? true : 
+            (item?.cs_purchase?.find((res: any) => res.status_name === "จองตู้")?.bookcabinet?.consignee?.toLowerCase().includes(consigneeFilter.toLowerCase()));
+
+        // กรองตาม Agency
+        const agencyMatch = !agencyFilter ? true : 
+            (item?.d_agentcy?.some((agency: any) => 
+                agency?.d_sale_agentcy?.length > 0 && 
+                agency?.d_sale_agentcy[0]?.d_agentcy?.agentcy?.agent_name?.toLowerCase().includes(agencyFilter.toLowerCase())
+            ));
+
+        // กรองตามสายเรือ
+        const shipLineMatch = !shipLineFilter ? true : 
+            (item?.d_agentcy?.some((agency: any) => 
+                agency?.d_sale_agentcy?.length > 0 && 
+                agency?.d_sale_agentcy[0]?.d_agentcy?.agent_boat?.toLowerCase().includes(shipLineFilter.toLowerCase())
+            ));
+
+        // กรองตามสถานะใบจอง
+        const bookStatusMatch = !bookStatusFilter ? true : 
+            (item?.purchase_finance[0]?.shipping_details?.shipping_advance_status?.toLowerCase().includes(bookStatusFilter.toLowerCase()));
+
+        // กรองตามสถานะทางบัญชี
+        const accountStatusMatch = !accountStatusFilter ? true : 
+            (item?.purchase_finance[0]?.payment_status?.toLowerCase().includes(accountStatusFilter.toLowerCase()));
 
         // กรองตามวันที่
         let dateMatch = true;
@@ -191,11 +263,41 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
             }
         }
 
+        // กรองตาม ETD
+        let etdMatch = true;
+        if (etdFilter) {
+            const etdDate = item?.d_agentcy?.find((agency: any) => 
+                agency?.d_sale_agentcy?.length > 0 && agency?.d_sale_agentcy[0]?.d_agentcy?.agentcy_etd
+            )?.d_sale_agentcy[0]?.d_agentcy?.agentcy_etd;
+            
+            if (etdDate) {
+                etdMatch = moment(etdDate).isSame(moment(etdFilter), 'day');
+            } else {
+                etdMatch = false;
+            }
+        }
+
+        // กรองตาม ETA
+        let etaMatch = true;
+        if (etaFilter) {
+            const etaDate = item?.d_agentcy?.find((agency: any) => 
+                agency?.d_sale_agentcy?.length > 0 && agency?.d_sale_agentcy[0]?.d_agentcy?.agentcy_eta
+            )?.d_sale_agentcy[0]?.d_agentcy?.agentcy_eta;
+            
+            if (etaDate) {
+                etaMatch = moment(etaDate).isSame(moment(etaFilter), 'day');
+            } else {
+                etaMatch = false;
+            }
+        }
+
         // กรองตามประเภท shipment
         const shipmentMatch = !shipmentType ? true : item?.d_transport === shipmentType;
 
         // ต้องผ่านทุกเงื่อนไขการกรอง
-        return searchMatch && dateMatch && shipmentMatch;
+        return shipmentNumberMatch && bookNumberMatch && containerNoMatch && blNoMatch && 
+               consigneeMatch && agencyMatch && shipLineMatch && bookStatusMatch && 
+               accountStatusMatch && dateMatch && etdMatch && etaMatch && shipmentMatch;
     });
 
     const handleView = (id: number) => {
@@ -216,97 +318,243 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                             <div className="relative p-2 overflow-x-auto shadow-md sm:rounded-lg">
 
                                 {/* ส่วนของการค้นหาและตัวกรอง */}
-                                <div className="mb-5 flex flex-wrap items-center gap-3">
-                                    {/* ช่องค้นหา */}
-                                    <div className="relative">
-                                        <label className="block text-xs text-gray-500 mb-1">ค้นหา</label>
-                                        <input
-                                            type="text"
-                                            placeholder="ค้นหา"
-                                            value={searchedVal}
-                                            onChange={handleSearch}
-                                            onFocus={() => {
-                                                // แสดงผลลัพธ์เฉพาะเมื่อมีการพิมพ์ข้อความเท่านั้น
-                                                if (searchedVal.trim().length > 0) {
-                                                    setShowSuggestions(true);
-                                                }
-                                            }}
-                                            onBlur={() => {
-                                                // ใช้ setTimeout เพื่อให้สามารถคลิกเลือกรายการได้ก่อนที่ dropdown จะหายไป
-                                                setTimeout(() => {
-                                                    setShowSuggestions(false);
-                                                }, 200);
-                                            }}
-                                            className="w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-transparent"
-                                        />
-                                        {showSuggestions && searchedVal.trim().length > 0 && filteredSuggestions.length > 0 && (
-                                            <div className="absolute z-10 w-64 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-                                                {filteredSuggestions.map((suggestion, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                        onClick={() => handleSelectSuggestion(suggestion)}
-                                                    >
-                                                        {suggestion}
-                                                    </div>
+                                <div className="mb-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <h3 className="text-base font-medium text-gray-700 mb-3">ตัวกรองการค้นหา</h3>
+                                    
+                                    {/* แถวที่ 1: ตัวกรองหลัก */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+                                        {/* เลข Shipment */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">เลข Shipment</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหาเลข Shipment"
+                                                value={searchedVal}
+                                                onChange={handleSearch}
+                                                onFocus={() => {
+                                                    if (searchedVal.trim().length > 0) {
+                                                        setShowSuggestions(true);
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    setTimeout(() => {
+                                                        setShowSuggestions(false);
+                                                    }, 200);
+                                                }}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            {showSuggestions && searchedVal.trim().length > 0 && filteredSuggestions.length > 0 && (
+                                                <div className="absolute z-10 w-64 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                                                    {filteredSuggestions.map((suggestion, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => handleSelectSuggestion(suggestion)}
+                                                        >
+                                                            {suggestion}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* เลขที่ตีราคา */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">เลขที่ตีราคา</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหาเลขที่ตีราคา"
+                                                value={bookNumberFilter}
+                                                onChange={(e) => setBookNumberFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* ประเภท Shipment */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">ประเภท Shipment</label>
+                                            <select
+                                                value={shipmentType}
+                                                onChange={(e) => setShipmentType(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                {shipmentTypes.map((type, index) => (
+                                                    <option key={index} value={type.value}>
+                                                        {type.label}
+                                                    </option>
                                                 ))}
-                                            </div>
-                                        )}
+                                            </select>
+                                        </div>
+
+                                        {/* Container No */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Container No</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหา Container No"
+                                                value={containerNoFilter}
+                                                onChange={(e) => setContainerNoFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* B/L No */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">B/L No</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหา B/L No"
+                                                value={blNoFilter}
+                                                onChange={(e) => setBlNoFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* ตัวกรองวันที่เริ่มต้น */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">วันที่เริ่มต้น</label>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
-                                        />
+                                    {/* แถวที่ 2: ตัวกรองเพิ่มเติม */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+                                        {/* Consignee */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Consignee</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหา Consignee"
+                                                value={consigneeFilter}
+                                                onChange={(e) => setConsigneeFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* Agency */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Agency</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหา Agency"
+                                                value={agencyFilter}
+                                                onChange={(e) => setAgencyFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* สายเรือ */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">สายเรือ</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ค้นหาสายเรือ"
+                                                value={shipLineFilter}
+                                                onChange={(e) => setShipLineFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* สถานะใบจอง (Shipping Advance Status) */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">สถานะ Shipping เบิก</label>
+                                            <select
+                                                value={bookStatusFilter}
+                                                onChange={(e) => setBookStatusFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">ทั้งหมด</option>
+                                                <option value="เคลียร์ครบแล้ว">เคลียร์ครบแล้ว</option>
+                                                <option value="ยังไม่ได้เคลียร์">ยังไม่ได้เคลียร์</option>
+                                                <option value="เคลียร์บางส่วน">เคลียร์บางส่วน</option>
+                                            </select>
+                                        </div>
+
+                                        {/* สถานะทางบัญชี */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">สถานะทางบัญชี</label>
+                                            <select
+                                                value={accountStatusFilter}
+                                                onChange={(e) => setAccountStatusFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">ทั้งหมด</option>
+                                                <option value="ค้างชำระ">ค้างชำระ</option>
+                                                <option value="ชำระบางส่วน">ชำระบางส่วน</option>
+                                                <option value="ชำระครบแล้ว">ชำระครบแล้ว</option>
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    {/* ตัวกรองวันที่สิ้นสุด */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">วันที่สิ้นสุด</label>
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
-                                        />
+                                    {/* แถวที่ 3: ตัวกรองวันที่ */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+                                        {/* วันที่เริ่มต้น */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">วันที่เริ่มต้น</label>
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* วันที่สิ้นสุด */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">วันที่สิ้นสุด</label>
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* ETD */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">ETD</label>
+                                            <input
+                                                type="date"
+                                                value={etdFilter}
+                                                onChange={(e) => setEtdFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* ETA */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">ETA</label>
+                                            <input
+                                                type="date"
+                                                value={etaFilter}
+                                                onChange={(e) => setEtaFilter(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* ตัวกรองประเภท shipment */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500 mb-1">ประเภท Shipment</label>
-                                        <select
-                                            value={shipmentType}
-                                            onChange={(e) => setShipmentType(e.target.value)}
-                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none"
-                                        >
-                                            {shipmentTypes.map((type, index) => (
-                                                <option key={index} value={type.value}>
-                                                    {type.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* ปุ่มรีเซ็ตตัวกรอง */}
-                                    <div className="ml-auto flex gap-2">
-                                        <button
-                                            onClick={exportToExcel}
-                                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
-                                        >
-                                            <i className="fas fa-file-excel mr-2"></i>
-                                            Export Excel
-                                        </button>
+                                    {/* แถวที่ 4: ปุ่มดำเนินการ */}
+                                    <div className="flex flex-wrap justify-end gap-3 mt-2">
                                         <button
                                             onClick={resetFilters}
-                                            className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                            className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center"
                                         >
-                                            <i className="fas fa-sync-alt mr-2"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
                                             รีเซ็ตตัวกรอง
+                                        </button>
+                                        <button
+                                            onClick={handleSearchClick}
+                                            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            ค้นหา
+                                        </button>
+                                        <button
+                                            onClick={exportToExcel}
+                                            className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Export Excel
                                         </button>
                                     </div>
                                 </div>
@@ -358,7 +606,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             </Table.Td>
                                           
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
-                                                สถานะใบจอง
+                                                สถานะ  Shipping
                                             </Table.Td>
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 สถานะทางบัญชี
@@ -424,12 +672,16 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                             </Table.Td>
                                                            
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
-                                                                {data?.d_status || '-'}
+                                                                {data?.purchase_finance?.length > 0 &&
+                                                                    <>
+                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.payment_status}</div>
+                                                                    </>
+                                                                }
                                                             </Table.Td>
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.purchase_finance.length > 0 &&
                                                                     <>
-                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.payment_status}</div>
+                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.shipping_details?.shipping_advance_status}</div>
                                                                     </>
                                                                 }
                                                             </Table.Td>

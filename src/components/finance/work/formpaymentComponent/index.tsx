@@ -91,6 +91,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             setValue('th_shipping_advance', work_by_id.th_shipping_advance || '0');
             setValue('th_shipping_remaining',work_by_id.th_shipping_remaining || '0');
             setValue('th_shipping_return_to', work_by_id.th_shipping_return_to || '');
+            setValue('shipping_advance_status', work_by_id.shipping_advance_status || '');
                 
             // Port expenses
             setValue('th_port_name', work_by_id.th_port_name || '');
@@ -185,10 +186,34 @@ const FormPaymentComponent = ({ BookingId }: any) => {
         }
     };
 
+    // ฟังก์ชันสำหรับดึงข้อมูลจากตาราง withdrawalinformation
+    const getWithdrawalInfo = async (purchaseId: string) => {
+        try {
+            const withdrawalInfo: any = await getWidhdrawalInformationByShipmentNumber(purchaseId);
+            console.log("Withdrawal Information:", withdrawalInfo);
+            
+            if (withdrawalInfo){
+                // ใช้ข้อมูลล่าสุด (หรือข้อมูลแรก ขึ้นอยู่กับการจัดเรียงข้อมูลจาก API)
+                const latestInfo = withdrawalInfo;
+                
+                // ตั้งค่าวันที่เบิกและวันที่เตรียมจ่ายเงิน Shipping เบิก
+                setValue('withdrawal_date', latestInfo.withdrawal_date ? moment(latestInfo.withdrawal_date).format('YYYY-MM-DD') : '');
+                setValue('shipping_payment_date', latestInfo.transfer_date ? moment(latestInfo.transfer_date).format('YYYY-MM-DD') : '');
+                
+                console.log("Set withdrawal_date:", latestInfo.withdrawal_date);
+                console.log("Set shipping_payment_date:", latestInfo.transfer_date);
+            }
+        } catch (error) {
+            console.error("Error fetching withdrawal information:", error);
+        }
+    };
+
     useEffect(() => {
         (async () => {
             if (BookingId) {
                 await getWork();
+                // ดึงข้อมูลจากตาราง withdrawalinformation
+                await getWithdrawalInfo(BookingId);
                 // เพิ่ม console.log เพื่อดูข้อมูลที่ได้รับจาก API หลังจากที่ข้อมูลถูกเซ็ตใน state
                 console.log("purchaseFinanceData after set:", purchaseFinanceData);
             }
@@ -393,6 +418,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
                 th_shipping_advance: safeToString(data.th_shipping_advance),
                 th_shipping_remaining: safeToString(data.th_shipping_remaining),
                 th_shipping_return_to: safeToString(data.th_shipping_return_to),
+                shipping_advance_status: safeToString(data.shipping_advance_status), // เพิ่มสถานะ Shipping เบิก
                 payment_status: data.payment_status,
                 
                 // Port expenses
