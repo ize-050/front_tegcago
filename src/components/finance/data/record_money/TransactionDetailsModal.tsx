@@ -231,7 +231,7 @@ const TransactionDetailsModal: FC<Props> = ({ show, onClose, transaction }) => {
                                         <div className="border-t pt-4 mt-4">
                                             <div className="font-medium mb-2">หลักฐานการโอน</div>
                                             <img
-                                                src={transaction?.customerDeposit?.transferSlipUrl || transaction?.exchange?.transferSlipUrl}
+                                                src={ transaction?.customerDeposit?.transferSlipUrl || transaction?.exchange?.transferSlipUrl}
                                                 alt="Transfer Slip"
                                                 className="max-w-full h-auto"
                                             />

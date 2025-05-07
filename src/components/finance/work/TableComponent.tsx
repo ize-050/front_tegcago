@@ -604,6 +604,18 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                             <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
                                                 ETA
                                             </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                รวมค่าใช้จ่าย Shipping
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                รวม Shipping เบิก
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                คืนใคร
+                                            </Table.Td>
+                                            <Table.Td className="py-4 font-medium   text-center  truncate border-t  border-slate-200/60 text-black">
+                                                ยอดเรียกเก็บ ก่อน Vat                                            
+                                            </Table.Td>
                                           
                                             <Table.Td className="py-4 font-medium text-center border-t  border-slate-200/60 text-black">
                                                 สถานะ  Shipping
@@ -670,6 +682,38 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                                         ?.d_sale_agentcy[0]?.d_agentcy?.agentcy_etd || '-'
                                                                     : '-'}
                                                             </Table.Td>
+
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance?.length > 0 && data?.purchase_finance[0]?.shipping_details?.th_total_shipping
+                                                                    ? (data?.purchase_finance[0]?.shipping_details?.th_total_shipping - (data?.purchase_finance[0]?.thailand_expenses?.th_hairy || 0)).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                                    : '-'}
+                                                            </Table.Td>
+
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance?.length > 0 && data?.purchase_finance[0]?.shipping_details?.th_shipping_advance
+                                                                    ? Number(data?.purchase_finance[0]?.shipping_details?.th_shipping_advance).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                                    : '-'}
+                                                            </Table.Td>
+
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance?.length > 0 && data?.purchase_finance[0]?.shipping_details?.th_shipping_remaining
+                                                                    ? Number(data?.purchase_finance[0]?.shipping_details?.th_shipping_remaining).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + "(" + data?.purchase_finance[0]?.shipping_details?.th_shipping_return_to + ")" 
+                                                                    : '-'}
+                                                            </Table.Td>
+
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance?.length > 0 && data?.purchase_finance[0]?.total_before_vat
+                                                                    ? Number(data?.purchase_finance[0]?.total_before_vat).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                                    : '-'}
+                                                            </Table.Td>
+
+                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
+                                                                {data?.purchase_finance.length > 0 &&
+                                                                    <>
+                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.shipping_details?.shipping_advance_status}</div>
+                                                                    </>
+                                                                }
+                                                            </Table.Td>
                                                            
                                                             <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
                                                                 {data?.purchase_finance?.length > 0 &&
@@ -678,13 +722,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ purchase }) => {
                                                                     </>
                                                                 }
                                                             </Table.Td>
-                                                            <Table.Td className="text-center truncate border-slate-200/60 text-gray-900">
-                                                                {data?.purchase_finance.length > 0 &&
-                                                                    <>
-                                                                        <div className={`truncate rounded-md p-1 w-auto text-black`}>{data?.purchase_finance[0]?.shipping_details?.shipping_advance_status}</div>
-                                                                    </>
-                                                                }
-                                                            </Table.Td>
+                                                            
                                                             <Table.Td className="text-center border-slate-200/60 text-gray-900">
                                                                 <div className="flex">
                                                                     <button
