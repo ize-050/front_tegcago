@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { BsTrash } from "react-icons/bs";
 import { FiEdit2, FiSearch } from "react-icons/fi";
+import { FaFileExcel } from "react-icons/fa";
 import axios from '../../../../../axios';
 import { useAppDispatch } from "@/stores/hooks";
 import { setModalRecordMoney, setEditRecord } from "@/stores/finance";
@@ -195,6 +196,65 @@ const TableComponent = ({ onRefresh }: Props) => {
     }).format(amount);
   };
 
+  // Function to export data to Excel
+  const exportToExcel = async () => {
+    try {
+      // Create URL with query parameters
+      const baseUrl = `${process.env.NEXT_PUBLIC_URL_API}/finance/export-record-money`;
+      const queryParams = new URLSearchParams();
+      
+      if (startDate) queryParams.append('startDate', startDate);
+      if (endDate) queryParams.append('endDate', endDate);
+      if (typeFilter !== 'all') queryParams.append('type', typeFilter);
+      if (searchedVal) queryParams.append('search', searchedVal);
+      
+      const url = `${baseUrl}?${queryParams.toString()}`;
+      
+      // Make request with authorization header
+      const response = await axios({
+        method: 'GET',
+        url: url,
+        responseType: 'blob', // Important for file downloads
+      });
+      
+      // Create a blob URL and trigger download
+      const blob = new Blob([response.data], { 
+        type: response.headers['content-type'] 
+      });
+      
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Get filename from content-disposition header or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'รายงานการเงิน.xlsx';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/i);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถส่งออกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        icon: "error",
+        confirmButtonText: "ตกลง",
+      });
+    }
+  };
+
   const getTypeLabel = (type: string) => {
     switch (type) {
       case "deposit":
@@ -233,6 +293,13 @@ const TableComponent = ({ onRefresh }: Props) => {
             <option value="payment">ชำระ</option>
             <option value="other">อื่นๆ</option>
           </FormSelect>
+          <button
+            onClick={exportToExcel}
+            className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center ml-2"
+          >
+            <FaFileExcel className="w-4 h-4 mr-1" />
+            Export Excel
+          </button>
         </div>
         <div className="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto flex gap-2">
           <FormInput

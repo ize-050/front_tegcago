@@ -16,6 +16,7 @@ import Button from "@/components/Base/Button";
 import Table from "@/components/Base/Table";
 import { FormCheck, FormInput, FormSelect } from "@/components/Base/Form";
 import TransactionDetailsModal from "./TransactionDetailsModal";
+import { FaFileExcel } from "react-icons/fa";
 
 interface Transaction {
     id: string;
@@ -23,7 +24,7 @@ interface Transaction {
     date: string;
     documentNumber: string;
     customerId: string;
-    user:any
+    user: any
     salespersonId: string;
     transferDate: string;
     createdAt: string;
@@ -56,13 +57,13 @@ const DataTable = ({ onRefresh }: Props) => {
     const [maxAmountTHB, setMaxAmountTHB] = useState<string>("");
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    
+
     const fetchTransactions = async () => {
         setLoading(true);
         try {
             const response = await axios.get('/finance/record-money');
             console.log('API Response in DataTable:', response.data);
-            
+
             // แปลงข้อมูลเพื่อให้มี deposit_purpose
             const processedRecords = response.data.data.map((record: Transaction) => {
                 // ถ้ามี customerDeposit และมี deposit_purpose ใน customerDeposit
@@ -74,7 +75,7 @@ const DataTable = ({ onRefresh }: Props) => {
                 }
                 return record;
             });
-            
+
             setTransactions(processedRecords || []);
             setFilteredTransactions(processedRecords || []);
             setTotalPage(Math.ceil((processedRecords?.length || 0) / 10));
@@ -128,66 +129,66 @@ const DataTable = ({ onRefresh }: Props) => {
                 (transaction) => new Date(transaction.date) <= new Date(endDate)
             );
         }
-        
+
         // Filter by amount RMB range
         if (minAmountRMB) {
             filtered = filtered.filter(transaction => {
-                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.amountRMB : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.amountRMB : 0;
+                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.amountRMB :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.amountRMB : 0;
                 return amountRMB >= parseFloat(minAmountRMB);
             });
         }
-        
+
         if (maxAmountRMB) {
             filtered = filtered.filter(transaction => {
-                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.amountRMB : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.amountRMB : 0;
+                const amountRMB = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.amountRMB :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.amountRMB : 0;
                 return amountRMB <= parseFloat(maxAmountRMB);
             });
         }
-        
+
         // Filter by exchange rate range
         if (minExchangeRate) {
             filtered = filtered.filter(transaction => {
-                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.exchangeRate : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.exchangeRate : 0;
+                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.exchangeRate :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.exchangeRate : 0;
                 return exchangeRate >= parseFloat(minExchangeRate);
             });
         }
-        
+
         if (maxExchangeRate) {
             filtered = filtered.filter(transaction => {
-                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.exchangeRate : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.exchangeRate : 0;
+                const exchangeRate = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.exchangeRate :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.exchangeRate : 0;
                 return exchangeRate <= parseFloat(maxExchangeRate);
             });
         }
-        
+
         // Filter by amount THB range
         if (minAmountTHB) {
             filtered = filtered.filter(transaction => {
-                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.amount : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.amount : 0;
+                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.amount :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.amount : 0;
                 return amountTHB >= parseFloat(minAmountTHB);
             });
         }
-        
+
         if (maxAmountTHB) {
             filtered = filtered.filter(transaction => {
-                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ? 
-                    transaction.customerDeposit.amount : 
-                    transaction.type === "order" && transaction.exchange ? 
-                    transaction.exchange.amount : 0;
+                const amountTHB = transaction.type === "deposit" && transaction.customerDeposit ?
+                    transaction.customerDeposit.amount :
+                    transaction.type === "order" && transaction.exchange ?
+                        transaction.exchange.amount : 0;
                 return amountTHB <= parseFloat(maxAmountTHB);
             });
         }
@@ -200,7 +201,7 @@ const DataTable = ({ onRefresh }: Props) => {
     const handleEdit = (transaction: Transaction) => {
         try {
             console.log('Editing transaction:', transaction);
-            
+
             // ส่งข้อมูลทั้งหมดของ transaction ไปยัง Redux store โดยตรง
             // เพื่อไม่ต้องเรียก API ใหม่
             dispatch(setEditRecord(transaction));
@@ -230,7 +231,7 @@ const DataTable = ({ onRefresh }: Props) => {
             if (result.isConfirmed) {
                 try {
                     const response = await axios.delete(`/finance/record-money/${id}`);
-                    
+
                     if (response.data && response.data.statusCode === 200) {
                         Swal.fire({
                             title: "ลบข้อมูลสำเร็จ",
@@ -256,6 +257,64 @@ const DataTable = ({ onRefresh }: Props) => {
         });
     };
 
+    const exportToExcel = async () => {
+        try {
+            // Create URL with query parameters
+            const baseUrl = `${process.env.NEXT_PUBLIC_URL_API}/finance/export-record-money`;
+            const queryParams = new URLSearchParams();
+
+            if (startDate) queryParams.append('startDate', startDate);
+            if (endDate) queryParams.append('endDate', endDate);
+            if (typeFilter !== 'all') queryParams.append('type', typeFilter);
+            if (searchedVal) queryParams.append('search', searchedVal);
+
+            const url = `${baseUrl}?${queryParams.toString()}`;
+
+            // Make request with authorization header
+            const response = await axios({
+                method: 'GET',
+                url: url,
+                responseType: 'blob', // Important for file downloads
+            });
+
+            // Create a blob URL and trigger download
+            const blob = new Blob([response.data], {
+                type: response.headers['content-type']
+            });
+
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+
+            // Get filename from content-disposition header or use default
+            const contentDisposition = response.headers['content-disposition'];
+            let filename = 'รายงานการเงิน.xlsx';
+
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/i);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: "ไม่สามารถส่งออกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+                icon: "error",
+                confirmButtonText: "ตกลง",
+            });
+        }
+    };
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
@@ -264,13 +323,13 @@ const DataTable = ({ onRefresh }: Props) => {
         if (amount === null || amount === undefined) return '-';
         return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     };
-    
+
     const formatDate = (date: string | null | undefined) => {
         if (!date) return '-';
         return format(new Date(date), 'dd/MM/yyyy', { locale: th });
     };
 
-    const getTransactionTypeLabel = (type: any):any => {
+    const getTransactionTypeLabel = (type: any): any => {
         switch (type) {
             case 'deposit':
                 return { label: 'ฝากโอน', color: 'success' };
@@ -297,7 +356,7 @@ const DataTable = ({ onRefresh }: Props) => {
             <div className="intro-y col-span-12 mb-5">
                 {/* Filter Section with Card UI */}
                 <div className="bg-white rounded-lg shadow-md p-5 mb-5">
-                 
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Search Input */}
                         <div>
@@ -353,7 +412,7 @@ const DataTable = ({ onRefresh }: Props) => {
                             />
                         </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mt-4">
                         {/* Amount RMB Range */}
                         <div className="md:col-span-2">
@@ -379,7 +438,7 @@ const DataTable = ({ onRefresh }: Props) => {
                                 />
                             </div>
                         </div>
-                        
+
                         {/* Exchange Rate Range */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-1">อัตราแลกเปลี่ยน</label>
@@ -404,7 +463,7 @@ const DataTable = ({ onRefresh }: Props) => {
                                 />
                             </div>
                         </div>
-                        
+
                         {/* Amount THB Range */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-1">ยอดฝาก/โอนรวม (THB)</label>
@@ -430,7 +489,7 @@ const DataTable = ({ onRefresh }: Props) => {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Filter Actions */}
                     <div className="flex justify-end mt-4 space-x-2">
                         <Button
@@ -458,9 +517,20 @@ const DataTable = ({ onRefresh }: Props) => {
                             <Lucide icon="Filter" className="w-4 h-4 mr-2" />
                             กรองข้อมูล
                         </Button>
+                        <Button
+                            
+                            
+                            className="flex items-center bg-green-600 hover:bg-green-700 text-white"
+                            onClick={exportToExcel}
+                        >
+                             <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+                            Export Excel
+                        </Button>
                     </div>
                 </div>
-                
+
                 {/* Add Record Button */}
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-lg font-medium">รายการข้อมูลทั้งหมด</h2>
@@ -489,7 +559,7 @@ const DataTable = ({ onRefresh }: Props) => {
                                 <Table.Th className="border-b-0 whitespace-nowrap text-right">อัตราแลกเปลี่ยน</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap text-right">ยอดฝาก/โอนรวม (THB)</Table.Th>
                                 <Table.Th className="border-b-0 whitespace-nowrap">วันที่โอน</Table.Th>
-                               
+
                                 <Table.Th className="text-center border-b-0 whitespace-nowrap">จัดการ</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
@@ -512,7 +582,7 @@ const DataTable = ({ onRefresh }: Props) => {
                                     return (
                                         <Table.Tr key={transaction.id} className="intro-x">
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
-                                             {index+1}
+                                                {index + 1}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
                                                 {transaction.documentNumber || '-'}
@@ -535,30 +605,30 @@ const DataTable = ({ onRefresh }: Props) => {
                                                 {transaction.customerId}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
-                                             {transaction.user.fullname}
+                                                {transaction.user.fullname}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
-                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
-                                                    formatCurrency(transaction.customerDeposit.amountRMB || 0) : 
-                                                    transaction.type === "order" && transaction.exchange ? 
-                                                    formatCurrency(transaction.exchange.amountRMB || 0) : "-"}
+                                                {transaction.type === "deposit" && transaction.customerDeposit ?
+                                                    formatCurrency(transaction.customerDeposit.amountRMB || 0) :
+                                                    transaction.type === "order" && transaction.exchange ?
+                                                        formatCurrency(transaction.exchange.amountRMB || 0) : "-"}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
-                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
-                                                    formatCurrency(transaction.customerDeposit.exchangeRate || 0) : 
-                                                    transaction.type === "order" && transaction.exchange ? 
-                                                    formatCurrency(transaction.exchange.exchangeRate || 0) : "-"}
+                                                {transaction.type === "deposit" && transaction.customerDeposit ?
+                                                    formatCurrency(transaction.customerDeposit.exchangeRate || 0) :
+                                                    transaction.type === "order" && transaction.exchange ?
+                                                        formatCurrency(transaction.exchange.exchangeRate || 0) : "-"}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] text-right">
-                                                {transaction.type === "deposit" && transaction.customerDeposit ? 
-                                                    formatCurrency(transaction.customerDeposit.amount || 0) : 
-                                                    transaction.type === "order" && transaction.exchange ? 
-                                                    formatCurrency(transaction.exchange.amount || 0) : "-"}
+                                                {transaction.type === "deposit" && transaction.customerDeposit ?
+                                                    formatCurrency(transaction.customerDeposit.amount || 0) :
+                                                    transaction.type === "order" && transaction.exchange ?
+                                                        formatCurrency(transaction.exchange.amount || 0) : "-"}
                                             </Table.Td>
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b]">
                                                 {formatDate(transaction.date)}
                                             </Table.Td>
-                                      
+
                                             <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border-b-0 dark:bg-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
                                                 <div className="flex items-center justify-center gap-2">
                                                     {/* <Button
@@ -573,7 +643,7 @@ const DataTable = ({ onRefresh }: Props) => {
                                                         className="flex items-center mr-2 bg-blue-600 hover:bg-blue-700 text-white"
                                                         onClick={() => handleEdit(transaction)}
                                                     >
-                                                        <FiEdit2 className="w-4 h-4 mr-1" /> 
+                                                        <FiEdit2 className="w-4 h-4 mr-1" />
                                                     </Button>
                                                     <Button
                                                         variant="soft-danger"
@@ -612,11 +682,10 @@ const DataTable = ({ onRefresh }: Props) => {
                                         key={pageNumber}
                                         onClick={() => handlePageChange(pageNumber)}
                                         disabled={currentPage === pageNumber}
-                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
-                                            currentPage === pageNumber
+                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${currentPage === pageNumber
                                                 ? "text-primary-600 bg-gray-400 rounded-lg"
                                                 : "text-gray-700"
-                                        } hover:bg-gray-50 disabled:opacity-50`}
+                                            } hover:bg-gray-50 disabled:opacity-50`}
                                     >
                                         {pageNumber}
                                     </button>
