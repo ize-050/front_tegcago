@@ -141,6 +141,11 @@ const initialState: SideMenuState = {
   ],
   menuHr:[
     {
+      icon: "Earth",
+      pathname: "/hr/dashboard",
+      title: "แดชบอร์ด",
+    },
+    {
       icon: "Users",
       pathname: "/hr/work",
       title: "ข้อมูลงานจองตู้",
@@ -159,6 +164,11 @@ const initialState: SideMenuState = {
           icon: "BarChart",
           pathname: "/hr/settings/commission-ranks",
           title: "ตั้งค่าอัตราคอมมิชชั่น",
+        },
+        {
+          icon: "Users",
+          pathname: "/hr/settings/commission-roles",
+          title: "ตั้งค่าคอมมิชชั่นตามบทบาท",
         },
         {
           icon: "Repeat",

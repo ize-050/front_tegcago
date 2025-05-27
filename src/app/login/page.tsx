@@ -46,6 +46,7 @@ const Login = () => {
                 }
                 dispatch(setOpenToast(data))
             } else {
+
               router.push("/")
             }
           } catch (error) {

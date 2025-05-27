@@ -96,10 +96,13 @@ const TransferTableComponent: React.FC = () => {
   });
 
   // State for filters
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterEmployeeId, setFilterEmployeeId] = useState<string>("");
   const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
   const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
   const [filterType, setFilterType] = useState<string>("");
+  const [filterMonth, setFilterMonth] = useState<string>("");
+  const [filterYear, setFilterYear] = useState<string>(new Date().getFullYear().toString());
   const [salesSupportEmployees, setSalesSupportEmployees] = useState<SalesSupportEmployee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
 
@@ -111,6 +114,76 @@ const TransferTableComponent: React.FC = () => {
   const [exportStartDate, setExportStartDate] = useState<Date | null>(null);
   const [exportEndDate, setExportEndDate] = useState<Date | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+
+  // ข้อมูลปีและเดือน
+  const years = [
+    new Date().getFullYear().toString(),
+    (new Date().getFullYear() - 1).toString(),
+    (new Date().getFullYear() - 2).toString(),
+  ];
+
+  const months = [
+    { value: "", label: "ทุกเดือน" },
+    { value: "01", label: "มกราคม" },
+    { value: "02", label: "กุมภาพันธ์" },
+    { value: "03", label: "มีนาคม" },
+    { value: "04", label: "เมษายน" },
+    { value: "05", label: "พฤษภาคม" },
+    { value: "06", label: "มิถุนายน" },
+    { value: "07", label: "กรกฎาคม" },
+    { value: "08", label: "สิงหาคม" },
+    { value: "09", label: "กันยายน" },
+    { value: "10", label: "ตุลาคม" },
+    { value: "11", label: "พฤศจิกายน" },
+    { value: "12", label: "ธันวาคม" },
+  ];
+
+  // ฟังก์ชันสำหรับหาวันสุดท้ายของเดือน
+  const getLastDayOfMonth = (year: string, month: string): string => {
+    // สร้างวันที่ 1 ของเดือนถัดไป แล้วลบ 1 วัน
+    const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+    const nextMonthYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
+    const lastDay = new Date(nextMonthYear, nextMonth - 1, 0);
+    return `${year}-${month}-${lastDay.getDate()}`;
+  };
+
+  // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงเดือน
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedMonth = e.target.value;
+    setFilterMonth(selectedMonth);
+    
+    // รีเซ็ตวันที่เริ่มต้นและสิ้นสุดเมื่อเลือกเดือน
+    setFilterStartDate(null);
+    setFilterEndDate(null);
+    
+    if (selectedMonth && filterYear) {
+      // ถ้าเลือกเดือนและปี ให้กำหนดช่วงวันที่ของเดือนนั้น
+      const startDate = new Date(`${filterYear}-${selectedMonth}-01`);
+      const lastDay = getLastDayOfMonth(filterYear, selectedMonth);
+      const endDate = new Date(lastDay);
+      
+      // ไม่ต้องเซ็ต filterStartDate และ filterEndDate เพราะจะใช้ filterMonth และ filterYear แทน
+    }
+  };
+
+  // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงปี
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedYear = e.target.value;
+    setFilterYear(selectedYear);
+    
+    // รีเซ็ตวันที่เริ่มต้นและสิ้นสุดเมื่อเลือกปี
+    setFilterStartDate(null);
+    setFilterEndDate(null);
+    
+    if (filterMonth && selectedYear) {
+      // ถ้าเลือกเดือนและปี ให้กำหนดช่วงวันที่ของเดือนนั้น
+      const startDate = new Date(`${selectedYear}-${filterMonth}-01`);
+      const lastDay = getLastDayOfMonth(selectedYear, filterMonth);
+      const endDate = new Date(lastDay);
+      
+      // ไม่ต้องเซ็ต filterStartDate และ filterEndDate เพราะจะใช้ filterMonth และ filterYear แทน
+    }
+  };
 
   // Fetch sales support employees
   const fetchSalesSupportEmployees = async () => {
@@ -145,12 +218,18 @@ const TransferTableComponent: React.FC = () => {
         params.append("employeeId", filterEmployeeId);
       }
       
-      if (filterStartDate) {
-        params.append("startDate", filterStartDate.toISOString().split('T')[0]);
-      }
-      
-      if (filterEndDate) {
-        params.append("endDate", filterEndDate.toISOString().split('T')[0]);
+      // ใช้ filterMonth และ filterYear แทนการใช้ filterStartDate และ filterEndDate โดยตรง
+      if (filterMonth && filterYear) {
+        params.append("startDate", `${filterYear}-${filterMonth}-01`);
+        params.append("endDate", getLastDayOfMonth(filterYear, filterMonth));
+      } else {
+        if (filterStartDate) {
+          params.append("startDate", filterStartDate.toISOString().split('T')[0]);
+        }
+        
+        if (filterEndDate) {
+          params.append("endDate", filterEndDate.toISOString().split('T')[0]);
+        }
       }
       
       if (filterType) {
@@ -304,6 +383,8 @@ const TransferTableComponent: React.FC = () => {
     setFilterStartDate(null);
     setFilterEndDate(null);
     setFilterType("");
+    setFilterMonth("");
+    setFilterYear(new Date().getFullYear().toString());
     fetchData(1);
   };
 
@@ -340,6 +421,20 @@ const TransferTableComponent: React.FC = () => {
     }
   };
 
+  // Format date to MM/YYYY format
+  const formatMonthYear = (dateString: string | undefined) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      // Format as MM/YYYY
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${month}/${year}`;
+    } catch (error) {
+      return "-";
+    }
+  };
+
   // Get transaction type display text
   const getTransactionTypeDisplay = (transaction: TransferData) => {
     // Debug log เพื่อตรวจสอบข้อมูลที่ได้รับจาก API
@@ -365,8 +460,8 @@ const TransferTableComponent: React.FC = () => {
       'purchase': 'ฝากสั่ง',
       'TOPUP': 'ฝากเติม',
       'topup': 'ฝากเติม',
-      'ORDER': 'ฝากสั่งซื้อ',
-      'order': 'ฝากสั่งซื้อ',
+      'ORDER': 'ฝากสั่ง',
+      'order': 'ฝากสั่ง',
       'PAYMENT': 'ฝากชำระ',
       'payment': 'ฝากชำระ',
       'PAY': 'ฝากชำระ',
@@ -391,7 +486,7 @@ const TransferTableComponent: React.FC = () => {
       } else if (exchangeType === "topup") {
         return "ฝากเติม";
       } else if (exchangeType === "order") {
-        return "ฝากสั่งซื้อ";
+        return "ฝากสั่ง";
       } else if (exchangeType === "payment" || exchangeType === "pay") {
         return "ฝากชำระ";
       }
@@ -409,89 +504,77 @@ const TransferTableComponent: React.FC = () => {
         <h2 className="text-xl font-bold mb-4">ข้อมูลฝากสั่งฝากโอนทั้งหมด</h2>
         
         {/* Filter Section */}
-        <div className="bg-gray-50 p-4 rounded-md mb-4">
-          <div className="flex items-center mb-2">
-            <Filter className="h-5 w-5 mr-2 text-gray-500" />
-            <h3 className="text-lg font-semibold">ค้นหาและกรอง</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            {/* Filter by Transaction Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                ประเภทรายการ
-              </label>
+        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหา</label>
               <div className="relative">
-                <FormSelect
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="pl-10"
-                >
-                  <option value="">ทั้งหมด</option>
-                  <option value="ฝากโอน">ฝากโอน</option>
-                  <option value="ฝากสั่ง">ฝากสั่ง</option>
-                  <option value="ฝากเติม">ฝากเติม</option>
-                  <option value="ฝากสั่งซื้อ">ฝากสั่งซื้อ</option>
-                  <option value="ฝากชำระ">ฝากชำระ</option>
-                </FormSelect>
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-            
-            {/* Filter by Employee */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                พนักงาน
-              </label>
-              <div className="relative">
-                <FormSelect
-                  value={filterEmployeeId}
-                  onChange={(e) => setFilterEmployeeId(e.target.value)}
-                  className="pl-10"
-                >
-                  <option value="">ทั้งหมด</option>
-                  {salesSupportEmployees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.fullname}
-                    </option>
-                  ))}
-                </FormSelect>
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <FormInput
+                  type="text"
+                  placeholder="ค้นหาตามเลขที่เอกสาร..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pr-10"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
               </div>
             </div>
 
-            {/* Date Range Filter - Combined in one column */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                ช่วงวันที่
-              </label>
+            <div className="w-full md:w-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-1">พนักงาน</label>
+              <FormSelect
+                value={filterEmployeeId}
+                onChange={(e) => setFilterEmployeeId(e.target.value)}
+                className="w-full"
+              >
+                <option value="">ทั้งหมด</option>
+                {salesSupportEmployees.map((employee) => (
+                  <option key={employee.id} value={employee.id}>
+                    {employee.fullname}
+                  </option>
+                ))}
+              </FormSelect>
+            </div>
+
+            {/* เพิ่มตัวกรองตามปีและเดือน */}
+            <div className="w-full md:w-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลา</label>
               <div className="flex space-x-2">
-                {/* Start Date */}
-                <div className="relative flex-1">
-                  <DatePicker
-                    selected={filterStartDate}
-                    onChange={(date) => setFilterStartDate(date)}
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="เริ่มต้น"
-                    className="form-input w-full pl-10 py-2 rounded-md border border-gray-300 text-sm"
-                  />
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
-                
-                <span className="self-center text-gray-500">-</span>
-                
-                {/* End Date */}
-                <div className="relative flex-1">
-                  <DatePicker
-                    selected={filterEndDate}
-                    onChange={(date) => setFilterEndDate(date)}
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="สิ้นสุด"
-                    className="form-input w-full pl-10 py-2 rounded-md border border-gray-300 text-sm"
-                  />
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
+                <FormSelect
+                  value={filterYear}
+                  onChange={handleYearChange}
+                  className="w-full"
+                >
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </FormSelect>
+
+                <FormSelect
+                  value={filterMonth}
+                  onChange={handleMonthChange}
+                  className="w-full"
+                >
+                  {months.map(month => (
+                    <option key={month.value} value={month.value}>{month.label}</option>
+                  ))}
+                </FormSelect>
               </div>
+            </div>
+
+            <div className="w-full md:w-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-1">ประเภท</label>
+              <FormSelect
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="w-full"
+              >
+                <option value="">ทั้งหมด</option>
+                <option value="deposit">ฝากโอน</option>
+                <option value="purchase">ฝากสั่ง</option>
+              </FormSelect>
             </div>
           </div>
           
@@ -501,8 +584,8 @@ const TransferTableComponent: React.FC = () => {
               className="flex items-center"
               variant="primary"
             >
-              <Search className="h-4 w-4 mr-2" />
-              ค้นหา
+              <Filter className="h-4 w-4 mr-2" />
+              กรอง
             </Button>
             <Button
               onClick={handleResetFilters}
@@ -607,7 +690,9 @@ const TransferTableComponent: React.FC = () => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th className="w-12 text-center">ลำดับ</Table.Th>
-                <Table.Th className="w-28">วันที่</Table.Th>
+                <Table.Th className="w-28">เดือน/ปี</Table.Th>
+                <Table.Th className="w-28">วันที่ทำรายการ</Table.Th>
+
                 <Table.Th className="w-52 whitespace-nowrap">เลขที่เอกสาร</Table.Th>
                 <Table.Th className="w-32">ประเภท</Table.Th>
                 <Table.Th className="w-40">พนักงาน</Table.Th>
@@ -615,7 +700,6 @@ const TransferTableComponent: React.FC = () => {
                 <Table.Th className="w-28">จำนวนเงิน (THB)</Table.Th>
                 <Table.Th className="w-28">อัตราแลกเปลี่ยน</Table.Th>
                 <Table.Th className="w-28">ค่าธรรมเนียม</Table.Th> */}
-                <Table.Th className="w-40">บัญชีรับเงิน</Table.Th>
                 <Table.Th className="w-28">ค่าคอม</Table.Th>
                 <Table.Th className="w-28">สถานะ</Table.Th>
               </Table.Tr>
@@ -667,17 +751,18 @@ const TransferTableComponent: React.FC = () => {
                       className="hover:bg-gray-50 transition-colors"
                     >
                       <Table.Td className="text-center">{(paginationData.currentPage - 1) * paginationData.itemsPerPage + index + 1}</Table.Td>
+                      <Table.Td>{formatMonthYear(item.date)}</Table.Td>
                       <Table.Td className="whitespace-nowrap">
                         {item.date ? formatDate(item.date) : "-"}
                       </Table.Td>
-                      <Table.Td className="font-medium whitespace-nowrap">{item.documentNumber || "-"}</Table.Td>
+
+                      <Table.Td className="whitespace-nowrap">{item.documentNumber || "-"}</Table.Td>
                       <Table.Th>{getTransactionTypeDisplay(item)}</Table.Th>
                       <Table.Td className="whitespace-nowrap">{item.user?.fullname || "-"}</Table.Td>
                       {/* <Table.Td>{amountRMB ? formatCurrency(amountRMB).replace("฿", "¥") : "-"}</Table.Td>
                       <Table.Td>{formatCurrency(amountTHB)}</Table.Td>
                       <Table.Td>{exchangeRate || "-"}</Table.Td>
                       <Table.Td>{formatCurrency(fee)}</Table.Td> */}
-                      <Table.Td className="whitespace-nowrap">{receivingAccount || "-"}</Table.Td>
                       <Table.Td className="text-center">
                         <div className="flex space-x-1">
                           {item.commission ? (

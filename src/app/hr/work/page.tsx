@@ -1,18 +1,11 @@
+// ไฟล์ /Users/ize/freelance/tegcago/front_tegcago/src/app/hr/work/page.tsx
 import React, { Fragment } from "react";
-
-import { ArrowUpFromLine, CirclePlus, FormInput } from "lucide-react";
-
-import TableComponent from "@/components/hr/work/TableComponent";
+import EnhancedCommissionTable from "@/components/hr/work/EnhancedCommissionTable";
 
 export default async function WorkPage() {
-  // const user = await getUser();
-
-  // console.log("user", user);
-
-  
   return (
     <Fragment>
-      <TableComponent />
+      <EnhancedCommissionTable />
     </Fragment>
   );
 }

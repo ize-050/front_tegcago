@@ -2,11 +2,20 @@
 "use client"
 import { useEffect } from "react";
 import dynamic from 'next/dynamic'
+import { useSession } from "next-auth/react";
 
 const DashboardComponent = dynamic(() => import('@/components/dashboard/Dashboard'), { ssr: false })
 
 const Main = () => {
+    const session: any = useSession()
 
+    useEffect(() => {
+        if(session?.data?.role === "Hr") {
+            window.location.href = '/hr/dashboard';
+        }
+    }, [
+        session
+    ]);
 
     return (
         <>

@@ -111,7 +111,8 @@ const TableComponent: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCommissionDetailsModalOpen, setIsCommissionDetailsModalOpen] = useState<boolean>(false);
   const [selectedPurchase, setSelectedPurchase] = useState<PurchaseData | null>(null);
-  
+
+
   // Add commission rank state
   const [commissionRanks, setCommissionRanks] = useState<any[]>([]);
   const [loadingRanks, setLoadingRanks] = useState<boolean>(false);
@@ -185,6 +186,8 @@ const TableComponent: React.FC = () => {
           }
         })
       );
+
+      console.log("purchasesWithCommissionStatus",purchasesWithCommissionStatus)
 
       setPurchases(purchasesWithCommissionStatus);
       setPaginationData({
@@ -329,6 +332,7 @@ const TableComponent: React.FC = () => {
       
       if (filterStartDate) {
         params.append('startDate', filterStartDate);
+
       }
       
       if (filterEndDate) {
@@ -348,7 +352,7 @@ const TableComponent: React.FC = () => {
       // Create a temporary link element
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Set filename from Content-Disposition header or use default
       const contentDisposition = response.headers['content-disposition'];
       let filename = 'commission_summary.xlsx';

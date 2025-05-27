@@ -11,34 +11,21 @@ interface Employee {
   user_id: string;
   fullname: string;
   email: string;
+  role?: string;
+  department?: string;
 }
 
 interface CommissionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  purchaseData: {
-    id: string;
-    book_number: string;
-    customer_number?: string;
-    d_route?: string;
-    d_transport?: string;
-    d_origin?: string;
-    d_destination?: string;
-    employees: Employee[];
-    purchase_finance: {
-      id: string;
-      finance_status: string;
-      billing_amount: string;
-      total_profit_loss?: string;
-    }[];
-  };
+  purchaseData: any
   onSave: (commissionData: any) => void;
 }
 
 interface EmployeeCommission {
   employee_id: string;
   fullname: string;
-  commission_type: "percentage" | "fixed";
+  commission_type: "percentage" | "fixed" | "percent";
   commission_value: string;
   commission_amount: string;
 }
@@ -57,16 +44,25 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  // หาค่า billing_amount และ total_profit_loss จาก purchase_finance ที่มีสถานะ "ชำระบางส่วน"
+  console.log("purchaseData", purchaseData)
+
+  // หาค่า billing_amount และ total_profit_loss จาก purchase_finance ที่มีสถานะ "ชำระครบแล้ว"
   const paidFinance = purchaseData.purchase_finance.find(
-    (finance) => finance.finance_status === "ชำระครบแล้ว"
+    (finance: any) => finance.payment_status === "ชำระครบแล้ว"
   );
 
   const billingAmount = paidFinance ? parseFloat(paidFinance.billing_amount || "0") : 0;
-  const profitLoss = paidFinance && paidFinance.total_profit_loss 
-    ? parseFloat(paidFinance.total_profit_loss) 
+  const profitLoss = paidFinance && paidFinance.total_profit_loss
+    ? parseFloat(paidFinance.total_profit_loss)
     : 0;
-  
+
+  // ค่าบริหาร (10% ของกำไร)
+  const administrativeFeePercentage = 10;
+  const administrativeFeeAmount = profitLoss * (administrativeFeePercentage / 100);
+
+  // กำไรสุทธิหลังหักค่าบริหาร
+  const netProfit = profitLoss - administrativeFeeAmount;
+
   // ตรวจสอบว่ากำไรเป็น 0 หรือใกล้เคียง 0 (เช่น 0.00)
   const isProfitZeroOrNegative = profitLoss <= 0.01;
 
@@ -77,7 +73,7 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
       const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/calculate`, {
         profit_amount: profitAmount
       });
-      
+
       if (response.data && response.data.rank) {
         setCommissionRank(response.data.rank);
         return response.data.rank;
@@ -103,36 +99,43 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
         // ดึงข้อมูล rank จาก API
         const rank = await fetchCommissionRank(profitLoss);
         const percentageValue = rank ? rank.percentage.toString() : "5";
-        
-        const initialCommissions = purchaseData.employees.map((emp) => ({
-          employee_id: emp.user_id,
-          fullname: emp.fullname,
-          commission_type: "percentage" as const,
-          commission_value: percentageValue,
-          commission_amount: calculateCommissionAmount("percentage", percentageValue, profitLoss).toFixed(2),
-        }));
-        
+
+        const initialCommissions = purchaseData.employees.map((emp:any) => {
+          // ตรวจสอบว่าเป็นพนักงาน CS หรือไม่
+          const isCS = emp.role === 'CS' || emp.department === 'CS' || emp.role === 'cs' || emp.department === 'cs';
+
+          return {
+            employee_id: emp.user_id,
+            fullname: emp.fullname,
+            commission_type: isCS ? "fixed" as const : "percentage" as const,
+            commission_value: isCS ? "200" : percentageValue,
+            commission_amount: isCS
+              ? "200.00"
+              : calculateCommissionAmount("percentage", percentageValue, profitLoss).toFixed(2),
+          };
+        });
+
         setEmployeeCommissions(initialCommissions);
-        
+
         // คำนวณค่าคอมมิชชั่นรวม
         const total = initialCommissions.reduce(
-          (sum, item) => sum + parseFloat(item.commission_amount || "0"),
+          (sum: any  , item:any) => sum + parseFloat(item.commission_amount || "0"),
           0
         );
         setTotalCommission(total);
       }
     };
-    
+
     initializeCommissions();
   }, [purchaseData]);
 
   // คำนวณค่าคอมมิชชั่นตามประเภทและค่าที่กำหนด
   const calculateCommissionAmount = (
-    type: "percentage" | "fixed",
+    type: "percentage" | "fixed" | "percent",
     value: string,
     baseAmount: number
   ): number => {
-    if (type === "percentage") {
+    if (type === "percentage" || type === "percent") {
       const percentage = parseFloat(value || "0");
       return (percentage / 100) * baseAmount;
     } else {
@@ -147,33 +150,36 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
     value: string
   ) => {
     const updatedCommissions = [...employeeCommissions];
-    
+
     if (field === "commission_type") {
-      updatedCommissions[index].commission_type = value as "percentage" | "fixed";
-      
+      updatedCommissions[index].commission_type = value as "percentage" | "fixed" | "percent";
+
       // รีเซ็ตค่าเมื่อเปลี่ยนประเภท
       if (value === "percentage") {
         // ใช้ค่าจาก commission ranks ถ้ามี
         updatedCommissions[index].commission_value = commissionRank ? commissionRank.percentage.toString() : "5";
+      } else if (value === "percent") {
+        // ค่าเริ่มต้นสำหรับกรอกเอง
+        updatedCommissions[index].commission_value = "5";
       } else {
         updatedCommissions[index].commission_value = "0"; // ค่าเริ่มต้น 0 บาท
       }
     } else {
-      // อนุญาตให้แก้ไขค่าเฉพาะเมื่อเป็นประเภท fixed เท่านั้น
-      if (updatedCommissions[index].commission_type === "fixed") {
+      // อนุญาตให้แก้ไขค่า
+      if (updatedCommissions[index].commission_type === "fixed" || updatedCommissions[index].commission_type === "percent") {
         updatedCommissions[index].commission_value = value;
       }
     }
-    
+
     // คำนวณค่าคอมมิชชั่นใหม่
     updatedCommissions[index].commission_amount = calculateCommissionAmount(
       updatedCommissions[index].commission_type,
       updatedCommissions[index].commission_value,
       profitLoss
     ).toFixed(2);
-    
+
     setEmployeeCommissions(updatedCommissions);
-    
+
     // คำนวณค่าคอมมิชชั่นรวม
     const total = updatedCommissions.reduce(
       (sum, item) => sum + parseFloat(item.commission_amount || "0"),
@@ -188,7 +194,7 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
       setIsSaving(true);
       setSaveError(null);
       setSaveStatus(null);
-      
+
       // สร้างข้อมูลสำหรับส่งไปยัง API
       const commissionData = {
         d_purchase_id: purchaseData.id,
@@ -201,26 +207,28 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
         })),
         total_commission: totalCommission
       };
-      
+
       // ส่งข้อมูลไปยัง API
       const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/submit`, commissionData);
-      
-      console.log('Commission saved successfully:', response.data);
-      setSaveStatus("บันทึกค่าคอมมิชชั่นเรียบร้อยแล้ว");
-      
-      // เรียกใช้ callback function ที่ส่งมาจาก parent component
-      onSave(commissionData);
-      
-      // ปิด modal หลังจาก 1.5 วินาที
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+
+      if (response.status === 200) {
+        console.log('Commission saved successfully:', response.data);
+        setSaveStatus("บันทึกค่าคอมมิชชั่นเรียบร้อยแล้ว");
+      } else {
+        console.error('Failed to save commission:', response.data);
+        setSaveError("เกิดข้อผิดพลาดในการบันทึกค่าคอมมิชชั่น");
+      }
     } catch (error) {
       console.error('Error saving commission data:', error);
       setSaveError('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsSaving(false);
     }
+
+    setTimeout(() => {
+      onClose();
+    }, 1500);
+
   };
 
   if (!isOpen) return null;
@@ -270,6 +278,24 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                   }).format(profitLoss)}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-gray-500">ค่าบริหาร ({administrativeFeePercentage}%)</p>
+                <p className="font-medium">
+                  {new Intl.NumberFormat("th-TH", {
+                    style: "currency",
+                    currency: "THB",
+                  }).format(administrativeFeeAmount)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">กำไรสุทธิหลังหักค่าบริหาร</p>
+                <p className="font-medium">
+                  {new Intl.NumberFormat("th-TH", {
+                    style: "currency",
+                    currency: "THB",
+                  }).format(netProfit)}
+                </p>
+              </div>
               {purchaseData.d_route && (
                 <div>
                   <p className="text-sm text-gray-500">เส้นทาง</p>
@@ -280,6 +306,12 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                 <div>
                   <p className="text-sm text-gray-500">ขนส่ง</p>
                   <p className="font-medium">{purchaseData.d_transport}</p>
+                </div>
+              )}
+              {purchaseData.d_size_cabinet && (
+                <div>
+                  <p className="text-sm text-gray-500">ขนาดตู้</p>
+                  <p className="font-medium">{purchaseData.d_size_cabinet}</p>
                 </div>
               )}
               {purchaseData.d_origin && (
@@ -339,6 +371,7 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                         >
                           <option value="percentage">เปอร์เซ็นต์ (%)</option>
                           <option value="fixed">จำนวนเงิน (บาท)</option>
+                          <option value="percent">% (กรอกเอง)</option>
                         </FormSelect>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -352,6 +385,25 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                                 (กำไร {new Intl.NumberFormat("th-TH").format(profitLoss)} บาท อยู่ในช่วง {new Intl.NumberFormat("th-TH").format(commissionRank.min_amount)} - {new Intl.NumberFormat("th-TH").format(commissionRank.max_amount)} บาท)
                               </div>
                             )}
+                          </div>
+                        ) : commission.commission_type === "percent" ? (
+                          <div className="flex items-center">
+                            <FormInput
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={commission.commission_value}
+                              onChange={(e) =>
+                                handleCommissionChange(
+                                  index,
+                                  "commission_value",
+                                  e.target.value
+                                )
+                              }
+                              className="w-32 mr-2"
+                            />
+                            <span className="text-sm text-gray-900">%</span>
                           </div>
                         ) : (
                           <FormInput
@@ -418,9 +470,9 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
               <Button variant="secondary" onClick={onClose} disabled={isSaving}>
                 ยกเลิก
               </Button>
-              <Button 
+              <Button
                 variant="primary"
-                onClick={handleSave} 
+                onClick={handleSave}
                 disabled={isSaving || isProfitZeroOrNegative}
                 className={(isSaving || isProfitZeroOrNegative) ? 'opacity-70 cursor-not-allowed' : ''}
               >
