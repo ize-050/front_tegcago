@@ -112,7 +112,6 @@ const TableComponent: React.FC = () => {
   const [isCommissionDetailsModalOpen, setIsCommissionDetailsModalOpen] = useState<boolean>(false);
   const [selectedPurchase, setSelectedPurchase] = useState<PurchaseData | null>(null);
 
-
   // Add commission rank state
   const [commissionRanks, setCommissionRanks] = useState<any[]>([]);
   const [loadingRanks, setLoadingRanks] = useState<boolean>(false);
@@ -323,22 +322,36 @@ const TableComponent: React.FC = () => {
     try {
       setLoading(true);
       
-      // Build query parameters
+      // Build query parameters - ใช้ parameters เท่ากันกับตารางหลัก
       const params = new URLSearchParams();
       
       if (filterEmployeeId) {
         params.append('employeeId', filterEmployeeId);
       }
       
+      if (filterStatus !== "all") {
+        params.append('status', filterStatus);
+      }
+      
+      if (filterBookingNumber) {
+        params.append('bookNumber', filterBookingNumber);
+      }
+      
       if (filterStartDate) {
         params.append('startDate', filterStartDate);
-
       }
       
       if (filterEndDate) {
         params.append('endDate', filterEndDate);
       }
       
+      // เพิ่ม month/year parameters จาก date filter
+      if (filterStartDate) {
+        const startDate = new Date(filterStartDate);
+        params.append('month', (startDate.getMonth() + 1).toString());
+        params.append('year', startDate.getFullYear().toString());
+      }
+
       // Make API request to download Excel file
       const response = await axios({
         url: `${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/export?${params.toString()}`,

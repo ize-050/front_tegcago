@@ -115,7 +115,7 @@ const EnhancedCommissionTable: React.FC = () => {
     const [administrativeFeePercentage, setAdministrativeFeePercentage] = useState<number>(10);
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
-    
+
     // State สำหรับค่าคอมมิชชั่น
     const [employeeCommissions, setEmployeeCommissions] = useState<any[]>([]);
     const [totalCommission, setTotalCommission] = useState<number>(0);
@@ -137,9 +137,11 @@ const EnhancedCommissionTable: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [filterMonth, setFilterMonth] = useState<string>("");
     const [filterYear, setFilterYear] = useState<string>(new Date().getFullYear().toString());
+    const [filterStatus, setFilterStatus] = useState<string>("");
     const [filterWorkType, setFilterWorkType] = useState<string>("");
-    const [filterSalesOwner, setFilterSalesOwner] = useState<string>("");
-    const [filterCommissionStatus, setFilterCommissionStatus] = useState<string>("");
+    const [filterEmployee, setFilterEmployee] = useState<string>("");
+    const [searchBookNumber, setSearchBookNumber] = useState<string>("");
+    const [dateFilterType, setDateFilterType] = useState<"booking" | "commission">("commission"); // เพิ่ม state สำหรับประเภทการกรองวันที่
 
     // ข้อมูลปีและเดือน
     const years = [
@@ -179,46 +181,32 @@ const EnhancedCommissionTable: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            console.log('Fetching data with params:', {
+            const params = {
                 page: paginationData.currentPage,
                 limit: paginationData.itemsPerPage,
                 search: searchTerm,
-                status: filterCommissionStatus,
+                status: filterStatus,
+                workType: filterWorkType,
                 bookNumber: searchTerm,
                 startDate: filterMonth && filterYear ? `${filterYear}-${filterMonth}-01` : undefined,
                 endDate: filterMonth && filterYear ? getLastDayOfMonth(filterYear, filterMonth) : undefined,
-                employeeId: filterSalesOwner || undefined
-            });
-
+                employeeId: filterEmployee || undefined,
+                dateFilterType: dateFilterType // เพิ่ม parameter สำหรับประเภทการกรองวันที่
+            };
             // ดึงข้อมูลจาก API endpoint /hr/work
-            const response = await axios.get("/hr/work", {
-                params: {
-                    page: paginationData.currentPage,
-                    limit: paginationData.itemsPerPage,
-                    search: searchTerm,
-                    status: filterCommissionStatus,
-                    bookNumber: searchTerm, // ใช้ searchTerm เป็น bookNumber ด้วย
-                    startDate: filterMonth && filterYear ? `${filterYear}-${filterMonth}-01` : undefined,
-                    endDate: filterMonth && filterYear ? getLastDayOfMonth(filterYear, filterMonth) : undefined,
-                    employeeId: filterSalesOwner || undefined
-                }
-            });
-
-    
+            const response = await axios.get("/hr/work", { params });
 
             if (!response.data.success) {
                 throw new Error(response.data.message || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
             }
 
-
-
             // แปลงข้อมูลที่ได้จาก API ให้เข้ากับโครงสร้างที่ต้องการ
             const enhancedData = await Promise.all(response.data.data.map(async (item: any) => {
- 
+
 
                 // ตรวจสอบว่ามี employees หรือไม่
                 const employees = item.d_purchase_emp || [];
-           
+
                 // ดึงข้อมูลพนักงานจาก employees
                 const salesOwner = item.employees[0]
                 const salesSupport = employees.find((emp: any) => emp.user?.role === 'sales_support') || null;
@@ -233,31 +221,29 @@ const EnhancedCommissionTable: React.FC = () => {
                 const totalBilling = parseFloat(finance.billing_amount || '0');
                 const adminFeePercentage = administrativeFeePercentage;
                 const adminFeeAmount = (totalBilling * adminFeePercentage) / 100;
-                
+
                 // ดึงข้อมูลค่าคอมมิชชั่นจาก API เส้น /hr/commission-ranks/purchase-commission-status
                 let employeeCommissions = [];
                 let csCommission = null;
                 let commissionStatusText = 'ยังไม่ได้บันทึก';
                 let hasCommission = false;
-                
+
                 try {
                     // ดึงข้อมูลค่าคอมมิชชั่นจาก API ใหม่
                     if (item.id) {
                         const commissionResponse = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/purchase-commission-status/${item.id}`);
                         console.log('Commission Status API Response:', commissionResponse.data);
-                        
+
                         if (commissionResponse.data.success && commissionResponse.data.data) {
                             const commissionData = commissionResponse.data.data;
                             hasCommission = commissionData.hasCommission;
                             employeeCommissions = commissionData.employeeCommissions || [];
                             csCommission = commissionData.csCommission;
-                            
+
                             // แปลงสถานะเป็นภาษาไทย
                             if (commissionData.status === 'paid') {
                                 commissionStatusText = 'จ่ายแล้ว';
-                            } else if (commissionData.status === 'saved') {
-                                commissionStatusText = 'บันทึกแล้ว';
-                            } else {
+                            } else if (commissionData.status === 'pending') {
                                 commissionStatusText = 'ยังไม่ได้บันทึก';
                             }
                         }
@@ -267,9 +253,9 @@ const EnhancedCommissionTable: React.FC = () => {
                     // ใช้ข้อมูลจาก API เดิมถ้าดึงข้อมูลจาก API ใหม่ไม่ได้
                     const localCommissionData = item.commission_data || [];
                     const localCsCommission = item.cs_commission || [];
-                    
+
                     hasCommission = localCommissionData.length > 0 || localCsCommission.length > 0;
-                    commissionStatusText = hasCommission ? 
+                    commissionStatusText = hasCommission ?
                         (localCommissionData[0]?.is_paid ? 'จ่ายแล้ว' : 'บันทึกแล้ว') : 'ยังไม่ได้บันทึก';
                 }
 
@@ -280,7 +266,7 @@ const EnhancedCommissionTable: React.FC = () => {
                 // กำหนดประเภทงาน
                 const workType = item.d_term;
                 // เพิ่มข้อมูลเพิ่มเติมที่จำเป็น
-                const enhancedItem :any = {
+                const enhancedItem: any = {
                     ...item,
                     workType,
                     commissionStatusText,
@@ -352,10 +338,10 @@ const EnhancedCommissionTable: React.FC = () => {
             setLoadingEmployees(true);
             const response = await axios.get("/employee");
             console.log('Employee data:', response.data);
-            
+
             if (response.data && Array.isArray(response.data.data)) {
                 // กรองเฉพาะพนักงานที่มีบทบาทเป็นพนักงานขาย
-                const salesEmployees = response.data.data.filter((emp: any) => 
+                const salesEmployees = response.data.data.filter((emp: any) =>
                     emp.role === 'Sales'
                 );
                 console.log('Sales employees:', salesEmployees);
@@ -367,24 +353,31 @@ const EnhancedCommissionTable: React.FC = () => {
             setLoadingEmployees(false);
         }
     };
-    
-    // โหลดข้อมูลเมื่อ component โหลดหรือเมื่อ filter เปลี่ยน
-    useEffect(() => {
-        fetchData();
-    }, [
-        paginationData.currentPage,
-        paginationData.itemsPerPage,
-        filterMonth,
-        filterYear,
-        filterWorkType,
-        filterSalesOwner,
-        filterCommissionStatus
-    ]);
-    
+
     // โหลดข้อมูลพนักงานเมื่อ component โหลด
     useEffect(() => {
         fetchEmployees();
+        fetchData(); // Initial load
     }, []);
+
+    // Auto-trigger fetchData เมื่อ filter values เปลี่ยนแปลง
+    useEffect(() => {
+        // Skip initial render when all filters are empty
+        if (!filterWorkType && !filterStatus && !filterEmployee && !filterMonth && !filterYear) {
+            return;
+        }
+
+        // Debounce การเรียก API
+        const timeoutId = setTimeout(() => {
+            setPaginationData(prev => ({
+                ...prev,
+                currentPage: 1,
+            }));
+            fetchData();
+        }, 500); // debounce 500ms
+
+        return () => clearTimeout(timeoutId);
+    }, [filterWorkType, filterStatus, filterEmployee, filterMonth, filterYear, dateFilterType]);
 
     // ดึงข้อมูลเปอร์เซ็นต์จาก commission ranks ตามช่วงกำไร
     const fetchCommissionRank = async (profitAmount: number) => {
@@ -393,7 +386,7 @@ const EnhancedCommissionTable: React.FC = () => {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/calculate`, {
                 profit_amount: profitAmount
             });
-            
+
             if (response.data && response.data.rank) {
                 setCommissionRank(response.data.rank);
                 return response.data.rank;
@@ -430,7 +423,7 @@ const EnhancedCommissionTable: React.FC = () => {
         setSelectedPurchase(purchase);
         setIsCommissionModalOpen(true);
     };
-    
+
     // ฟังก์ชันสำหรับบันทึกค่าคอมมิชชั่น
     const handleSaveCommission = (commissionData: any) => {
         console.log('Commission data saved:', commissionData);
@@ -449,7 +442,7 @@ const EnhancedCommissionTable: React.FC = () => {
     // ฟังก์ชันสำหรับคำนวณยอดบิลรวม
     const calculateTotalBilling = (): number => {
         if (!purchases || purchases.length === 0) return 0;
-        
+
         return purchases.reduce((total, item) => {
             const finance = item.purchase_finance && item.purchase_finance[0];
             const billingAmount = finance && finance.billing_amount ? parseFloat(finance.billing_amount) : 0;
@@ -460,34 +453,44 @@ const EnhancedCommissionTable: React.FC = () => {
     // ฟังก์ชันสำหรับคำนวณกำไรรวม
     const calculateTotalProfit = (): number => {
         if (!purchases || purchases.length === 0) return 0;
-        
+
         return purchases.reduce((total, item) => {
-            const finance :any  = item.purchase_finance && item.purchase_finance[0];
-            const totalProfit = finance && finance.net_profit ? parseFloat(finance.net_profit.toString()) : 0;
-            return total + totalProfit;
+            const finance: any = item.purchase_finance && item.purchase_finance[0];
+
+            // คำนวณกำไรสุทธิจาก profit_loss - management_fee
+            let netProfit = 0;
+            if (finance && finance.payment_prefix) {
+                const profitLoss = finance.payment_prefix.profit_loss ?
+                    parseFloat(finance.payment_prefix.profit_loss.toString()) : 0;
+                const managementFee = finance.payment_prefix.management_fee ?
+                    parseFloat(finance.payment_prefix.management_fee.toString()) : 0;
+                netProfit = profitLoss - managementFee;
+            }
+
+            return total + netProfit;
         }, 0);
     };
 
     // ฟังก์ชันสำหรับคำนวณค่าคอมมิชชั่นรวม
     const calculateTotalCommission = (): number => {
         if (!purchases || purchases.length === 0) return 0;
-        
+
         return purchases.reduce((total, item) => {
             let commissionTotal = 0;
-            
+
             // คำนวณจากข้อมูลค่าคอมมิชชั่นของพนักงานขาย
             if (item.employeeCommissions && Array.isArray(item.employeeCommissions)) {
                 commissionTotal += item.employeeCommissions.reduce((sum, comm) => {
                     return sum + (parseFloat(comm.commission_amount) || 0);
                 }, 0);
             }
-            
+
             // คำนวณจากข้อมูลค่าคอมมิชชั่นของ CS
             if (item.csCommission) {
                 commissionTotal += parseFloat(item.csCommission.commission_amount) || 0;
             }
-            
-            
+
+
             return total + commissionTotal;
         }, 0);
     };
@@ -526,37 +529,93 @@ const EnhancedCommissionTable: React.FC = () => {
 
     const handleExportCommissionData = async () => {
         try {
-            toast.loading('กำลังส่งออกข้อมูล...', { id: 'export-toast' });
+            // Create date strings only if specific month and year are selected
+            let startDateParam: string | undefined;
+            let endDateParam: string | undefined;
+
+            // Only create date parameters if specific month/year are selected (not 'all')
+            if (exportMonth && exportMonth !== 'all' && exportYear && exportYear !== 'all') {
+                const monthNum = parseInt(exportMonth);
+                const yearNum = parseInt(exportYear);
+                
+                // Validate month and year
+                if (monthNum >= 1 && monthNum <= 12 && yearNum >= 1900 && yearNum <= 2100) {
+                    startDateParam = `${exportYear}-${exportMonth.padStart(2, '0')}-01`;
+                    endDateParam = getLastDayOfMonth(exportYear, exportMonth);
+                } else {
+                    toast.error('เดือนหรือปีที่เลือกไม่ถูกต้อง');
+                    return;
+                }
+            }
+
+            const params: any = {
+                status: filterStatus || undefined,
+                bookNumber: searchBookNumber || undefined,
+                dateFilterType: dateFilterType
+            };
+
+            // เพิ่ม month และ year เฉพาะเมื่อไม่ใช่ 'all'
+            if (exportMonth && exportMonth !== 'all') {
+                params.month = exportMonth;
+            }
             
-            // เรียกใช้ API endpoint สำหรับส่งออกข้อมูล พร้อมส่ง query params เดือนและปี
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/export-commission-data`, {
-                params: {
-                    month: exportMonth,
-                    year: exportYear
-                },
-                responseType: 'blob'
+            if (exportYear && exportYear !== 'all') {
+                params.year = exportYear;
+            }
+
+            // เพิ่ม startDate และ endDate เฉพาะเมื่อมีค่าที่ valid
+            if (startDateParam && endDateParam) {
+                params.startDate = startDateParam;
+                params.endDate = endDateParam;
+            }
+
+            // ลบ undefined values ออกจาก params
+            Object.keys(params).forEach(key => {
+                if (params[key] === undefined || params[key] === '') {
+                    delete params[key];
+                }
             });
-            
-            // สร้าง URL object จาก blob data
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            
-            // สร้าง element a สำหรับดาวน์โหลดไฟล์
+
+            console.log('Export params:', params); // Debug log
+
+            const response = await axios.get("/hr/commission-ranks/export-commission-data", { 
+                params,
+                responseType: 'blob' 
+            });
+
+            // สร้างไฟล์ Excel และดาวน์โหลด
+            const blob = new Blob([response.data], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `commission_data_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            const dateTypeLabel = dateFilterType === 'booking' ? 'วันที่ทำใบจอง' : 'วันที่บันทึกคอมมิชชั่น';
+            const monthLabel = exportMonth && exportMonth !== 'all' 
+                ? months.find(m => m.value === exportMonth)?.label 
+                : 'ทุกเดือน';
+            const yearLabel = exportYear && exportYear !== 'all' ? exportYear : 'ทุกปี';
+            
+            link.download = `Commission_Report_${dateTypeLabel}_${monthLabel}_${yearLabel}.xlsx`;
+            
             document.body.appendChild(link);
-            
-            // คลิกลิงก์เพื่อดาวน์โหลด
             link.click();
-            
-            // ลบลิงก์หลังจากดาวน์โหลดเสร็จ
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
+
+            toast.success('ส่งออกข้อมูลสำเร็จ');
+        } catch (error: any) {
+            console.error('Export error:', error);
             
-            toast.success('ส่งออกข้อมูลสำเร็จ', { id: 'export-toast' });
-        } catch (error) {
-            console.error('Error exporting commission data:', error);
-            toast.error('เกิดข้อผิดพลาดในการส่งออกข้อมูล', { id: 'export-toast' });
+            // แสดง error message ที่เฉพาะเจาะจงมากขึ้น
+            if (error.response?.data?.error) {
+                toast.error(`เกิดข้อผิดพลาด: ${error.response.data.error}`);
+            } else if (error.response?.status === 400) {
+                toast.error('ข้อมูลที่ส่งไม่ถูกต้อง กรุณาตรวจสอบการตั้งค่า');
+            } else {
+                toast.error('เกิดข้อผิดพลาดในการส่งออกข้อมูล');
+            }
         }
     };
 
@@ -596,400 +655,438 @@ const EnhancedCommissionTable: React.FC = () => {
         });
     };
 
+    // ฟังก์ชันสำหรับเปลี่ยนประเภทงาน
+    const handleWorkTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setFilterWorkType(e.target.value);
+        setPaginationData({
+            ...paginationData,
+            currentPage: 1,
+        });
+    };
+
+    // ฟังก์ชันสำหรับเปลี่ยนประเภทการกรองวันที่
+    const handleDateFilterTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setDateFilterType(e.target.value as "booking" | "commission");
+        setPaginationData({
+            ...paginationData,
+            currentPage: 1,
+        });
+    };
+
     // ฟังก์ชันสำหรับบันทึกการเปลี่ยนแปลงค่าบริหาร
     const handleSaveAdministrativeFee = () => {
         // ในอนาคตจะส่งค่าไปยัง API
         toast.success(`บันทึกค่าบริหาร ${administrativeFeePercentage}% เรียบร้อยแล้ว`);
     };
 
+    // ฟังก์ชันสำหรับรีเฟรชข้อมูล
+    const handleRefresh = () => {
+        // รีเซ็ต filters
+        setFilterWorkType("");
+        setFilterStatus("");
+        setFilterEmployee("");
+        setFilterMonth("");
+        setFilterYear(new Date().getFullYear().toString());
+        setSearchTerm("");
+        setSearchBookNumber("");
+        setDateFilterType("commission"); // รีเซ็ตกลับเป็น default
 
-    
+        // เรียก API ใหม่
+        fetchData();
+    };
 
     return (
         <div className="bg-white p-5 rounded-lg shadow">
             {/* ส่วนหัว */}
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">ข้อมูลค่าคอมมิชชั่น</h2>
-
-                <div className="flex items-center space-x-4">
-                    {/* ตัวเลือกเดือนและปีสำหรับการ export */}
-                    <div className="flex items-center gap-2">
-                        <div className="flex flex-col">
-                            <label htmlFor="exportMonth" className="text-sm mb-1">เดือน</label>
-                            <FormSelect
-                                id="exportMonth"
-                                value={exportMonth}
-                                onChange={(e) => setExportMonth(e.target.value)}
-                                className="w-32"
-                            >
-                                {monthOptions.map(option => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
-                                ))}
-                            </FormSelect>
-                        </div>
-                        <div className="flex flex-col">
-                            <label htmlFor="exportYear" className="text-sm mb-1">ปี</label>
-                            <FormSelect
-                                id="exportYear"
-                                value={exportYear}
-                                onChange={(e) => setExportYear(e.target.value)}
-                                className="w-28"
-                            >
-                                {yearOptions.map(option => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
-                                ))}
-                            </FormSelect>
-                        </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">ข้อมูลค่าคอมมิชชั่น</h2>
+                        <p className="text-sm text-gray-600 mt-1">จัดการและติดตามข้อมูลคอมมิชชั่นพนักงาน</p>
                     </div>
 
-                    <Button
-                        variant="outline-secondary"
-                        onClick={() => fetchData()}
-                    >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        รีเฟรช
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        {/* ตัวเลือกเดือนและปีสำหรับการ export */}
+                        <div className="flex items-end gap-3">
+                            <div className="flex flex-col">
+                                <label htmlFor="exportMonth" className="text-sm font-medium text-gray-700 mb-1">เดือน</label>
+                                <FormSelect
+                                    id="exportMonth"
+                                    value={exportMonth}
+                                    onChange={(e) => setExportMonth(e.target.value)}
+                                    className="w-32 text-sm"
+                                >
+                                    {monthOptions.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </FormSelect>
+                            </div>
+                            <div className="flex flex-col">
+                                <label htmlFor="exportYear" className="text-sm font-medium text-gray-700 mb-1">ปี</label>
+                                <FormSelect
+                                    id="exportYear"
+                                    value={exportYear}
+                                    onChange={(e) => setExportYear(e.target.value)}
+                                    className="w-28 text-sm"
+                                >
+                                    {yearOptions.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </FormSelect>
+                            </div>
+                        </div>
 
-                    <Button
-                        variant="primary"
-                        onClick={handleExportCommissionData}
-                        title="ส่งออกข้อมูลคอมมิชชั่นเป็นไฟล์ Excel"
-                    >
-                        <Download className="w-4 h-4 mr-2" />
-                        Export Excel
-                    </Button>
-                </div>
-            </div>
-
-            {/* ส่วนแสดงสรุปข้อมูล */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
-                    <h3 className="text-sm text-blue-500 font-medium mb-2">จำนวนรายการทั้งหมด</h3>
-                    <p className="text-2xl font-bold">{paginationData.totalItems}</p>
-                </div>
-
-                <div className="bg-green-50 p-4 rounded-lg shadow-sm">
-                    <h3 className="text-sm text-green-500 font-medium mb-2">ยอดบิลรวม</h3>
-                    <p className="text-2xl font-bold">฿ {calculateTotalBilling().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
-
-                <div className="bg-purple-50 p-4 rounded-lg shadow-sm">
-                    <h3 className="text-sm text-purple-500 font-medium mb-2">กำไรรวม</h3>
-                    <p className="text-2xl font-bold">฿ {calculateTotalProfit().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
-
-                <div className="bg-amber-50 p-4 rounded-lg shadow-sm">
-                    <h3 className="text-sm text-amber-500 font-medium mb-2">ค่าคอมมิชชั่นรวม</h3>
-                    <p className="text-2xl font-bold">฿ {calculateTotalCommission().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
-            </div>
-
-            {/* ส่วนค้นหาและกรอง */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 className="text-lg font-medium mb-4">ตัวกรองข้อมูล</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลา</label>
-                        <div className="flex space-x-2">
-                            <FormSelect
-                                value={filterYear}
-                                onChange={handleYearChange}
-                                className="w-full"
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline-secondary"
+                                onClick={() => fetchData()}
+                                className="flex items-center gap-2 px-4 py-2 text-sm"
                             >
-                                {years.map(year => (
-                                    <option key={year} value={year}>{year}</option>
-                                ))}
-                            </FormSelect>
+                                <RefreshCw className="w-4 h-4" />
+                                รีเฟรช
+                            </Button>
 
-                            <FormSelect
-                                value={filterMonth}
-                                onChange={handleMonthChange}
-                                className="w-full"
+                            <Button
+                                variant="primary"
+                                onClick={handleExportCommissionData}
+                                title="ส่งออกข้อมูลคอมมิชชั่นเป็นไฟล์ Excel"
                             >
-                                {months.map(month => (
-                                    <option key={month.value} value={month.value}>{month.label}</option>
-                                ))}
-                            </FormSelect>
+                                <Download className="w-4 h-4 mr-2" />
+                                Export Excel
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ส่วนแสดงสรุปข้อมูล */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
+                        <h3 className="text-sm text-blue-500 font-medium mb-2">จำนวนรายการทั้งหมด</h3>
+                        <p className="text-2xl font-bold">{paginationData.totalItems}</p>
+                    </div>
+
+                    <div className="bg-green-50 p-4 rounded-lg shadow-sm">
+                        <h3 className="text-sm text-green-500 font-medium mb-2">ยอดบิลรวม</h3>
+                        <p className="text-2xl font-bold">฿ {calculateTotalBilling().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    </div>
+
+                    <div className="bg-purple-50 p-4 rounded-lg shadow-sm">
+                        <h3 className="text-sm text-purple-500 font-medium mb-2">กำไรรวม</h3>
+                        <p className="text-2xl font-bold">฿ {calculateTotalProfit().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    </div>
+
+                    <div className="bg-amber-50 p-4 rounded-lg shadow-sm">
+                        <h3 className="text-sm text-amber-500 font-medium mb-2">ค่าคอมมิชชั่นรวม</h3>
+                        <p className="text-2xl font-bold">฿ {calculateTotalCommission().toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    </div>
+                </div>
+
+                {/* ส่วนค้นหาและกรอง */}
+                <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mb-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800">ตัวกรองข้อมูล</h3>
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={handleRefresh}
+                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                <span>รีเฟรช</span>
+                            </button>
+
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทงาน</label>
-                        <FormSelect
-                            value={filterWorkType}
-                            onChange={(e) => setFilterWorkType(e.target.value)}
-                            className="w-full"
-                        >
-                            <option value="">ทุกประเภท</option>
-                            <option value="All-in">All-in</option>
-                            <option value="เคลียร์ฝั่งไทย">เคลียร์ฝั่งไทย</option>
-                            <option value="เคลียร์ฝั่งจีน">เคลียร์ฝั่งจีน</option>
-                            <option value="CIF">CIF</option>
-                            <option value="EXW">EXW</option>
-                            <option value="CIF">CIF</option>
-                            <option value="GREEN">GREEN</option>
-                            <option value="FOB">FOB</option>
-                            <option value="EXW">EXW</option>
-                        </FormSelect>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">กรองตาม</label>
+                            <FormSelect
+                                value={dateFilterType}
+                                onChange={handleDateFilterTypeChange}
+                                className="w-full text-sm"
+                            >
+                                <option value="commission">วันที่บันทึกคอมมิชชั่น</option>
+                                <option value="booking">วันที่ทำใบจอง</option>
+                            </FormSelect>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">ช่วงเวลา</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <FormSelect
+                                        value={filterYear}
+                                        onChange={handleYearChange}
+                                        className="w-full text-sm"
+                                    >
+                                        {years.map(year => (
+                                            <option key={year} value={year}>ปี {year}</option>
+                                        ))}
+                                    </FormSelect>
+                                </div>
+                                <div>
+                                    <FormSelect
+                                        value={filterMonth}
+                                        onChange={handleMonthChange}
+                                        className="w-full text-sm"
+                                    >
+                                        {months.map(month => (
+                                            <option key={month.value} value={month.value}>{month.label}</option>
+                                        ))}
+                                    </FormSelect>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">สถานะคอมมิชชั่น</label>
+                            <FormSelect
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="w-full text-sm"
+                            >
+                                <option value="">ทุกสถานะ</option>
+                                <option value="pending">รอดำเนินการ</option>
+                                <option value="paid">จ่ายแล้ว</option>
+                            </FormSelect>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">ประเภทงาน</label>
+                            <FormSelect
+                                value={filterWorkType}
+                                onChange={handleWorkTypeChange}
+                                className="w-full text-sm"
+                            >
+                                <option value="">ทุกประเภท</option>
+                                <option value="FCL">FCL</option>
+                                <option value="LCL">LCL</option>
+                                <option value="ALL IN">ALL IN</option>
+                            </FormSelect>
+                        </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">สถานะคอมมิชชั่น</label>
-                        <FormSelect
-                            value={filterCommissionStatus}
-                            onChange={(e) => setFilterCommissionStatus(e.target.value)}
-                            className="w-full"
-                        >
-                            <option value="">ทุกสถานะ</option>
-                            <option value="pending">รอดำเนินการ</option>
-                            <option value="approved">อนุมัติแล้ว</option>
-                            <option value="paid">จ่ายแล้ว</option>
-                        </FormSelect>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">พนักงานขาย</label>
-                        <FormSelect
-                            value={filterSalesOwner}
-                            onChange={(e) => setFilterSalesOwner(e.target.value)}
-                            className="w-full"
-                            disabled={loadingEmployees}
-                        >
-                            <option value="">ทั้งหมด</option>
-                            {loadingEmployees ? (
-                                <option value="" disabled>กำลังโหลดข้อมูล...</option>
-                            ) : employees.length > 0 ? (
-                                employees.map((employee: any) => (
-                                    <option key={employee.id} value={employee.id}>
-                                        {employee.name + (employee.email ? ' (' + employee.email + ')' : '')}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">พนักงานขาย</label>
+                            <FormSelect
+                                value={filterEmployee}
+                                onChange={(e) => setFilterEmployee(e.target.value)}
+                                className="w-full text-sm"
+                                disabled={loadingEmployees}
+                            >
+                                <option value="">ทุกคน</option>
+                                {employees.map(emp => (
+                                    <option key={emp.id} value={emp.id}>
+                                        {emp.fullname}
                                     </option>
-                                ))
-                            ) : (
-                                <option value="" disabled>ไม่พบข้อมูลพนักงาน</option>
-                            )}
-                        </FormSelect>
-                    </div>
+                                ))}
+                            </FormSelect>
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหา</label>
-                        <div className="flex">
-                            <FormInput
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">ค้นหาเลขที่ใบจอง</label>
+                            <input
                                 type="text"
-                                placeholder="ค้นหาเลขที่ Booking, ลูกค้า..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full"
+                                value={searchBookNumber}
+                                onChange={(e) => setSearchBookNumber(e.target.value)}
+                                placeholder="ค้นหาเลขที่ใบจอง..."
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
                     </div>
-
-                    <div className="flex items-end space-x-2">
-                        <Button
-                            variant="primary"
-                            onClick={handleSearch}
-                            className="flex-1"
-                        >
-                            <Search className="w-4 h-4 mr-2" />
-                            ค้นหา
-                        </Button>
-                    </div>
                 </div>
-            </div>
 
-            {/* ส่วนตาราง */}
-            <div className="overflow-x-auto">
-                <Table>
-                    <Table.Thead>
-                        <Table.Tr>
-                            <Table.Th className="w-16">ลำดับ</Table.Th>
-                            <Table.Th className="w-20">เดือน/ปี</Table.Th>
-                            <Table.Th className="w-32">เลขตู้</Table.Th>
-                            <Table.Th className="w-32">เลขที่ Booking</Table.Th>
-                            <Table.Th className="w-28">วันที่</Table.Th>
-                            <Table.Th className="w-28">ประเภทงาน</Table.Th>
-                            <Table.Th className="w-32">พนักงานขาย</Table.Th>
-                            <Table.Th className="w-28">ประเภทตู้</Table.Th>
-                            <Table.Th className="w-28">ผลกำไร</Table.Th>
-                            <Table.Th className="w-28">ค่าบริหาร</Table.Th>
-                            <Table.Th className="w-28">กำไร/ขาดทุน</Table.Th>
-                            <Table.Th className="w-36">สถานะคอมมิชชั่น</Table.Th>
-                            <Table.Th className="w-36 text-center">จัดการ</Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {loading ? (
+                {/* ส่วนตาราง */}
+                <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-200">
+                    <Table className="min-w-full">
+                        <Table.Thead className="bg-gray-50">
                             <Table.Tr>
-                                <Table.Td colSpan={14} className="text-center py-10">
-                                    <div className="flex flex-col items-center justify-center">
-                                        <RefreshCw className="h-8 w-8 text-blue-500 animate-spin mb-2" />
-                                        <span>กำลังโหลดข้อมูล...</span>
-                                    </div>
-                                </Table.Td>
+                                <Table.Th className="w-16 text-center whitespace-nowrap">ลำดับ</Table.Th>
+                                <Table.Th className="w-24 text-center whitespace-nowrap">เดือน/ปี</Table.Th>
+                                <Table.Th className="w-32 whitespace-nowrap">เลขตู้</Table.Th>
+                                <Table.Th className="w-36 whitespace-nowrap">เลขที่ Booking</Table.Th>
+                                <Table.Th className="w-28 text-center whitespace-nowrap">ปิดงาน</Table.Th>
+                                <Table.Th className="w-32 text-center whitespace-nowrap">ประเภทงาน</Table.Th>
+                                <Table.Th className="w-40 whitespace-nowrap">Sale เจ้าของงาน</Table.Th>
+                                <Table.Th className="w-28 text-center whitespace-nowrap">ประเภทตู้</Table.Th>
+                                <Table.Th className="w-32 text-right whitespace-nowrap">ผลกำไร</Table.Th>
+                                <Table.Th className="w-32 text-right whitespace-nowrap">ค่าบริหาร</Table.Th>
+                                <Table.Th className="w-32 text-right whitespace-nowrap">กำไร/ขาดทุน</Table.Th>
+                                <Table.Th className="w-40 text-center whitespace-nowrap">สถานะคอมมิชชั่น</Table.Th>
+                                <Table.Th className="w-36 text-center whitespace-nowrap">จัดการ</Table.Th>
                             </Table.Tr>
-                        ) : purchases.length === 0 ? (
-                            <Table.Tr>
-                                <Table.Td colSpan={14} className="text-center py-10">
-                                    <div className="flex flex-col items-center justify-center">
-                                        <FileText className="h-8 w-8 text-gray-400 mb-2" />
-                                        <span className="text-gray-500">ไม่พบข้อมูล</span>
-                                    </div>
-                                </Table.Td>
-                            </Table.Tr>
-                        ) : (
-                            purchases.map((item: any, index: number) => {
-                                // ใช้ purchase_finance รายการแรกหรือรายการที่มีสถานะ "ชำระครบแล้ว" ถ้ามี
-                                const paidFinance = item.purchase_finance.find(
-                                    (finance: any) => finance.finance_status === "ชำระครบแล้ว"
-                                ) || item.purchase_finance[0] || {};
+                        </Table.Thead>
+                        <Table.Tbody className="divide-y divide-gray-200">
+                            {loading ? (
+                                <Table.Tr>
+                                    <Table.Td colSpan={13} className="text-center py-10">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <RefreshCw className="h-8 w-8 text-blue-500 animate-spin mb-2" />
+                                            <span>กำลังโหลดข้อมูล...</span>
+                                        </div>
+                                    </Table.Td>
+                                </Table.Tr>
+                            ) : purchases.length === 0 ? (
+                                <Table.Tr>
+                                    <Table.Td colSpan={13} className="text-center py-10">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <FileText className="h-8 w-8 text-gray-400 mb-2" />
+                                            <span className="text-gray-500">ไม่พบข้อมูล</span>
+                                        </div>
+                                    </Table.Td>
+                                </Table.Tr>
+                            ) : (
+                                purchases.map((item: any, index: number) => {
+                                    // ใช้ purchase_finance รายการที่มีสถานะ "ชำระครบแล้ว" ถ้ามี
+                                    const paidFinance = item.purchase_finance.find(
+                                        (finance: any) => finance.payment_status === "ชำระครบแล้ว"
+                                    ) || item.purchase_finance[0] || {};
 
-                                console.log('Item in table:', item.id, item.book_number, 'Finance:', paidFinance);
+                                    console.log('Item in table:', item.id, item.book_number, 'Finance:', paidFinance);
+                                    console.log('All finance records:', item.purchase_finance);
+                                    console.log('total_profit_loss raw:', paidFinance?.total_profit_loss);
+                                    console.log('management_fee raw:', paidFinance?.management_fee);
 
-                                console.log('Customer data:', item.customer);
-                                const customerName = item.customer && typeof item.customer === 'object' && item.customer.cus_fullname
-                                    ? item.customer.cus_fullname
-                                    : "-";
 
-                                // ตรวจสอบว่ามีข้อมูลการเงินหรือไม่
-                                const billingAmount = paidFinance && paidFinance.billing_amount
-                                    ? parseFloat(paidFinance.billing_amount)
-                                    : 0;
+                                    console.log('Customer data:', item.customer);
+                                    const customerName = item.customer && typeof item.customer === 'object' && item.customer.cus_fullname
+                                        ? item.customer.cus_fullname
+                                        : "-";
 
-                                const profitLossValue = paidFinance && paidFinance.total_profit_loss
-                                    ? parseFloat(paidFinance.total_profit_loss)
-                                    : 0;
+                                    // ตรวจสอบว่ามีข้อมูลการเงินหรือไม่
+                                    const billingAmount = paidFinance && paidFinance.billing_amount
+                                        ? parseFloat(paidFinance.billing_amount)
+                                        : 0;
 
-                                const adminFee = billingAmount * (administrativeFeePercentage / 100);
-                                const netProfit = profitLossValue - adminFee;
+                                    let profitLossValue = 0;
+                                    if (paidFinance && paidFinance.payment_prefix && paidFinance.payment_prefix.profit_loss !== null && paidFinance.payment_prefix.profit_loss !== undefined) {
+                                        const profitStr = String(paidFinance.payment_prefix.profit_loss);
+                                        profitLossValue = parseFloat(profitStr) || 0;
+                                    }
 
-                                return (
-                                    <Table.Tr
-                                        key={item.id}
-                                        className="hover:bg-gray-50 transition-colors"
-                                    >
-                                        <Table.Td>{index + 1 + ((paginationData.currentPage - 1) * paginationData.itemsPerPage)}</Table.Td>
-                                        <Table.Td>
-                                            {item.createdAt ? format(new Date(item.createdAt), "MM/yy") : "-"}
-                                        </Table.Td>
-                                        <Table.Td>{item.d_shipment_number || "-"}</Table.Td>
-                                        <Table.Td>{item.book_number}</Table.Td>
-                                   
-                                        <Table.Td>
-                                            {item.createdAt ? format(new Date(item.createdAt), "dd MMM yyyy", { locale: th }) : "-"}
-                                        </Table.Td>
-                                        <Table.Td>
-                                            <span className={`px-2 py-1 rounded text-xs font-medium ${item.workType === "All-in" ? "bg-blue-100 text-blue-800" :
-                                                item.workType === "Select" ? "bg-purple-100 text-purple-800" :
-                                                    item.workType === "งานส่วนกลาง" ? "bg-green-100 text-green-800" :
-                                                        "bg-gray-100 text-gray-800"
-                                                }`}>
-                                                {item.workType}
-                                            </span>
-                                        </Table.Td>
-                                        <Table.Td>
-                                            {item.salesOwner}
-                                        </Table.Td>
-                                        <Table.Td>{item.d_term || "-"}</Table.Td>
-                                        <Table.Td className={`text-right ${profitLossValue >= 0 ? "text-green-600" : "text-red-600"}`}>
-                                            {item.purchase_finance[0]?.total_profit_loss ? item.purchase_finance[0].total_profit_loss.toLocaleString("th-TH", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }) : "-"}
-                                        </Table.Td>
-                                        <Table.Td className="text-right">
-                                            {item.purchase_finance[0]?.profit_loss ? item.purchase_finance[0].profit_loss.toLocaleString("th-TH", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }) : "-"}
-                                        </Table.Td>
-                                        <Table.Td className={`text-right ${item.purchase_finance[0]?.net_profit >= 0 ? "text-green-600" : "text-red-600"}`}>
-                                            {item.purchase_finance[0]?.net_profit ? item.purchase_finance[0].net_profit.toLocaleString("th-TH", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }) : "-"}
-                                        </Table.Td>
-                                        <Table.Td>
-                                            <div className="flex space-x-1">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium 
-                                                    ${item.commissionStatusText === 'จ่ายแล้ว' ? 'bg-green-100 text-green-800' : 
-                                                    item.commissionStatusText === 'บันทึกแล้ว' ? 'bg-blue-100 text-blue-800' : 
-                                                    'bg-gray-100 text-gray-800'}`}>
-                                                    {item.commissionStatusText}
+                                    let managementFee = 0;
+                                    if (paidFinance && paidFinance.payment_prefix && paidFinance.payment_prefix.management_fee !== null && paidFinance.payment_prefix.management_fee !== undefined) {
+                                        const feeStr = String(paidFinance.payment_prefix.management_fee);
+                                        managementFee = parseFloat(feeStr) || 0;
+                                    }
+
+                                    const netProfit = profitLossValue - managementFee;
+
+                                    return (
+                                        <Table.Tr
+                                            key={item.id}
+                                            className="hover:bg-gray-50 transition-colors"
+                                        >
+                                            <Table.Td className="text-center whitespace-nowrap">{index + 1 + ((paginationData.currentPage - 1) * paginationData.itemsPerPage)}</Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                {item.createdAt ? format(new Date(item.createdAt), "MM/yy") : "-"}
+                                            </Table.Td>
+                                            <Table.Td className="whitespace-nowrap">{item.d_shipment_number || "-"}</Table.Td>
+                                            <Table.Td className="whitespace-nowrap font-medium">{item.book_number}</Table.Td>
+
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                {item.createdAt ? format(new Date(item.createdAt), "dd MMM yyyy", { locale: th }) : "-"}
+                                            </Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${item.workType === "ALL IN" ? "bg-blue-100 text-blue-800" :
+                                                    item.workType === "เคลียร์ฝั่งไทย" ? "bg-purple-100 text-purple-800" :
+                                                        item.workType === "เคลียร์ฝั่งจีน" ? "bg-green-100 text-green-800" :
+                                                            "bg-gray-100 text-gray-800"
+                                                    }`}>
+                                                    {item.workType}
                                                 </span>
-                                            </div>
-                                        </Table.Td>
-                                        <Table.Td>
-                                            <div className="flex justify-center space-x-2">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    size="sm"
-                                                    onClick={() => handleShowCommissionDetails(item)}
-                                                >
-                                                    <Eye className="w-4 h-4 mr-1" />
-                                                    รายละเอียด
-                                                </Button>
-                                            </div>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                );
-                            })
-                        )}
-                    </Table.Tbody>
-                </Table>
-            </div>
-
-            {/* ส่วน Pagination */}
-            {!loading && purchases.length > 0 && (
-                <div className="flex justify-between items-center mt-6">
-                    <div className="text-sm text-gray-500">
-                        แสดง {((paginationData.currentPage - 1) * paginationData.itemsPerPage) + 1} ถึง {Math.min(paginationData.currentPage * paginationData.itemsPerPage, paginationData.totalItems)} จาก {paginationData.totalItems} รายการ
-                    </div>
-
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            disabled={paginationData.currentPage === 1}
-                            onClick={() => handlePageChange(paginationData.currentPage - 1)}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </Button>
-
-                        {Array.from({ length: Math.min(5, paginationData.totalPages) }, (_, i) => {
-                            const pageNumber = i + 1;
-                            return (
-                                <Button
-                                    key={pageNumber}
-                                    variant={pageNumber === paginationData.currentPage ? "primary" : "outline-secondary"}
-                                    size="sm"
-                                    onClick={() => handlePageChange(pageNumber)}
-                                >
-                                    {pageNumber}
-                                </Button>
-                            );
-                        })}
-
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            disabled={paginationData.currentPage === paginationData.totalPages}
-                            onClick={() => handlePageChange(paginationData.currentPage + 1)}
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
+                                            </Table.Td>
+                                            <Table.Td className="whitespace-nowrap">
+                                                <span className="text-sm text-gray-900">{item.salesOwner}</span>
+                                            </Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">{item.d_size_cabinet || "-"}</Table.Td>
+                                            <Table.Td className="text-right whitespace-nowrap font-medium">{profitLossValue.toLocaleString()} ฿</Table.Td>
+                                            <Table.Td className="text-right whitespace-nowrap">{managementFee.toLocaleString()} ฿</Table.Td>
+                                            <Table.Td className="text-right whitespace-nowrap">{netProfit.toLocaleString()} ฿</Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                <div className="flex justify-center">
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap
+                                                        ${item.commissionStatusText === 'จ่ายแล้ว' ? 'bg-green-100 text-green-800' :
+                                                            item.commissionStatusText === 'บันทึกแล้ว' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-gray-100 text-gray-800'}`}>
+                                                        {item.commissionStatusText}
+                                                    </span>
+                                                </div>
+                                            </Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                <div className="flex justify-center">
+                                                    <Button
+                                                        variant="outline-secondary"
+                                                        size="sm"
+                                                        onClick={() => handleShowCommissionDetails(item)}
+                                                        className="whitespace-nowrap"
+                                                    >
+                                                        <Eye className="w-4 h-4 mr-1" />
+                                                        รายละเอียด
+                                                    </Button>
+                                                </div>
+                                            </Table.Td>
+                                        </Table.Tr>
+                                    );
+                                })
+                            )}
+                        </Table.Tbody>
+                    </Table>
                 </div>
-            )}
 
-            {selectedPurchase && (
-                <CommissionModal
-                    isOpen={isCommissionModalOpen}
-                    onClose={() => setIsCommissionModalOpen(false)}
-                    purchaseData={purchases.find((purchase) => purchase.id === selectedPurchase.id)}
-                    onSave={handleSaveCommission}
-                />
-            )}
+                {/* ส่วน Pagination */}
+                {!loading && purchases.length > 0 && (
+                    <div className="flex justify-between items-center mt-6">
+                        <div className="text-sm text-gray-500">
+                            แสดง {((paginationData.currentPage - 1) * paginationData.itemsPerPage) + 1} ถึง {Math.min(paginationData.currentPage * paginationData.itemsPerPage, paginationData.totalItems)} จาก {paginationData.totalItems} รายการ
+                        </div>
+
+                        <div className="flex space-x-2">
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                disabled={paginationData.currentPage === 1}
+                                onClick={() => handlePageChange(paginationData.currentPage - 1)}
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
+
+                            {Array.from({ length: Math.min(5, paginationData.totalPages) }, (_, i) => {
+                                const pageNumber = i + 1;
+                                return (
+                                    <Button
+                                        key={pageNumber}
+                                        variant={pageNumber === paginationData.currentPage ? "primary" : "outline-secondary"}
+                                        size="sm"
+                                        onClick={() => handlePageChange(pageNumber)}
+                                    >
+                                        {pageNumber}
+                                    </Button>
+                                );
+                            })}
+
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                disabled={paginationData.currentPage === paginationData.totalPages}
+                                onClick={() => handlePageChange(paginationData.currentPage + 1)}
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {selectedPurchase && (
+                    <CommissionModal
+                        isOpen={isCommissionModalOpen}
+                        onClose={() => setIsCommissionModalOpen(false)}
+                        purchaseData={purchases.find((purchase) => purchase.id === selectedPurchase.id)}
+                        onSave={handleSaveCommission}
+                    />
+                )}
+            </div>
         </div>
     );
 };

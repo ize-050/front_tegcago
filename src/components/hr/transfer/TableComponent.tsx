@@ -23,6 +23,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CommissionModal from "./CommissionModal";
 import CommissionStatusButton from "./CommissionStatusButton";
+import EditCommissionModal from "./EditCommissionModal"; // Import EditCommissionModal
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
@@ -109,8 +110,11 @@ const TransferTableComponent: React.FC = () => {
   // State for modal
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState<boolean>(false);
   const [selectedTransfer, setSelectedTransfer] = useState<TransferData | null>(null);
+  const [isEditCommissionModalOpen, setIsEditCommissionModalOpen] = useState<boolean>(false); // Add state for EditCommissionModal
 
   // State for export
+  const [exportMonth, setExportMonth] = useState<string>('');
+  const [exportYear, setExportYear] = useState<string>('');
   const [exportStartDate, setExportStartDate] = useState<Date | null>(null);
   const [exportEndDate, setExportEndDate] = useState<Date | null>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -136,6 +140,16 @@ const TransferTableComponent: React.FC = () => {
     { value: "10", label: "ตุลาคม" },
     { value: "11", label: "พฤศจิกายน" },
     { value: "12", label: "ธันวาคม" },
+  ];
+
+  // Generate months and years for dropdowns
+  const currentYear = new Date().getFullYear();
+  const exportYears = [
+    { value: '', label: 'ทั้งหมด' },
+    ...Array.from({ length: 5 }, (_, i) => ({
+      value: (currentYear - i).toString(),
+      label: (currentYear - i).toString(),
+    })),
   ];
 
   // ฟังก์ชันสำหรับหาวันสุดท้ายของเดือน
@@ -189,7 +203,7 @@ const TransferTableComponent: React.FC = () => {
   const fetchSalesSupportEmployees = async () => {
     try {
       setLoadingEmployees(true);
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/employees/salesupport`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/salesupport/employees`);
       if (response.data && response.data.success) {
         setSalesSupportEmployees(response.data.data || []);
       } else {
@@ -213,6 +227,10 @@ const TransferTableComponent: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", "10");
+      
+      if (searchTerm.trim()) {
+        params.append("searchTerm", searchTerm.trim());
+      }
       
       if (filterEmployeeId) {
         params.append("employeeId", filterEmployeeId);
@@ -309,24 +327,15 @@ const TransferTableComponent: React.FC = () => {
   // Function to handle Excel export
   const handleExportExcel = async () => {
     try {
-      if (!exportStartDate || !exportEndDate) {
-        Swal.fire({
-          title: 'คำเตือน',
-          text: 'กรุณาเลือกช่วงเวลาสำหรับการส่งออกข้อมูล',
-          icon: 'warning',
-          confirmButtonText: 'ตกลง'
-        });
-        return;
-      }
-      
       setIsExporting(true);
       
-      // Format dates for API request
-      const formattedStartDate = format(exportStartDate, "yyyy-MM-dd");
-      const formattedEndDate = format(exportEndDate, "yyyy-MM-dd");
+      // Create URL with optional query parameters
+      let url = `${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission/export`;
       
-      // Create URL with query parameters
-      const url = `${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission/export?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+      // Add month/year parameters if selected
+      if (exportMonth && exportYear) {
+        url += `?month=${exportMonth}&year=${exportYear}`;
+      }
       
       // Use axios to get the file as a blob
       const response = await axios.get(url, {
@@ -342,7 +351,13 @@ const TransferTableComponent: React.FC = () => {
       // Create a temporary link element
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.setAttribute("download", `commission_summary_${formattedStartDate}_to_${formattedEndDate}.xlsx`);
+      
+      // Generate filename based on date selection
+      const filename = (exportMonth && exportYear) 
+        ? `commission_summary_${exportMonth}_${exportYear}.xlsx`
+        : `commission_summary_all_data.xlsx`;
+      
+      link.setAttribute("download", filename);
       
       // Append to body, click, and remove
       document.body.appendChild(link);
@@ -367,6 +382,22 @@ const TransferTableComponent: React.FC = () => {
     fetchData();
   }, []);
 
+  // Auto search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm !== undefined) {
+        fetchData(1);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Auto filter when filter values change
+  useEffect(() => {
+    fetchData(1);
+  }, [filterEmployeeId, filterMonth, filterYear, filterType]);
+
   // Handle pagination
   const handlePageChange = (page: number) => {
     fetchData(page);
@@ -379,6 +410,7 @@ const TransferTableComponent: React.FC = () => {
 
   // Reset filters
   const handleResetFilters = () => {
+    setSearchTerm("");
     setFilterEmployeeId("");
     setFilterStartDate(null);
     setFilterEndDate(null);
@@ -598,6 +630,98 @@ const TransferTableComponent: React.FC = () => {
           </div>
         </div>
         
+        {/* Export Options - Always visible */}
+        <div className="bg-gray-50 p-4 rounded-md mb-4">
+          <h3 className="text-lg font-semibold mb-2">Export Excel</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            {exportStartDate && exportEndDate ? (
+              <>
+                <div>
+                  <p className="text-sm font-medium mb-1">Start Date:</p>
+                  <p className="text-base">{formatDate(exportStartDate.toISOString())}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium mb-1">End Date:</p>
+                  <p className="text-base">{formatDate(exportEndDate.toISOString())}</p>
+                </div>
+                
+                <div className="text-sm text-gray-600">
+                  <p>จะส่งออกข้อมูลในช่วงวันที่ที่เลือก</p>
+                </div>
+              </>
+            ) : (exportMonth && exportYear) ? (
+              <>
+                <div>
+                  <p className="text-sm font-medium mb-1">Month:</p>
+                  <p className="text-base">{months.find(m => m.value === exportMonth)?.label}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium mb-1">Year:</p>
+                  <p className="text-base">{exportYear}</p>
+                </div>
+                
+                <div className="text-sm text-gray-600">
+                  <p>จะส่งออกข้อมูลของเดือนและปีที่เลือก</p>
+                </div>
+              </>
+            ) : (
+              <div className="md:col-span-3 text-sm text-gray-600">
+                <p>ไม่ได้เลือกช่วงวันที่ - จะส่งออกข้อมูลทั้งหมด</p>
+              </div>
+            )}
+            
+            <div>
+              <Button
+                onClick={handleExportExcel}
+                disabled={isExporting}
+                className="w-full"
+                color="success"
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Excel
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <div className="w-full md:w-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Month:</label>
+              <FormSelect
+                value={exportMonth}
+                onChange={(e) => setExportMonth(e.target.value)}
+                className="w-full"
+              >
+                {months.map(month => (
+                  <option key={month.value} value={month.value}>{month.label}</option>
+                ))}
+              </FormSelect>
+            </div>
+            <div className="w-full md:w-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Year:</label>
+              <FormSelect
+                value={exportYear}
+                onChange={(e) => setExportYear(e.target.value)}
+                className="w-full"
+              >
+                {exportYears.map(year => (
+                  <option key={year.value} value={year.value}>{year.label}</option>
+                ))}
+              </FormSelect>
+            </div>
+          </div>
+        </div>
+        
         {/* Table Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
           <div className="mb-2 md:mb-0 text-sm text-gray-500">
@@ -612,78 +736,9 @@ const TransferTableComponent: React.FC = () => {
               <RefreshCw className="h-4 w-4 mr-2" />
               รีเฟรช
             </Button>
-            <Button
-              color="success"
-              onClick={() => {
-                if (!filterStartDate || !filterEndDate) {
-                  Swal.fire({
-                    title: "กรุณาเลือกช่วงวันที่",
-                    text: "กรุณาเลือกวันที่เริ่มต้นและวันที่สิ้นสุดก่อนส่งออกข้อมูล",
-                    icon: "warning",
-                    confirmButtonText: "ตกลง",
-                  });
-                  return;
-                }
-                setExportStartDate(filterStartDate);
-                setExportEndDate(filterEndDate);
-              }}
-              disabled={isExporting}
-              className="ml-2 bg-green-600 hover:bg-green-700 text-white"
-            >
-              {isExporting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  กำลังส่งออก...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Excel
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
-        {/* Export Options */}
-        {exportStartDate && exportEndDate && (
-          <div className="bg-gray-50 p-4 rounded-md mb-4">
-            <h3 className="text-lg font-semibold mb-2">Export excel</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-              <div>
-                <p className="text-sm font-medium mb-1">Start Date:</p>
-                <p className="text-base">{formatDate(exportStartDate.toISOString())}</p>
-              </div>
-              
-              <div>
-                <p className="text-sm font-medium mb-1">End Date:</p>
-                <p className="text-base">{formatDate(exportEndDate.toISOString())}</p>
-              </div>
-              
-              <div>
-                <Button
-                  onClick={handleExportExcel}
-                  disabled={isExporting}
-                  className="w-full"
-                >
-                  {isExporting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Excel
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-        
         {/* Table */}
         <div className="overflow-x-auto">
           <Table>
@@ -766,9 +821,23 @@ const TransferTableComponent: React.FC = () => {
                       <Table.Td className="text-center">
                         <div className="flex space-x-1">
                           {item.commission ? (
-                            <span className="text-xs font-medium">
-                              {formatCurrency(item.commission.amount)}
-                            </span>
+                            <>
+                              <span className="text-xs font-medium">
+                                {formatCurrency(item.commission.amount)}
+                              </span>
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="px-2 py-1 text-xs ml-2"
+                                onClick={() => {
+                                  setSelectedTransfer(item);
+                                  setIsEditCommissionModalOpen(true);
+                                }}
+                              >
+                                <Edit className="h-3 w-3 mr-1" />
+                                แก้ไข
+                              </Button>
+                            </>
                           ) : (
                             <Button
                               variant="primary"
@@ -884,6 +953,22 @@ const TransferTableComponent: React.FC = () => {
           transferId={selectedTransfer.id}
           transferType={getTransactionTypeDisplay(selectedTransfer)}
           salespersonId={selectedTransfer.salespersonId}
+        />
+      )}
+      
+      {/* Edit Commission Modal */}
+      {isEditCommissionModalOpen && selectedTransfer && selectedTransfer.commission && (
+        <EditCommissionModal
+          isOpen={isEditCommissionModalOpen}
+          onClose={() => {
+            setIsEditCommissionModalOpen(false);
+            setSelectedTransfer(null);
+          }}
+          commissionId={selectedTransfer.commission.id}
+          onSuccess={() => {
+            // Refresh data after successful update
+            fetchData();
+          }}
         />
       )}
     </div>

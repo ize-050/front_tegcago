@@ -52,19 +52,29 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
   );
 
   const billingAmount = paidFinance ? parseFloat(paidFinance.billing_amount || "0") : 0;
-  const profitLoss = paidFinance && paidFinance.total_profit_loss
-    ? parseFloat(paidFinance.total_profit_loss)
+  
+  // แก้ไขการคำนวณ profitLoss ให้รองรับค่าติดลบ
+  let profitLoss = 0;
+  if (paidFinance && paidFinance.payment_prefix && paidFinance.payment_prefix.profit_loss !== null && paidFinance.payment_prefix.profit_loss !== undefined) {
+    const profitLossStr = String(paidFinance.payment_prefix.profit_loss);
+    profitLoss = parseFloat(profitLossStr) || 0;
+  }
+  
+  // ใช้ management_fee จากฐานข้อมูลแทนค่าคงที่ 10%
+  const managementFee = paidFinance && paidFinance.payment_prefix && paidFinance.payment_prefix.management_fee !== null && paidFinance.payment_prefix.management_fee !== undefined
+    ? parseFloat(String(paidFinance.payment_prefix.management_fee)) || 0
     : 0;
 
-  // ค่าบริหาร (10% ของกำไร)
-  const administrativeFeePercentage = 10;
-  const administrativeFeeAmount = profitLoss * (administrativeFeePercentage / 100);
-
   // กำไรสุทธิหลังหักค่าบริหาร
-  const netProfit = profitLoss - administrativeFeeAmount;
-
-  // ตรวจสอบว่ากำไรเป็น 0 หรือใกล้เคียง 0 (เช่น 0.00)
-  const isProfitZeroOrNegative = profitLoss <= 0.01;
+  const netProfit = profitLoss - managementFee;
+  
+  // Debug log เพื่อตรวจสอบค่า
+  console.log("CommissionModal - paidFinance:", paidFinance);
+  console.log("CommissionModal - payment_prefix:", paidFinance?.payment_prefix);
+  console.log("CommissionModal - profit_loss raw:", paidFinance?.payment_prefix?.profit_loss);
+  console.log("CommissionModal - profitLoss calculated:", profitLoss);
+  console.log("CommissionModal - management_fee raw:", paidFinance?.payment_prefix?.management_fee);
+  console.log("CommissionModal - managementFee calculated:", managementFee);
 
   // ดึงข้อมูลเปอร์เซ็นต์จาก commission ranks ตามช่วงกำไร
   const fetchCommissionRank = async (profitAmount: number) => {
@@ -279,12 +289,12 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">ค่าบริหาร ({administrativeFeePercentage}%)</p>
+                <p className="text-sm text-gray-500">ค่าบริหาร</p>
                 <p className="font-medium">
                   {new Intl.NumberFormat("th-TH", {
                     style: "currency",
                     currency: "THB",
-                  }).format(administrativeFeeAmount)}
+                  }).format(managementFee)}
                 </p>
               </div>
               <div>
@@ -296,34 +306,16 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                   }).format(netProfit)}
                 </p>
               </div>
-              {purchaseData.d_route && (
+              {purchaseData.salesOwner && (
                 <div>
-                  <p className="text-sm text-gray-500">เส้นทาง</p>
-                  <p className="font-medium">{purchaseData.d_route}</p>
+                  <p className="text-sm text-gray-500">Sale เจ้าของงาน</p>
+                  <p className="font-medium">{purchaseData.salesOwner}</p>
                 </div>
               )}
-              {purchaseData.d_transport && (
+              {purchaseData.d_term && (
                 <div>
-                  <p className="text-sm text-gray-500">ขนส่ง</p>
-                  <p className="font-medium">{purchaseData.d_transport}</p>
-                </div>
-              )}
-              {purchaseData.d_size_cabinet && (
-                <div>
-                  <p className="text-sm text-gray-500">ขนาดตู้</p>
-                  <p className="font-medium">{purchaseData.d_size_cabinet}</p>
-                </div>
-              )}
-              {purchaseData.d_origin && (
-                <div>
-                  <p className="text-sm text-gray-500">ต้นทาง</p>
-                  <p className="font-medium">{purchaseData.d_origin}</p>
-                </div>
-              )}
-              {purchaseData.d_destination && (
-                <div>
-                  <p className="text-sm text-gray-500">ปลายทาง</p>
-                  <p className="font-medium">{purchaseData.d_destination}</p>
+                  <p className="text-sm text-gray-500">ประเภทตู้</p>
+                  <p className="font-medium">{purchaseData.d_term}</p>
                 </div>
               )}
             </div>
@@ -461,11 +453,6 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
                 {saveStatus}
               </div>
             )}
-            {isProfitZeroOrNegative && (
-              <div className="bg-yellow-50 text-yellow-700 p-3 rounded-md mb-2">
-                ไม่สามารถคิดค่าคอมมิชชั่นได้เนื่องจากกำไรเป็น 0.00 บาท
-              </div>
-            )}
             <div className="flex justify-end space-x-2">
               <Button variant="secondary" onClick={onClose} disabled={isSaving}>
                 ยกเลิก
@@ -473,10 +460,10 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
               <Button
                 variant="primary"
                 onClick={handleSave}
-                disabled={isSaving || isProfitZeroOrNegative}
-                className={(isSaving || isProfitZeroOrNegative) ? 'opacity-70 cursor-not-allowed' : ''}
+                disabled={isSaving}
+                className={isSaving ? 'opacity-70 cursor-not-allowed' : ''}
               >
-                {isSaving ? 'กำลังบันทึก...' : isProfitZeroOrNegative ? 'ไม่คิดค่าคอม' : 'บันทึก'}
+                {isSaving ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
             </div>
           </div>
