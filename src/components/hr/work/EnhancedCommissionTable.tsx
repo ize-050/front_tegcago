@@ -340,15 +340,18 @@ const EnhancedCommissionTable: React.FC = () => {
             console.log('Employee data:', response.data);
 
             if (response.data && Array.isArray(response.data.data)) {
-                // กรองเฉพาะพนักงานที่มีบทบาทเป็นพนักงานขาย
+                // กรองเฉพาะพนักงานที่มีบทบาทเป็น sale
                 const salesEmployees = response.data.data.filter((emp: any) =>
                     emp.role === 'Sales'
                 );
                 console.log('Sales employees:', salesEmployees);
                 setEmployees(salesEmployees);
+            } else {
+                setEmployees([]);
             }
         } catch (error) {
             console.error("Error fetching employees:", error);
+            setEmployees([]);
         } finally {
             setLoadingEmployees(false);
         }
@@ -591,7 +594,7 @@ const EnhancedCommissionTable: React.FC = () => {
             const link = document.createElement('a');
             link.href = url;
             
-            const dateTypeLabel = dateFilterType === 'booking' ? 'วันที่ทำใบจอง' : 'วันที่บันทึกคอมมิชชั่น';
+            const dateTypeLabel = dateFilterType === 'booking' ? 'วันที่ปิดใบจองชำระเงินสำเร็จ' : 'วันที่บันทึกคอมมิชชั่น';
             const monthLabel = exportMonth && exportMonth !== 'all' 
                 ? months.find(m => m.value === exportMonth)?.label 
                 : 'ทุกเดือน';
@@ -806,7 +809,7 @@ const EnhancedCommissionTable: React.FC = () => {
                                 className="w-full text-sm"
                             >
                                 <option value="commission">วันที่บันทึกคอมมิชชั่น</option>
-                                <option value="booking">วันที่ทำใบจอง</option>
+                                <option value="booking">วันที่ปิดใบจองชำระเงินสำเร็จ</option>
                             </FormSelect>
                         </div>
                         
@@ -858,10 +861,15 @@ const EnhancedCommissionTable: React.FC = () => {
                                 onChange={handleWorkTypeChange}
                                 className="w-full text-sm"
                             >
-                                <option value="">ทุกประเภท</option>
-                                <option value="FCL">FCL</option>
-                                <option value="LCL">LCL</option>
+                                <option value="">เลือก</option>
                                 <option value="ALL IN">ALL IN</option>
+                                <option value="เคลียร์ฝั่งไทย">เคลียร์ฝั่งไทย</option>
+                                <option value="เคลียร์ฝั่งจีน">เคลียร์ฝั่งจีน</option>
+                                <option value="GREEN">GREEN</option>
+                                <option value="FOB">FOB</option>
+                                <option value="EXW">EXW</option>
+                                <option value="CIF">CIF</option>
+                                <option value="CUSTOMER CLEAR">CUSTOMER CLEAR</option>
                             </FormSelect>
                         </div>
                     </div>
@@ -878,7 +886,7 @@ const EnhancedCommissionTable: React.FC = () => {
                                 <option value="">ทุกคน</option>
                                 {employees.map(emp => (
                                     <option key={emp.id} value={emp.id}>
-                                        {emp.fullname}
+                                        {emp.name}
                                     </option>
                                 ))}
                             </FormSelect>
@@ -980,13 +988,17 @@ const EnhancedCommissionTable: React.FC = () => {
                                         >
                                             <Table.Td className="text-center whitespace-nowrap">{index + 1 + ((paginationData.currentPage - 1) * paginationData.itemsPerPage)}</Table.Td>
                                             <Table.Td className="text-center whitespace-nowrap">
-                                                {item.createdAt ? format(new Date(item.createdAt), "MM/yy") : "-"}
+                                                {paidFinance.updatedAt ? format(new Date(paidFinance.updatedAt), "MM/yy") : 
+                                                 paidFinance.updated_at ? format(new Date(paidFinance.updated_at), "MM/yy") :
+                                                 item.updatedAt ? format(new Date(item.updatedAt), "MM/yy") : "-"}
                                             </Table.Td>
                                             <Table.Td className="whitespace-nowrap">{item.d_shipment_number || "-"}</Table.Td>
                                             <Table.Td className="whitespace-nowrap font-medium">{item.book_number}</Table.Td>
 
                                             <Table.Td className="text-center whitespace-nowrap">
-                                                {item.createdAt ? format(new Date(item.createdAt), "dd MMM yyyy", { locale: th }) : "-"}
+                                                {paidFinance.updatedAt ? format(new Date(paidFinance.updatedAt), "dd MMM yyyy", { locale: th }) : 
+                                                 paidFinance.updated_at ? format(new Date(paidFinance.updated_at), "dd MMM yyyy", { locale: th }) :
+                                                 item.updatedAt ? format(new Date(item.updatedAt), "dd MMM yyyy", { locale: th }) : "-"}
                                             </Table.Td>
                                             <Table.Td className="text-center whitespace-nowrap">
                                                 <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${item.workType === "ALL IN" ? "bg-blue-100 text-blue-800" :
