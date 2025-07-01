@@ -77,7 +77,7 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
       let typeValue = "";
       if (transferType === "ฝากโอน") {
         typeValue = "DEPOSIT";
-      } else if (transferType === "ฝากสั่งซื้อ") {
+      } else if (transferType === "ฝากสั่ง") {
         typeValue = "PURCHASE";
       } else if (transferType === "ฝากเติม") {
         typeValue = "TOPUP";

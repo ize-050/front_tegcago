@@ -12,7 +12,9 @@ import {
   User,
   DollarSign,
   Loader2,
-  Filter
+  Filter,
+  Check,
+  X
 } from "lucide-react";
 import Button from "@/components/Base/Button";
 import { FormInput, FormSelect } from "@/components/Base/Form";
@@ -385,7 +387,7 @@ const TransferTableComponent: React.FC = () => {
         setIsSelectAll(false);
         
         // Refresh data
-        //fetchData();
+        fetchData(paginationData.currentPage);
       } else {
         toast.error(response.data.message || "เกิดข้อผิดพลาดในการคำนวณค่าคอมมิชชั่น");
       }
@@ -812,11 +814,64 @@ const TransferTableComponent: React.FC = () => {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {selectedTransfers.size > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Check className="h-5 w-5 text-blue-600" />
+                <span className="text-blue-700 font-medium">
+                  เลือก {selectedTransfers.size} รายการ
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="primary"
+                  onClick={handleBulkCommission}
+                  disabled={isBulkProcessing}
+                  className="flex items-center"
+                >
+                  {isBulkProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      กำลังประมวลผล...
+                    </>
+                  ) : (
+                    <>
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      คำนวณค่าคอมทั้งหมด
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setSelectedTransfers(new Set());
+                    setIsSelectAll(false);
+                  }}
+                  className="flex items-center"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  ยกเลิกเลือก
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div className="overflow-x-auto">
           <Table>
             <Table.Thead>
               <Table.Tr>
+                <Table.Th className="w-12 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelectAll}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                </Table.Th>
                 <Table.Th className="w-12 text-center">ลำดับ</Table.Th>
                 <Table.Th className="w-28">เดือน/ปี</Table.Th>
                 <Table.Th className="w-28">วันที่ทำรายการ</Table.Th>
@@ -835,7 +890,7 @@ const TransferTableComponent: React.FC = () => {
             <Table.Tbody>
               {loading ? (
                 <Table.Tr>
-                  <Table.Td colSpan={12} className="text-center py-10">
+                  <Table.Td colSpan={13} className="text-center py-10">
                     <div className="flex flex-col items-center justify-center">
                       <RefreshCw className="h-8 w-8 text-blue-500 animate-spin mb-2" />
                       <span>กำลังโหลดข้อมูล...</span>
@@ -844,7 +899,7 @@ const TransferTableComponent: React.FC = () => {
                 </Table.Tr>
               ) : transfers.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={12} className="text-center py-10">
+                  <Table.Td colSpan={13} className="text-center py-10">
                     <div className="flex flex-col items-center justify-center">
                       <Search className="h-8 w-8 text-gray-400 mb-2" />
                       <span className="text-gray-500">ไม่พบข้อมูล</span>
@@ -876,8 +931,20 @@ const TransferTableComponent: React.FC = () => {
                   return (
                     <Table.Tr 
                       key={item.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className={`hover:bg-gray-50 transition-colors ${
+                        selectedTransfers.has(item.id) ? 'bg-blue-50' : ''
+                      }`}
                     >
+                      <Table.Td className="text-center">
+                        {(!item.commission || item.commission.status === 'PENDING') && (
+                          <input
+                            type="checkbox"
+                            checked={selectedTransfers.has(item.id)}
+                            onChange={() => handleSelectTransfer(item.id)}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                        )}
+                      </Table.Td>
                       <Table.Td className="text-center">{(paginationData.currentPage - 1) * paginationData.itemsPerPage + index + 1}</Table.Td>
                       <Table.Td>{formatMonthYear(item.date)}</Table.Td>
                       <Table.Td className="whitespace-nowrap">
