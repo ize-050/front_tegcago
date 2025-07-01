@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, X, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import axios from "../../../../axios";
-import Button from "@/components/Base/Button";
 import { toast } from "react-toastify";
 
 interface CommissionStatusButtonProps {
@@ -20,11 +19,10 @@ const CommissionStatusButton: React.FC<CommissionStatusButtonProps> = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Status options
+  // Status options - เหลือแค่ 2 สถานะ
   const statusOptions = [
     { value: "PENDING", label: "รอดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
-    { value: "APPROVED", label: "อนุมัติแล้ว", color: "bg-green-100 text-green-800" },
-    { value: "PAID", label: "จ่ายแล้ว", color: "bg-blue-100 text-blue-800" }
+    { value: "PAID", label: "จ่ายแล้ว", color: "bg-green-100 text-green-800" }
   ];
 
   // Get current status display

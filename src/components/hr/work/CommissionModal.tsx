@@ -76,19 +76,20 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
   console.log("CommissionModal - management_fee raw:", paidFinance?.payment_prefix?.management_fee);
   console.log("CommissionModal - managementFee calculated:", managementFee);
 
-  // ดึงข้อมูลเปอร์เซ็นต์จาก commission ranks ตามช่วงกำไร
-  const fetchCommissionRank = async (profitAmount: number) => {
+  // ดึงข้อมูลเปอร์เซ็นต์จาก commission ranks ตามช่วงกำไรและประเภทงาน
+  const fetchCommissionRank = async (profitAmount: number, workType: string) => {
     try {
       setIsLoadingRank(true);
       const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/commission-ranks/calculate`, {
-        profit_amount: profitAmount
+        profit_amount: profitAmount,
+        work_type: workType
       });
 
       if (response.data && response.data.rank) {
         setCommissionRank(response.data.rank);
         return response.data.rank;
       } else {
-        console.warn("No commission rank found for profit amount:", profitAmount);
+        console.warn("No commission rank found for profit amount:", profitAmount, "and work type:", workType);
         setCommissionRank(null);
         return null;
       }
@@ -106,8 +107,9 @@ const CommissionModal: React.FC<CommissionModalProps> = ({
     const initializeCommissions = async () => {
       // สร้างข้อมูลค่าคอมมิชชั่นเริ่มต้นสำหรับพนักงานแต่ละคน
       if (purchaseData.employees && purchaseData.employees.length > 0) {
-        // ดึงข้อมูล rank จาก API
-        const rank = await fetchCommissionRank(profitLoss);
+        // ดึงข้อมูล rank จาก API โดยใช้ประเภทงานจาก d_term
+        const workType = purchaseData.d_term || "ALL IN";
+        const rank = await fetchCommissionRank(profitLoss, workType);
         const percentageValue = rank ? rank.percentage.toString() : "5";
 
         const initialCommissions = purchaseData.employees.map((emp:any) => {

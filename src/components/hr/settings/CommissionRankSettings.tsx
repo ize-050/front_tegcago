@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "../../../../axios";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Filter } from "lucide-react";
 import Button from "@/components/Base/Button";
-import { FormInput } from "@/components/Base/Form";
+import { FormInput, FormSelect } from "@/components/Base/Form";
 import Table from "@/components/Base/Table";
 
 interface CommissionRank {
   id?: string;
+  work_type: string;
   min_amount: number;
   max_amount: number;
   percentage: number;
@@ -16,10 +17,24 @@ interface CommissionRank {
 
 const CommissionRankSettings: React.FC = () => {
   const [ranks, setRanks] = useState<CommissionRank[]>([]);
+  const [filteredRanks, setFilteredRanks] = useState<CommissionRank[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [selectedWorkType, setSelectedWorkType] = useState<string>("");
+
+  // ประเภทงานทั้งหมด
+  const workTypes = [
+    "ALL IN",
+    "เคลียร์ฝั่งไทย",
+    "เคลียร์ฝั่งจีน",
+    "GREEN",
+    "FOB",
+    "EXW",
+    "CIF",
+    "CUSTOMER CLEAR"
+  ];
 
   useEffect(() => {
     fetchRanks();
@@ -29,7 +44,9 @@ const CommissionRankSettings: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.get("/hr/commission-ranks");
-      setRanks(response.data || []);
+      const ranksData = response.data || [];
+      setRanks(ranksData);
+      setFilteredRanks(ranksData);
       setError(null);
     } catch (error) {
       console.error("Error fetching commission ranks:", error);
@@ -39,12 +56,28 @@ const CommissionRankSettings: React.FC = () => {
     }
   };
 
+  // ฟิลเตอร์ข้อมูลตามประเภทงาน
+  useEffect(() => {
+    if (selectedWorkType === "") {
+      setFilteredRanks(ranks);
+    } else {
+      setFilteredRanks(ranks.filter(rank => rank.work_type === selectedWorkType));
+    }
+  }, [selectedWorkType, ranks]);
+
   const handleAddRank = () => {
-    // Find the highest max_amount to set as the new min_amount
-    const highestMax = ranks.reduce((max, rank) => 
+    if (!selectedWorkType) {
+      setError("กรุณาเลือกประเภทงานก่อนเพิ่มอันดับใหม่");
+      return;
+    }
+
+    // Find the highest max_amount for the selected work type
+    const workTypeRanks = ranks.filter(rank => rank.work_type === selectedWorkType);
+    const highestMax = workTypeRanks.reduce((max, rank) => 
       rank.max_amount > max ? rank.max_amount : max, 0);
     
     const newRank: CommissionRank = {
+      work_type: selectedWorkType,
       min_amount: highestMax + 1,
       max_amount: highestMax + 20000,
       percentage: 0
@@ -54,27 +87,40 @@ const CommissionRankSettings: React.FC = () => {
   };
 
   const handleRemoveRank = (index: number) => {
+    // หา index จริงใน ranks array
+    const actualRank = filteredRanks[index];
+    const actualIndex = ranks.findIndex(rank => 
+      actualRank.id ? rank.id === actualRank.id : rank === actualRank
+    );
+    
+    if (actualIndex === -1) return;
+    
     const updatedRanks = [...ranks];
-    updatedRanks.splice(index, 1);
+    updatedRanks.splice(actualIndex, 1);
     setRanks(updatedRanks);
   };
 
   const handleRankChange = (index: number, field: keyof CommissionRank, value: string) => {
+    // หา index จริงใน ranks array
+    const actualRank = filteredRanks[index];
+    const actualIndex = ranks.findIndex(rank => 
+      actualRank.id ? rank.id === actualRank.id : rank === actualRank
+    );
+    
+    if (actualIndex === -1) return;
+    
     const updatedRanks = [...ranks];
     
-    // Convert string value to number for numeric fields
-    const numValue = field !== 'id' ? parseFloat(value) : value;
-    
     // Update the field with proper type handling
-    if (field !== 'id') {
-      updatedRanks[index] = {
-        ...updatedRanks[index],
-        [field]: parseFloat(value)
+    if (field === 'work_type' || field === 'id') {
+      updatedRanks[actualIndex] = {
+        ...updatedRanks[actualIndex],
+        [field]: value
       };
     } else {
-      updatedRanks[index] = {
-        ...updatedRanks[index],
-        [field]: value
+      updatedRanks[actualIndex] = {
+        ...updatedRanks[actualIndex],
+        [field]: parseFloat(value)
       };
     }
     
@@ -82,10 +128,10 @@ const CommissionRankSettings: React.FC = () => {
     // For max_amount, we allow any value the user enters
     if (field === 'min_amount') {
       const minAmount = parseFloat(value);
-      const maxAmount = updatedRanks[index].max_amount;
+      const maxAmount = updatedRanks[actualIndex].max_amount;
       
       if (!isNaN(minAmount) && minAmount >= maxAmount) {
-        updatedRanks[index].max_amount = minAmount + 1;
+        updatedRanks[actualIndex].max_amount = minAmount + 1;
       }
     }
     
@@ -171,26 +217,53 @@ const CommissionRankSettings: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th className="whitespace-nowrap">ลำดับ</Table.Th>
-                  <Table.Th className="whitespace-nowrap">ช่วงกำไร (ต่ำสุด)</Table.Th>
-                  <Table.Th className="whitespace-nowrap">ช่วงกำไร (สูงสุด)</Table.Th>
-                  <Table.Th className="whitespace-nowrap">เปอร์เซ็นต์ (%)</Table.Th>
-                  <Table.Th className="whitespace-nowrap">ตัวอย่างการคำนวณ</Table.Th>
-                  <Table.Th className="whitespace-nowrap text-right">จัดการ</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {ranks.map((rank, index) => {
+          <div>
+            {/* Filter by Work Type */}
+            <div className="mb-4 flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium">กรองตามประเภทงาน:</span>
+              </div>
+              <FormSelect
+                value={selectedWorkType}
+                onChange={(e) => setSelectedWorkType(e.target.value)}
+                className="w-48"
+              >
+                <option value="">ทุกประเภท</option>
+                {workTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </FormSelect>
+            </div>
+
+            <div className="overflow-x-auto">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th className="whitespace-nowrap">ลำดับ</Table.Th>
+                    <Table.Th className="whitespace-nowrap">ประเภทงาน</Table.Th>
+                    <Table.Th className="whitespace-nowrap">ช่วงกำไร (ต่ำสุด)</Table.Th>
+                    <Table.Th className="whitespace-nowrap">ช่วงกำไร (สูงสุด)</Table.Th>
+                    <Table.Th className="whitespace-nowrap">เปอร์เซ็นต์ (%)</Table.Th>
+                    <Table.Th className="whitespace-nowrap">ตัวอย่างการคำนวณ</Table.Th>
+                    <Table.Th className="whitespace-nowrap text-right">จัดการ</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {filteredRanks.map((rank, index) => {
                   const exampleAmount = (rank.min_amount + rank.max_amount) / 2;
                   const exampleCommission = (exampleAmount * rank.percentage) / 100;
                   
                   return (
-                    <Table.Tr key={index}>
+                    <Table.Tr key={rank.id || index}>
                       <Table.Td>{index + 1}</Table.Td>
+                      <Table.Td>
+                        <span className="text-sm font-medium text-gray-700">
+                          {rank.work_type}
+                        </span>
+                      </Table.Td>
                       <Table.Td>
                         <FormInput
                           type="number"
@@ -235,6 +308,7 @@ const CommissionRankSettings: React.FC = () => {
                 })}
               </Table.Tbody>
             </Table>
+            </div>
           </div>
         )}
 

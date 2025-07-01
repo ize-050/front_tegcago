@@ -119,6 +119,11 @@ const TransferTableComponent: React.FC = () => {
   const [exportEndDate, setExportEndDate] = useState<Date | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  // State สำหรับ bulk commission
+  const [selectedTransfers, setSelectedTransfers] = useState<Set<string>>(new Set());
+  const [isSelectAll, setIsSelectAll] = useState<boolean>(false);
+  const [isBulkProcessing, setIsBulkProcessing] = useState<boolean>(false);
+
   // ข้อมูลปีและเดือน
   const years = [
     new Date().getFullYear().toString(),
@@ -322,6 +327,74 @@ const TransferTableComponent: React.FC = () => {
         return transfer;
       })
     );
+  };
+
+  // ฟังก์ชันสำหรับ bulk selection
+  const handleSelectTransfer = (transferId: string) => {
+    const newSelected = new Set(selectedTransfers);
+    if (newSelected.has(transferId)) {
+      newSelected.delete(transferId);
+    } else {
+      newSelected.add(transferId);
+    }
+    setSelectedTransfers(newSelected);
+    
+    // Update select all status
+    const eligibleTransfers = transfers.filter(t => !t.commission || t.commission.status === 'PENDING');
+    setIsSelectAll(newSelected.size === eligibleTransfers.length && eligibleTransfers.length > 0);
+  };
+
+  const handleSelectAll = () => {
+    const eligibleTransfers = transfers.filter(t => !t.commission || t.commission.status === 'PENDING');
+    
+    if (isSelectAll) {
+      // Deselect all
+      setSelectedTransfers(new Set());
+      setIsSelectAll(false);
+    } else {
+      // Select all eligible transfers
+      const allIds = new Set(eligibleTransfers.map(t => t.id));
+      setSelectedTransfers(allIds);
+      setIsSelectAll(true);
+    }
+  };
+
+  // ฟังก์ชันสำหรับ bulk commission processing
+  const handleBulkCommission = async () => {
+    if (selectedTransfers.size === 0) {
+      toast.error("กรุณาเลือกรายการที่ต้องการทำค่าคอมมิชชั่น");
+      return;
+    }
+
+    try {
+      setIsBulkProcessing(true);
+      
+      // สร้าง array ของ transfer IDs ที่เลือก
+      const selectedIds = Array.from(selectedTransfers);
+      
+      // เรียก API สำหรับ bulk commission
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission/bulk-calculate`, {
+        transfer_ids: selectedIds
+      });
+
+      if (response.data.success) {
+        toast.success(`คำนวณค่าคอมมิชชั่นสำเร็จ ${selectedIds.length} รายการ`);
+        
+        // Clear selections
+        setSelectedTransfers(new Set());
+        setIsSelectAll(false);
+        
+        // Refresh data
+        //fetchData();
+      } else {
+        toast.error(response.data.message || "เกิดข้อผิดพลาดในการคำนวณค่าคอมมิชชั่น");
+      }
+    } catch (error: any) {
+      console.error("Error in bulk commission:", error);
+      toast.error(error.response?.data?.message || "เกิดข้อผิดพลาดในการคำนวณค่าคอมมิชชั่น");
+    } finally {
+      setIsBulkProcessing(false);
+    }
   };
 
   // Function to handle Excel export

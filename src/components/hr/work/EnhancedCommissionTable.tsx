@@ -227,6 +227,7 @@ const EnhancedCommissionTable: React.FC = () => {
                 let csCommission = null;
                 let commissionStatusText = 'ยังไม่ได้บันทึก';
                 let hasCommission = false;
+                let commissionDate = null;
 
                 try {
                     // ดึงข้อมูลค่าคอมมิชชั่นจาก API ใหม่
@@ -239,6 +240,20 @@ const EnhancedCommissionTable: React.FC = () => {
                             hasCommission = commissionData.hasCommission;
                             employeeCommissions = commissionData.employeeCommissions || [];
                             csCommission = commissionData.csCommission;
+
+                            // หาวันที่ล่าสุดจาก employee commissions หรือ cs commission
+                            let latestDate = null;
+                            if (employeeCommissions.length > 0) {
+                                const employeeDates = employeeCommissions.map((comm: any) => new Date(comm.createdAt || comm.created_at));
+                                latestDate = new Date(Math.max(...employeeDates.map((date: Date) => date.getTime())));
+                            }
+                            if (csCommission && csCommission.createdAt) {
+                                const csDate = new Date(csCommission.createdAt);
+                                if (!latestDate || csDate > latestDate) {
+                                    latestDate = csDate;
+                                }
+                            }
+                            commissionDate = latestDate;
 
                             // แปลงสถานะเป็นภาษาไทย
                             if (commissionData.status === 'paid') {
@@ -257,6 +272,13 @@ const EnhancedCommissionTable: React.FC = () => {
                     hasCommission = localCommissionData.length > 0 || localCsCommission.length > 0;
                     commissionStatusText = hasCommission ?
                         (localCommissionData[0]?.is_paid ? 'จ่ายแล้ว' : 'บันทึกแล้ว') : 'ยังไม่ได้บันทึก';
+                    
+                    // หาวันที่จากข้อมูลท้องถิ่น
+                    if (localCommissionData.length > 0 && localCommissionData[0].createdAt) {
+                        commissionDate = new Date(localCommissionData[0].createdAt);
+                    } else if (localCsCommission.length > 0 && localCsCommission[0].createdAt) {
+                        commissionDate = new Date(localCsCommission[0].createdAt);
+                    }
                 }
 
                 // สร้างรายละเอียดค่าคอมมิชชั่นสำหรับพนักงานแต่ละคน
@@ -273,6 +295,7 @@ const EnhancedCommissionTable: React.FC = () => {
                     hasCommission,
                     employeeCommissions,
                     csCommission,
+                    commissionDate,
                     salesOwner: salesOwner ? salesOwner.fullname : '',
                     salesSupport: salesSupport ? {
                         id: salesSupport.user_id,
@@ -915,20 +938,21 @@ const EnhancedCommissionTable: React.FC = () => {
                                 <Table.Th className="w-32 whitespace-nowrap">เลขตู้</Table.Th>
                                 <Table.Th className="w-36 whitespace-nowrap">เลขที่ Booking</Table.Th>
                                 <Table.Th className="w-28 text-center whitespace-nowrap">ปิดงาน</Table.Th>
-                                <Table.Th className="w-32 text-center whitespace-nowrap">ประเภทงาน</Table.Th>
-                                <Table.Th className="w-40 whitespace-nowrap">Sale เจ้าของงาน</Table.Th>
                                 <Table.Th className="w-28 text-center whitespace-nowrap">ประเภทตู้</Table.Th>
+                                <Table.Th className="w-40 whitespace-nowrap">Sale เจ้าของงาน</Table.Th>
+                              
                                 <Table.Th className="w-32 text-right whitespace-nowrap">ผลกำไร</Table.Th>
                                 <Table.Th className="w-32 text-right whitespace-nowrap">ค่าบริหาร</Table.Th>
                                 <Table.Th className="w-32 text-right whitespace-nowrap">กำไร/ขาดทุน</Table.Th>
                                 <Table.Th className="w-40 text-center whitespace-nowrap">สถานะคอมมิชชั่น</Table.Th>
+                                <Table.Th className="w-32 text-center whitespace-nowrap">วันที่ทำคอมมิชชั่น</Table.Th>
                                 <Table.Th className="w-36 text-center whitespace-nowrap">จัดการ</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody className="divide-y divide-gray-200">
                             {loading ? (
                                 <Table.Tr>
-                                    <Table.Td colSpan={13} className="text-center py-10">
+                                    <Table.Td colSpan={14} className="text-center py-10">
                                         <div className="flex flex-col items-center justify-center">
                                             <RefreshCw className="h-8 w-8 text-blue-500 animate-spin mb-2" />
                                             <span>กำลังโหลดข้อมูล...</span>
@@ -937,7 +961,7 @@ const EnhancedCommissionTable: React.FC = () => {
                                 </Table.Tr>
                             ) : purchases.length === 0 ? (
                                 <Table.Tr>
-                                    <Table.Td colSpan={13} className="text-center py-10">
+                                    <Table.Td colSpan={14} className="text-center py-10">
                                         <div className="flex flex-col items-center justify-center">
                                             <FileText className="h-8 w-8 text-gray-400 mb-2" />
                                             <span className="text-gray-500">ไม่พบข้อมูล</span>
@@ -1012,7 +1036,6 @@ const EnhancedCommissionTable: React.FC = () => {
                                             <Table.Td className="whitespace-nowrap">
                                                 <span className="text-sm text-gray-900">{item.salesOwner}</span>
                                             </Table.Td>
-                                            <Table.Td className="text-center whitespace-nowrap">{item.d_size_cabinet || "-"}</Table.Td>
                                             <Table.Td className="text-right whitespace-nowrap font-medium">{profitLossValue.toLocaleString()} ฿</Table.Td>
                                             <Table.Td className="text-right whitespace-nowrap">{managementFee.toLocaleString()} ฿</Table.Td>
                                             <Table.Td className="text-right whitespace-nowrap">{netProfit.toLocaleString()} ฿</Table.Td>
@@ -1025,6 +1048,9 @@ const EnhancedCommissionTable: React.FC = () => {
                                                         {item.commissionStatusText}
                                                     </span>
                                                 </div>
+                                            </Table.Td>
+                                            <Table.Td className="text-center whitespace-nowrap">
+                                                {item.commissionDate ? format(new Date(item.commissionDate), "dd/MM/yy") : "-"}
                                             </Table.Td>
                                             <Table.Td className="text-center whitespace-nowrap">
                                                 <div className="flex justify-center">
