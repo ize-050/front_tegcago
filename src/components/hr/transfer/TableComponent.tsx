@@ -243,11 +243,17 @@ const TransferTableComponent: React.FC = () => {
         params.append("employeeId", filterEmployeeId);
       }
       
-      // ใช้ filterMonth และ filterYear แทนการใช้ filterStartDate และ filterEndDate โดยตรง
+      // จัดการ date parameters
       if (filterMonth && filterYear) {
+        // ถ้าเลือกทั้งเดือนและปี
         params.append("startDate", `${filterYear}-${filterMonth}-01`);
         params.append("endDate", getLastDayOfMonth(filterYear, filterMonth));
+      } else if (filterYear && !filterMonth) {
+        // ถ้าเลือกเฉพาะปี
+        params.append("startDate", `${filterYear}-01-01`);
+        params.append("endDate", `${filterYear}-12-31`);
       } else {
+        // ใช้ date picker
         if (filterStartDate) {
           params.append("startDate", filterStartDate.toISOString().split('T')[0]);
         }
@@ -260,6 +266,16 @@ const TransferTableComponent: React.FC = () => {
       if (filterType) {
         params.append("type", filterType);
       }
+
+      // Debug log เพื่อตรวจสอบ parameters
+      console.log("Filter parameters:", {
+        searchTerm,
+        filterEmployeeId,
+        filterMonth,
+        filterYear,
+        filterType,
+        apiUrl: `${process.env.NEXT_PUBLIC_URL_API}/hr/transfer?${params.toString()}`
+      });
 
       // Fetch transfers data
       const response = await axios.get(
@@ -371,16 +387,81 @@ const TransferTableComponent: React.FC = () => {
     try {
       setIsBulkProcessing(true);
       
-      // สร้าง array ของ transfer IDs ที่เลือก
+      // ดึงข้อมูล transfer types ก่อน
+      const transferTypesResponse = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer-types`);
+      
+      if (!transferTypesResponse.data.success) {
+        toast.error("ไม่สามารถดึงข้อมูลอัตราค่าคอมมิชชั่นได้");
+        return;
+      }
+      
+      const transferTypesData = transferTypesResponse.data.data;
       const selectedIds = Array.from(selectedTransfers);
       
-      // เรียก API สำหรับ bulk commission
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission/bulk-calculate`, {
-        transfer_ids: selectedIds
-      });
-
-      if (response.data.success) {
-        toast.success(`คำนวณค่าคอมมิชชั่นสำเร็จ ${selectedIds.length} รายการ`);
+      // สร้าง array ของข้อมูลที่จะส่งไป API พร้อมกับ commission rate
+      const commissionData = selectedIds.map(transferId => {
+        const transfer = transfers.find(t => t.id === transferId);
+        if (!transfer) return null;
+        
+        // หา transfer type ที่ตรงกัน
+        const transferTypeDisplay = getTransactionTypeDisplay(transfer);
+        let matchingType = null;
+        
+        // แปลงประเภทให้ตรงกับ API
+        if (transferTypeDisplay === "ฝากโอน") {
+          matchingType = transferTypesData.find((type: any) => type.type_name.includes("ฝากโอน"));
+        } else if (transferTypeDisplay === "ฝากสั่ง") {
+          matchingType = transferTypesData.find((type: any) => type.type_name.includes("ฝากสั่ง"));
+        } else if (transferTypeDisplay === "ฝากเติม") {
+          matchingType = transferTypesData.find((type: any) => type.type_name.includes("ฝากเติม"));
+        }
+        
+        return {
+          transferId: transferId,
+          salespersonId: transfer.salespersonId,
+          commission: matchingType ? matchingType.commission_rate : 0
+        };
+      }).filter(item => item !== null);
+      
+      // เรียก API หลายครั้งสำหรับแต่ละรายการ
+      let successCount = 0;
+      let failCount = 0;
+      
+      for (const item of commissionData) {
+        try {
+          const transfer = transfers.find(t => t.id === item.transferId);
+          let response;
+          
+          console.log(`Processing transfer ${item.transferId}:`, {
+            hasCommission: !!transfer?.commission,
+            commissionId: transfer?.commission?.id,
+            currentAmount: transfer?.commission?.amount,
+            newAmount: item.commission
+          });
+          
+          // ใช้ POST method เหมือนใน CommissionModal (API จะจัดการ upsert เอง)
+          console.log(`Processing commission for transfer ${item.transferId} with amount ${item.commission}`);
+          response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission`, item);
+          console.log('API response:', response.data);
+          
+          if (response.data.success) {
+            successCount++;
+          } else {
+            console.error('API returned success: false', response.data);
+            failCount++;
+          }
+        } catch (error) {
+          console.error(`Error processing commission for transfer ${item.transferId}:`, error);
+          if (error.response) {
+            console.error('Error response data:', error.response.data);
+            console.error('Error response status:', error.response.status);
+          }
+          failCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        toast.success(`คำนวณค่าคอมมิชชั่นสำเร็จ ${successCount} รายการ${failCount > 0 ? ` (ล้มเหลว ${failCount} รายการ)` : ''}`);
         
         // Clear selections
         setSelectedTransfers(new Set());
@@ -389,7 +470,7 @@ const TransferTableComponent: React.FC = () => {
         // Refresh data
         fetchData(paginationData.currentPage);
       } else {
-        toast.error(response.data.message || "เกิดข้อผิดพลาดในการคำนวณค่าคอมมิชชั่น");
+        toast.error("ไม่สามารถคำนวณค่าคอมมิชชั่นได้");
       }
     } catch (error: any) {
       console.error("Error in bulk commission:", error);
@@ -618,7 +699,7 @@ const TransferTableComponent: React.FC = () => {
               <div className="relative">
                 <FormInput
                   type="text"
-                  placeholder="ค้นหาตามเลขที่เอกสาร..."
+                  placeholder="ค้นหาตามเลขที่เอกสาร หรือ รหัสลูกค้า..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pr-10"
@@ -679,8 +760,8 @@ const TransferTableComponent: React.FC = () => {
                 className="w-full"
               >
                 <option value="">ทั้งหมด</option>
-                <option value="deposit">ฝากโอน</option>
-                <option value="purchase">ฝากสั่ง</option>
+                <option value="DEPOSIT">ฝากโอน</option>
+                <option value="PURCHASE">ฝากสั่ง</option>
               </FormSelect>
             </div>
           </div>
@@ -877,6 +958,7 @@ const TransferTableComponent: React.FC = () => {
                 <Table.Th className="w-28">วันที่ทำรายการ</Table.Th>
 
                 <Table.Th className="w-52 whitespace-nowrap">เลขที่เอกสาร</Table.Th>
+                <Table.Th className="w-32">รหัสลูกค้า</Table.Th>
                 <Table.Th className="w-32">ประเภท</Table.Th>
                 <Table.Th className="w-40">พนักงาน</Table.Th>
                 {/* <Table.Th className="w-28">จำนวนเงิน (RMB)</Table.Th>
@@ -890,7 +972,7 @@ const TransferTableComponent: React.FC = () => {
             <Table.Tbody>
               {loading ? (
                 <Table.Tr>
-                  <Table.Td colSpan={13} className="text-center py-10">
+                  <Table.Td colSpan={9} className="text-center py-10">
                     <div className="flex flex-col items-center justify-center">
                       <RefreshCw className="h-8 w-8 text-blue-500 animate-spin mb-2" />
                       <span>กำลังโหลดข้อมูล...</span>
@@ -899,7 +981,7 @@ const TransferTableComponent: React.FC = () => {
                 </Table.Tr>
               ) : transfers.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={13} className="text-center py-10">
+                  <Table.Td colSpan={9} className="text-center py-10">
                     <div className="flex flex-col items-center justify-center">
                       <Search className="h-8 w-8 text-gray-400 mb-2" />
                       <span className="text-gray-500">ไม่พบข้อมูล</span>
@@ -952,6 +1034,7 @@ const TransferTableComponent: React.FC = () => {
                       </Table.Td>
 
                       <Table.Td className="whitespace-nowrap">{item.documentNumber || "-"}</Table.Td>
+                      <Table.Td className="whitespace-nowrap">{item.customerId || "-"}</Table.Td>
                       <Table.Th>{getTransactionTypeDisplay(item)}</Table.Th>
                       <Table.Td className="whitespace-nowrap">{item.user?.fullname || "-"}</Table.Td>
                       {/* <Table.Td>{amountRMB ? formatCurrency(amountRMB).replace("฿", "¥") : "-"}</Table.Td>

@@ -86,18 +86,42 @@ const CommissionRankSettings: React.FC = () => {
     setRanks([...ranks, newRank]);
   };
 
-  const handleRemoveRank = (index: number) => {
-    // หา index จริงใน ranks array
+  const handleRemoveRank = async (index: number) => {
+    // ขอให้ผู้ใช้ยืนยันการลบ
+    if (!confirm("คุณต้องการลบอันดับนี้หรือไม่?")) {
+      return;
+    }
+    
     const actualRank = filteredRanks[index];
-    const actualIndex = ranks.findIndex(rank => 
-      actualRank.id ? rank.id === actualRank.id : rank === actualRank
-    );
     
-    if (actualIndex === -1) return;
-    
-    const updatedRanks = [...ranks];
-    updatedRanks.splice(actualIndex, 1);
-    setRanks(updatedRanks);
+    // ถ้ารายการมี id แสดงว่าเป็นข้อมูลที่มีอยู่ในฐานข้อมูล ต้องยิง API ลบ
+    if (actualRank.id) {
+      try {
+        setError(null);
+        const response = await axios.delete(`/hr/commission-ranks/${actualRank.id}`);
+        
+        if (response.data.success) {
+          setSuccess("ลบอันดับค่าคอมมิชชั่นสำเร็จ");
+          // รีเฟรชข้อมูลจากฐานข้อมูล
+          fetchRanks();
+        } else {
+          setError("ไม่สามารถลบอันดับค่าคอมมิชชั่นได้");
+        }
+      } catch (error) {
+        console.error("Error deleting commission rank:", error);
+        setError("เกิดข้อผิดพลาดในการลบอันดับค่าคอมมิชชั่น");
+      }
+    } else {
+      // ถ้าไม่มี id แสดงว่าเป็นรายการใหม่ที่ยังไม่ได้บันทึก ลบจาก state ได้เลย
+      const actualIndex = ranks.findIndex(rank => rank === actualRank);
+      
+      if (actualIndex !== -1) {
+        const updatedRanks = [...ranks];
+        updatedRanks.splice(actualIndex, 1);
+        setRanks(updatedRanks);
+        setSuccess("ลบรายการใหม่สำเร็จ");
+      }
+    }
   };
 
   const handleRankChange = (index: number, field: keyof CommissionRank, value: string) => {
@@ -144,19 +168,38 @@ const CommissionRankSettings: React.FC = () => {
       setError(null);
       setSuccess(null);
       
-      // Validate ranks before saving
-      for (let i = 0; i < ranks.length; i++) {
-        const rank = ranks[i];
-        if (rank.min_amount >= rank.max_amount) {
-          setError(`อันดับที่ ${i + 1} มีช่วงเงินไม่ถูกต้อง (ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด)`);
-          setSaving(false);
-          return;
+      // Group ranks by work_type for validation
+      const ranksByWorkType = ranks.reduce((groups, rank) => {
+        if (!groups[rank.work_type]) {
+          groups[rank.work_type] = [];
         }
+        groups[rank.work_type].push(rank);
+        return groups;
+      }, {} as Record<string, CommissionRank[]>);
+
+      // Validate ranks by work_type
+      for (const workType in ranksByWorkType) {
+        const workTypeRanks = ranksByWorkType[workType];
         
-        if (i > 0 && rank.min_amount <= ranks[i - 1].max_amount) {
-          setError(`อันดับที่ ${i + 1} มีช่วงเงินซ้อนทับกับอันดับก่อนหน้า`);
-          setSaving(false);
-          return;
+        // Sort by min_amount for proper validation
+        workTypeRanks.sort((a, b) => a.min_amount - b.min_amount);
+        
+        for (let i = 0; i < workTypeRanks.length; i++) {
+          const rank = workTypeRanks[i];
+          
+          // Check if min_amount < max_amount
+          if (rank.min_amount >= rank.max_amount) {
+            setError(`ประเภทงาน "${workType}" อันดับที่ ${i + 1} มีช่วงเงินไม่ถูกต้อง (ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด)`);
+            setSaving(false);
+            return;
+          }
+          
+          // Check overlap with previous rank in the same work_type
+          if (i > 0 && rank.min_amount <= workTypeRanks[i - 1].max_amount) {
+            setError(`ประเภทงาน "${workType}" อันดับที่ ${i + 1} มีช่วงเงินซ้อนทับกับอันดับก่อนหน้า`);
+            setSaving(false);
+            return;
+          }
         }
       }
       
