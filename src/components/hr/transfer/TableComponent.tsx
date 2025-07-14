@@ -14,7 +14,8 @@ import {
   Loader2,
   Filter,
   Check,
-  X
+  X,
+  CheckCircle
 } from "lucide-react";
 import Button from "@/components/Base/Button";
 import { FormInput, FormSelect } from "@/components/Base/Form";
@@ -125,6 +126,7 @@ const TransferTableComponent: React.FC = () => {
   const [selectedTransfers, setSelectedTransfers] = useState<Set<string>>(new Set());
   const [isSelectAll, setIsSelectAll] = useState<boolean>(false);
   const [isBulkProcessing, setIsBulkProcessing] = useState<boolean>(false);
+  const [isBulkStatusUpdating, setIsBulkStatusUpdating] = useState<boolean>(false);
 
   // ข้อมูลปีและเดือน
   const years = [
@@ -477,6 +479,68 @@ const TransferTableComponent: React.FC = () => {
       toast.error(error.response?.data?.message || "เกิดข้อผิดพลาดในการคำนวณค่าคอมมิชชั่น");
     } finally {
       setIsBulkProcessing(false);
+    }
+  };
+
+  // ฟังก์ชันสำหรับ bulk status update
+  const handleBulkStatusUpdate = async (status: string) => {
+    if (selectedTransfers.size === 0) {
+      toast.error("กรุณาเลือกรายการที่ต้องการอัปเดตสถานะ");
+      return;
+    }
+
+    // กรองเฉพาะรายการที่มี commission
+    const transfersWithCommission = Array.from(selectedTransfers).filter(transferId => {
+      const transfer = transfers.find(t => t.id === transferId);
+      return transfer && transfer.commission;
+    });
+
+    if (transfersWithCommission.length === 0) {
+      toast.error("ไม่พบรายการที่มีค่าคอมมิชชั่นในรายการที่เลือก");
+      return;
+    }
+
+    try {
+      setIsBulkStatusUpdating(true);
+      
+      // รวบรวม commission IDs ที่ต้องอัปเดต
+      const commissionIds = transfersWithCommission.map(transferId => {
+        const transfer = transfers.find(t => t.id === transferId);
+        return transfer?.commission?.id;
+      }).filter(id => id); // กรองเฉพาะ ID ที่มีค่า
+
+      console.log('Updating commission status for IDs:', commissionIds);
+
+      // เรียก API สำหรับ bulk update
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission/bulk-status`,
+        {
+          commissionIds,
+          status
+        }
+      );
+
+      if (response.data && response.data.success) {
+        const statusDisplay = status === 'PAID' ? 'จ่ายแล้ว' : 
+                             status === 'APPROVED' ? 'อนุมัติแล้ว' : 
+                             status === 'PENDING' ? 'รอดำเนินการ' : status;
+        
+        toast.success(`อัปเดตสถานะเป็น "${statusDisplay}" สำเร็จ ${commissionIds.length} รายการ`);
+        
+        // Clear selections
+        setSelectedTransfers(new Set());
+        setIsSelectAll(false);
+        
+        // Refresh data
+        fetchData(paginationData.currentPage);
+      } else {
+        toast.error(response.data?.message || "ไม่สามารถอัปเดตสถานะได้");
+      }
+    } catch (error: any) {
+      console.error("Error in bulk status update:", error);
+      toast.error(error.response?.data?.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+    } finally {
+      setIsBulkStatusUpdating(false);
     }
   };
 
@@ -909,7 +973,7 @@ const TransferTableComponent: React.FC = () => {
                 <Button
                   variant="primary"
                   onClick={handleBulkCommission}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || isBulkStatusUpdating}
                   className="flex items-center"
                 >
                   {isBulkProcessing ? (
@@ -925,12 +989,31 @@ const TransferTableComponent: React.FC = () => {
                   )}
                 </Button>
                 <Button
+                  variant="success"
+                  onClick={() => handleBulkStatusUpdate('PAID')}
+                  disabled={isBulkProcessing || isBulkStatusUpdating}
+                  className="flex items-center"
+                >
+                  {isBulkStatusUpdating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      กำลังอัปเดต...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2 text-white" />
+                      <span className="text-white">ปรับสถานะจ่ายแล้ว</span>
+                    </>
+                  )}
+                </Button>
+                <Button
                   variant="secondary"
                   onClick={() => {
                     setSelectedTransfers(new Set());
                     setIsSelectAll(false);
                   }}
                   className="flex items-center"
+                  disabled={isBulkProcessing || isBulkStatusUpdating}
                 >
                   <X className="h-4 w-4 mr-2" />
                   ยกเลิกเลือก

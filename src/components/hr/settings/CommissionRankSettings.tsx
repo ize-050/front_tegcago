@@ -86,13 +86,39 @@ const CommissionRankSettings: React.FC = () => {
     setRanks([...ranks, newRank]);
   };
 
+  // ฟังก์ชันตรวจสอบว่าเป็น default rank หรือไม่
+  const isDefaultRank = (rank: CommissionRank) => {
+    const defaultRanks = [
+      { work_type: 'ALL IN', min_amount: 0, max_amount: 50000 },
+      { work_type: 'เคลียร์ฝั่งไทย', min_amount: 0, max_amount: 30000 },
+      { work_type: 'เคลียร์ฝั่งจีน', min_amount: 0, max_amount: 35000 },
+      { work_type: 'GREEN', min_amount: 0, max_amount: 20000 },
+      { work_type: 'FOB', min_amount: 0, max_amount: 25000 },
+      { work_type: 'EXW', min_amount: 0, max_amount: 15000 },
+      { work_type: 'CIF', min_amount: 0, max_amount: 40000 },
+      { work_type: 'CUSTOMER CLEAR', min_amount: 0, max_amount: 20000 },
+    ];
+
+    return defaultRanks.some(defaultRank => 
+      defaultRank.work_type === rank.work_type &&
+      defaultRank.min_amount === rank.min_amount &&
+      defaultRank.max_amount === rank.max_amount
+    );
+  };
+
   const handleRemoveRank = async (index: number) => {
+    const actualRank = filteredRanks[index];
+    
+    // ตรวจสอบว่าเป็น default rank หรือไม่
+    if (isDefaultRank(actualRank)) {
+      setError("ไม่สามารถลบอันดับเริ่มต้นได้ สามารถแก้ไขได้เท่านั้น");
+      return;
+    }
+
     // ขอให้ผู้ใช้ยืนยันการลบ
     if (!confirm("คุณต้องการลบอันดับนี้หรือไม่?")) {
       return;
     }
-    
-    const actualRank = filteredRanks[index];
     
     // ถ้ารายการมี id แสดงว่าเป็นข้อมูลที่มีอยู่ในฐานข้อมูล ต้องยิง API ลบ
     if (actualRank.id) {
@@ -338,13 +364,21 @@ const CommissionRankSettings: React.FC = () => {
                         </div>
                       </Table.Td>
                       <Table.Td className="text-right">
-                        <Button 
-                          size="sm"
-                          onClick={() => handleRemoveRank(index)}
-                          className="bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {isDefaultRank(rank) ? (
+                          <div className="flex items-center justify-center">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                              อันดับเริ่มต้น
+                            </span>
+                          </div>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            onClick={() => handleRemoveRank(index)}
+                            className="bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </Table.Td>
                     </Table.Tr>
                   );
