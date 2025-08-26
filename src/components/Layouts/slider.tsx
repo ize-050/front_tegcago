@@ -63,7 +63,7 @@ function Slider() {
   const pathname = usePathname()
 
 
-  const { menuSale, menuCs  ,menuSuperadmin , menuFinance , menuHr} = useAppSelector(selectSideMenu);
+  const { menuSale, menuCs, menuSuperadmin, menuFinance, menuHr, menuManager } = useAppSelector(selectSideMenu);
 
   const [sideMenuStore, setSideMenuStore] = useState<any>();
 
@@ -112,6 +112,9 @@ function Slider() {
     }
     else if(session?.data?.role == "Hr"){
       setSideMenuStore(menuHr)
+    }
+    else if(session?.data?.role == "Manager"){
+      setSideMenuStore(menuManager)
     }
   }, [session]);
 

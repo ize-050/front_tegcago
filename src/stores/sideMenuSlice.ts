@@ -17,6 +17,7 @@ export interface SideMenuState {
   menuSuperadmin: Array<Menu | string>;
   menuFinance: Array<Menu | string>;
   menuHr: Array<Menu | string>;
+  menuManager: Array<Menu | string>;
 }
 
 const initialState: SideMenuState = {
@@ -176,6 +177,33 @@ const initialState: SideMenuState = {
           title: "ตั้งค่าประเภทฝากสั่งฝากโอน",
         },
       ]
+    },
+  ],
+  menuManager: [
+    {
+      icon: "Home",
+      pathname: "/manager",
+      title: "Manager Dashboard",
+    },
+    {
+      icon: "TrendingUp",
+      pathname: "/manager/sale",
+      title: "Sale Dashboard",
+    },
+    {
+      icon: "Package",
+      pathname: "/manager/cs",
+      title: "CS Dashboard",
+    },
+    {
+      icon: "DollarSign",
+      pathname: "/manager/account",
+      title: "Account Dashboard",
+    },
+    {
+      icon: "Users",
+      pathname: "/manager/hr",
+      title: "HR Dashboard",
     },
   ]
 };
