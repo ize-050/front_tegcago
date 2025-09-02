@@ -9,6 +9,7 @@ const nextConfig = {
 
     env:{
       URl_DOMAIN: process.env.NEXTAUTH_URL || 'http://localhost:3003',
+      NEXT_PUBLIC_URL_API: 'http://localhost:3000',
     }
 };
 

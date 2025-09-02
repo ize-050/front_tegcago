@@ -162,7 +162,7 @@ const EnhancedManagerSaleDashboard: React.FC<EnhancedManagerSaleDashboardProps> 
                 <p className="text-sm font-medium text-gray-500">จำนวนติดต่อรวม</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.totalContacts.toLocaleString()}</p>
                 <p className="text-xs text-green-600">
-                  +12% จากเดือนที่แล้ว
+                
                 </p>
               </div>
               <div className="p-3 bg-blue-50 rounded-full">
@@ -177,7 +177,7 @@ const EnhancedManagerSaleDashboard: React.FC<EnhancedManagerSaleDashboardProps> 
                 <p className="text-sm font-medium text-gray-500">จำนวนรอปิดการขาย</p>
                 <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.pendingDeals.toLocaleString()}</p>
                 <p className="text-xs text-orange-600">
-                  +3 จากสัปดาห์ที่แล้ว
+                  
                 </p>
               </div>
               <div className="p-3 bg-orange-50 rounded-full">
@@ -191,10 +191,10 @@ const EnhancedManagerSaleDashboard: React.FC<EnhancedManagerSaleDashboardProps> 
               <div>
                 <p className="text-sm font-medium text-gray-500">ยอดขายรวม</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  ฿{(dashboardData.kpis.totalSales / 1000000).toFixed(1)}M
+                  ฿{(dashboardData.kpis.totalSales || 0).toLocaleString()}
                 </p>
                 <p className="text-xs text-green-600">
-                  +18% จากเดือนที่แล้ว
+                  
                 </p>
               </div>
               <div className="p-3 bg-green-50 rounded-full">
@@ -207,9 +207,9 @@ const EnhancedManagerSaleDashboard: React.FC<EnhancedManagerSaleDashboardProps> 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">จำนวน Shipment</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.shipmentCount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.totalShipments.toLocaleString()}</p>
                 <p className="text-xs text-blue-600">
-                  +8% จากเดือนที่แล้ว
+                  
                 </p>
               </div>
               <div className="p-3 bg-purple-50 rounded-full">

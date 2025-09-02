@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 // Create axios instance with baseURL
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_URL_API || 'http://localhost:3000/api', // Default to localhost if env var not set
+  baseURL: process.env.NEXT_PUBLIC_URL_API || 'http://localhost:3000', // Default to localhost if env var not set
 });
 
 axiosInstance.interceptors.request.use(

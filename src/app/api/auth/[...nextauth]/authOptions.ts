@@ -61,6 +61,13 @@ export const authOptions: AuthOptions = {
         session.fullname = token.fullname;
         session.email = token.email;
         session.role = token.role;
+        session.user = {
+          ...session.user,
+          id: token.id,
+          fullname: token.fullname,
+          email: token.email,
+          role: token.role
+        };
         return session;
       },
     },

@@ -24,7 +24,7 @@ const initialState: SideMenuState = {
   menuSale: [
     {
       icon: "Home",
-      pathname: "/",
+      pathname: "/dashboard/sale",
       title: "Dashboard",
     },
     {
@@ -51,7 +51,7 @@ const initialState: SideMenuState = {
   menuCs: [
     {
       icon: "Home",
-      pathname: "/",
+      pathname: "/dashboard/cs",
       title: "Dashboard",
     },
     {
@@ -95,6 +95,11 @@ const initialState: SideMenuState = {
     },
   ],
   menuFinance:[
+    {
+      icon: "Home",
+      pathname: "/dashboard/finance",
+      title: "Dashboard",
+    },
     {
       icon: "Users",
       pathname: "/finance/work",
@@ -142,9 +147,9 @@ const initialState: SideMenuState = {
   ],
   menuHr:[
     {
-      icon: "Earth",
-      pathname: "/hr/dashboard",
-      title: "แดชบอร์ด",
+      icon: "Home",
+      pathname: "/dashboard/hr",
+      title: "Dashboard",
     },
     {
       icon: "Users",

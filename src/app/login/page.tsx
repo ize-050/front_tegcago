@@ -16,9 +16,35 @@ const Login = () => {
     console.log('session',session)
 
     useEffect(() => {
-
-        if (session.status  === "authenticated") {
-             router.push(`/`);
+        if (session.status === "authenticated") {
+            const userRole = session.data?.user?.role || session.data?.role;
+            console.log('Session data:', session.data);
+            console.log('User role from session:', userRole);
+            
+            switch(userRole) {
+                case 'Manager':
+                    router.push("/manager");
+                    break;
+                case 'Sales':
+                case 'Sale':
+                    router.push("/dashboard/sale");
+                    break;
+                case 'CS':
+                case 'Cs':
+                    router.push("/dashboard/cs");
+                    break;
+                case 'HR':
+                case 'Hr':
+                    router.push("/dashboard/hr");
+                    break;
+                case 'Finance':
+                    router.push("/dashboard/finance");
+                    break;
+                default:
+                    console.log('Unknown role or no role found, redirecting to home');
+                    router.push("/");
+                    break;
+            }
         }
     }, [session]);
 
@@ -46,8 +72,39 @@ const Login = () => {
                 }
                 dispatch(setOpenToast(data))
             } else {
-
-              router.push("/")
+              // Wait for session to be updated, then redirect based on role
+              setTimeout(async () => {
+                const userSession = await fetch('/api/auth/session').then(res => res.json());
+                const userRole = userSession?.user?.role || userSession?.role;
+                
+                console.log('User session after login:', userSession);
+                console.log('User role after login:', userRole);
+                
+                switch(userRole) {
+                  case 'Manager':
+                    router.push("/manager");
+                    break;
+                  case 'Sales':
+                  case 'Sale':
+                    router.push("/dashboard/sale");
+                    break;
+                  case 'CS':
+                  case 'Cs':
+                    router.push("/dashboard/cs");
+                    break;
+                  case 'HR':
+                  case 'Hr':
+                    router.push("/dashboard/hr");
+                    break;
+                  case 'Finance':
+                    router.push("/dashboard/finance");
+                    break;
+                  default:
+                    console.log('Unknown role in onSubmit, redirecting to home');
+                    router.push("/");
+                    break;
+                }
+              }, 500); // Wait 500ms for session to be updated
             }
           } catch (error) {
             console.error('An error occurred during sign-in:', error);

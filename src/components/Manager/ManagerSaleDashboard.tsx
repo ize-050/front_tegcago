@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { TrendingUp, Users, DollarSign, Package, Calendar, Filter, Download, RefreshCw } from 'lucide-react';
-import { getSaleDashboardData, getSalespersonList, SaleDashboardData } from '../../services/manager';
+import { getSaleDashboardData, getAllSalespersons, SaleDashboardData } from '@/services/manager';
 import ShipmentLineChart from '../Charts/ShipmentLineChart';
+import SalesRevenueChart from '../Charts/SalesRevenueChart';
+import ShipmentBySalesChart from '../Charts/ShipmentBySalesChart';
 
 interface DateFilter {
   period: 'day' | 'month' | 'year';
@@ -16,14 +18,26 @@ interface SalespersonFilter {
 }
 
 interface ManagerSaleDashboardProps {
-  dateFilter: DateFilter;
+  dateFilter?: DateFilter;
 }
 
-// Use the interface from the service
-type DashboardData = SaleDashboardData;
+// Define salesperson interface to match API response
+interface SalespersonOption {
+  id: string;
+  fullname: string;
+  email: string;
+  roles_name: string;
+}
 
-const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter }) => {
+const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter: propDateFilter }) => {
   const [selectedSalesperson, setSelectedSalesperson] = useState<SalespersonFilter | null>(null);
+  const [selectedYear, setSelectedYear] = useState('2025');
+  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>({
+    startDate: '2025-01-01',
+    endDate: '2025-12-31',
+    period: 'year'
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<SaleDashboardData | null>(null);
   const [salespersonList, setSalespersonList] = useState<SalespersonFilter[]>([]);
@@ -33,12 +47,28 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
   useEffect(() => {
     const loadSalespersonList = async () => {
       try {
-        const response = await getSalespersonList();
-        if (response.success) {
-          const allOption = { salespersonId: 'all', salespersonName: 'ทั้งหมด' };
-          setSalespersonList([allOption, ...response.data]);
-          setSelectedSalesperson(allOption);
+        console.log('=== LOADING SALESPERSON LIST ===');
+        const response = await getAllSalespersons();
+        console.log('Salesperson API Response:', response);
+        
+        if (response && response.success && response.data) {
+          // Transform API response to match SalespersonFilter interface
+          const transformedList: SalespersonFilter[] = response.data.map((person: SalespersonOption) => ({
+            salespersonId: person.id,
+            salespersonName: person.fullname
+          }));
+          
+          setSalespersonList(transformedList);
+          
+          // Set default selection to "ทั้งหมด" (all)
+          const defaultSelection = transformedList.find(p => p.salespersonId === 'all');
+          if (defaultSelection) {
+            setSelectedSalesperson(defaultSelection);
+          }
+          
+          console.log('Salesperson list loaded:', transformedList);
         } else {
+          console.error('Invalid salesperson response format:', response);
           // Fallback to default list
           const defaultList = [{ salespersonId: 'all', salespersonName: 'ทั้งหมด' }];
           setSalespersonList(defaultList);
@@ -54,6 +84,24 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
     };
     loadSalespersonList();
   }, []);
+
+  // Update dateFilter when year or month changes
+  useEffect(() => {
+    if (selectedMonth === 'all') {
+      setDateFilter({
+        startDate: `${selectedYear}-01-01`,
+        endDate: `${selectedYear}-12-31`,
+        period: 'year'
+      });
+    } else {
+      const lastDay = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate();
+      setDateFilter({
+        startDate: `${selectedYear}-${selectedMonth.padStart(2, '0')}-01`,
+        endDate: `${selectedYear}-${selectedMonth.padStart(2, '0')}-${lastDay}`,
+        period: 'month'
+      });
+    }
+  }, [selectedYear, selectedMonth]);
 
   // Load dashboard data
   useEffect(() => {
@@ -187,28 +235,84 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
           </div>
         </div>
         
-        {/* Filters */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <select
-              value={selectedSalesperson?.salespersonId || 'all'}
-              onChange={(e) => {
-                const selected = salespersonList.find(s => s.salespersonId === e.target.value);
-                setSelectedSalesperson(selected || null);
-              }}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {salespersonList.map(person => (
-                <option key={person.salespersonId} value={person.salespersonId}>
-                  {person.salespersonName}
-                </option>
-              ))}
-            </select>
+        {/* Enhanced Filters */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <select
+                value={selectedSalesperson?.salespersonId || 'all'}
+                onChange={(e) => {
+                  const selected = salespersonList.find(s => s.salespersonId === e.target.value);
+                  setSelectedSalesperson(selected || null);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {salespersonList.map(person => (
+                  <option key={person.salespersonId} value={person.salespersonId}>
+                    {person.salespersonName}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Calendar className="h-4 w-4" />
-            <span>ข้อมูล: {dateFilter.startDate} - {dateFilter.endDate}</span>
+          
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium text-gray-700">ช่วงเวลา:</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => {
+                      setSelectedYear(e.target.value);
+                    }}
+                    className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  >
+                    <option value="2025">ปี 2025</option>
+                    <option value="2024">ปี 2024</option>
+                    <option value="2023">ปี 2023</option>
+                    <option value="2022">ปี 2022</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="relative">
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => {
+                      setSelectedMonth(e.target.value);
+                    }}
+                    className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  >
+                    <option value="all">ทั้งปี</option>
+                    <option value="1">มกราคม</option>
+                    <option value="2">กุมภาพันธ์</option>
+                    <option value="3">มีนาคม</option>
+                    <option value="4">เมษายน</option>
+                    <option value="5">พฤษภาคม</option>
+                    <option value="6">มิถุนายน</option>
+                    <option value="7">กรกฎาคม</option>
+                    <option value="8">สิงหาคม</option>
+                    <option value="9">กันยายน</option>
+                    <option value="10">ตุลาคม</option>
+                    <option value="11">พฤศจิกายน</option>
+                    <option value="12">ธันวาคม</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -219,8 +323,7 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">จำนวนติดต่อรวม</p>
-              <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.totalContacts.toLocaleString()}</p>
-              <p className="text-xs text-green-600">+12% จากเดือนที่แล้ว</p>
+              <p className="text-2xl font-bold text-gray-900">{(dashboardData.kpis.totalContacts || 0).toLocaleString()}</p>
               {selectedSalesperson && selectedSalesperson.salespersonId !== 'all' && (
                 <p className="text-xs text-gray-400 mt-1">เซลล์: {selectedSalesperson.salespersonName}</p>
               )}
@@ -235,9 +338,7 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">จำนวนรอปิดการขาย</p>
-              <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.pendingDeals.toLocaleString()}</p>
-              <p className="text-xs text-orange-600">+3 จากสัปดาห์ที่แล้ว</p>
-              <p className="text-xs text-gray-400 mt-1">อัตราการปิด: 85.2%</p>
+              <p className="text-2xl font-bold text-gray-900">{(dashboardData.kpis.pendingDeals || 0).toLocaleString()}</p>
             </div>
             <div className="p-3 bg-orange-50 rounded-full">
               <Package className="h-6 w-6 text-orange-600" />
@@ -245,68 +346,95 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter 
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">ยอดขายรวม</p>
-              <p className="text-2xl font-bold text-gray-900">฿{(dashboardData.kpis.totalSales / 1000000).toFixed(1)}M</p>
-              <p className="text-xs text-green-600">+18% จากเดือนที่แล้ว</p>
-              <p className="text-xs text-gray-400 mt-1">เฉลี่ย: ฿{Math.round(dashboardData.kpis.totalSales / Math.max(dashboardData.kpis.pendingDeals, 1)).toLocaleString()}/ดีล</p>
-            </div>
-            <div className="p-3 bg-green-50 rounded-full">
-              <DollarSign className="h-6 w-6 text-green-600" />
+        {/* Show Sales KPI only if there's actual sales data */}
+        {(dashboardData.kpis.totalSales || 0) > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">ยอดขายรวม</p>
+                <p className="text-2xl font-bold text-gray-900">฿{(dashboardData.kpis.totalSales || 0).toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-1">เฉลี่ย: ฿{Math.round((dashboardData.kpis.totalSales || 0) / Math.max((dashboardData.kpis.pendingDeals || 0), 1)).toLocaleString()}/ดีล</p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">จำนวน Shipment</p>
-              <p className="text-2xl font-bold text-gray-900">{dashboardData.kpis.shipmentCount.toLocaleString()}</p>
-              <p className="text-xs text-blue-600">+8% จากเดือนที่แล้ว</p>
-              <p className="text-xs text-gray-400 mt-1">มูลค่า: ฿{(dashboardData.kpis.totalSales / 1000000).toFixed(1)}M</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-full">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+        {/* Show Shipment KPI only if there are shipments */}
+        {(dashboardData.kpis.totalShipments || 0) > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">จำนวน Shipment</p>
+                <p className="text-2xl font-bold text-gray-900">{(dashboardData.kpis.totalShipments || 0).toLocaleString()}</p>
+                <p className="text-xs text-blue-600">+8% จากเดือนที่แล้ว</p>
+                <p className="text-xs text-gray-400 mt-1">สถานะ: ดำเนินการ</p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-full">
+                <TrendingUp className="h-6 w-6 text-purple-600" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Show placeholder card when no sales/shipment data */}
+        {(dashboardData.kpis.totalSales || 0) === 0 && (dashboardData.kpis.totalShipments || 0) === 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">สถานะระบบ</p>
+                <p className="text-2xl font-bold text-gray-900">พร้อมใช้งาน</p>
+                <p className="text-xs text-blue-600">ระบบทำงานปกติ</p>
+                <p className="text-xs text-gray-400 mt-1">รอข้อมูลยอดขาย</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-full">
+                <TrendingUp className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Enhanced Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales Revenue Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">ยอดขายเซลล์</h3>
-            <select className="text-sm border border-gray-300 rounded px-2 py-1">
-              <option value="revenue">รายได้</option>
-              <option value="deals">จำนวนดีล</option>
-              <option value="contacts">ลูกค้าติดต่อ</option>
-            </select>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={dashboardData.salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="period" />
-              <YAxis />
-              <Tooltip formatter={(value, name) => [
-                name === 'revenue' ? `฿${value.toLocaleString()}` : value,
-                name === 'revenue' ? 'รายได้' : name === 'sales' ? 'ยอดขาย' : 'ลูกค้าติดต่อ'
-              ]} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={2} name="รายได้" />
-              <Line type="monotone" dataKey="sales" stroke="#10B981" strokeWidth={2} name="ยอดขาย" />
-              <Line type="monotone" dataKey="contacts" stroke="#F59E0B" strokeWidth={2} name="ลูกค้าติดต่อ" />
-            </LineChart>
-          </ResponsiveContainer>
+          <SalesRevenueChart 
+            showFilters={false}
+            filters={{
+              salespersonId: selectedSalesperson?.salespersonId,
+              year: selectedYear?.toString(),
+              month: selectedMonth?.toString(),
+              startDate: dateFilter.startDate,
+              endDate: dateFilter.endDate
+            }}
+          />
         </div>
 
         {/* Shipment Line Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <ShipmentLineChart />
+          <ShipmentLineChart 
+            showFilters={false}
+            filters={{
+              salespersonId: selectedSalesperson?.salespersonId,
+              year: selectedYear,
+              month: selectedMonth,
+              startDate: dateFilter.startDate,
+              endDate: dateFilter.endDate
+            }}
+          />
         </div>
+      </div>
+
+      {/* Shipment by Sales Chart */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <ShipmentBySalesChart 
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth === 'all' ? 'all' : parseInt(selectedMonth)}
+          selectedSalesperson={selectedSalesperson?.salespersonId || 'all'}
+        />
       </div>
 
       {/* Salesperson Performance Table */}

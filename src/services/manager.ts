@@ -15,7 +15,7 @@ export interface SaleDashboardData {
     totalContacts: number;
     pendingDeals: number;
     totalSales: number;
-    shipmentCount: number;
+    totalShipments: number;
   };
   salesData: Array<{
     period: string;
@@ -82,9 +82,6 @@ export const getSaleDashboardData = async (filters: DateFilter): Promise<ApiResp
     if (filters.startDate) params.append('startDate', filters.startDate);
     if (filters.endDate) params.append('endDate', filters.endDate);
     if (filters.period) params.append('period', filters.period);
-    if (filters.salespersonId && filters.salespersonId !== 'all') {
-      params.append('salespersonId', filters.salespersonId);
-    }
 
     const response = await axios.get(`${API_BASE_URL}/manager/dashboard/sale?${params.toString()}`, {
       headers: {
@@ -95,6 +92,26 @@ export const getSaleDashboardData = async (filters: DateFilter): Promise<ApiResp
     return response.data;
   } catch (error) {
     console.error('Error fetching sale dashboard data:', error);
+    throw error;
+  }
+};
+
+export const getSalespersonOptions = async () => {
+  try {
+    const response = await axios.get('/manager/dashboard/sale/salesperson-options');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching salesperson options:', error);
+    throw error;
+  }
+};
+
+export const getAllSalespersons = async () => {
+  try {
+    const response = await axios.get('/manager/dashboard/sale/salespersons');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all salespersons:', error);
     throw error;
   }
 };
@@ -162,22 +179,29 @@ export const getHRDashboardData = async (filters: DateFilter): Promise<HRDashboa
 // Get list of salespersons for filter dropdown
 export const getSalespersonList = async (): Promise<ApiResponse<Array<{salespersonId: string; salespersonName: string}>>> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/employee/role/salesupport`, {
+    const response = await axios.get(`${API_BASE_URL}/manager/dashboard/sale/salesperson-options`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Transform the response to match the expected format
-    const salespersons = response.data.map((emp: any) => ({
-      salespersonId: emp.id || emp.user_id,
-      salespersonName: emp.name || `${emp.first_name} ${emp.last_name}`.trim()
-    }));
+    if (response.data.success) {
+      // Transform the response to match the expected format
+      const salespersons = response.data.data.map((emp: any) => ({
+        salespersonId: emp.id || emp.user_id,
+        salespersonName: emp.name || `${emp.first_name} ${emp.last_name}`.trim()
+      }));
 
-    return {
-      success: true,
-      data: salespersons
-    };
+      return {
+        success: true,
+        data: salespersons
+      };
+    } else {
+      return {
+        success: false,
+        data: []
+      };
+    }
   } catch (error) {
     console.error('Error fetching salesperson list:', error);
     // Return fallback data if API fails

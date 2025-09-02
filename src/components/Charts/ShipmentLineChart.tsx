@@ -76,10 +76,20 @@ interface ShipmentChartResponse {
 
 interface ShipmentLineChartProps {
   height?: number;
+  showFilters?: boolean;
+  filters?: {
+    salespersonId?: string;
+    year?: string;
+    month?: string;
+    startDate?: string;
+    endDate?: string;
+  };
 }
 
 const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({ 
-  height = 400 
+  height = 400,
+  showFilters = true,
+  filters: externalFilters
 }) => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
@@ -101,8 +111,22 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
     setError(null);
 
     try {
+      // Use external filters if provided, otherwise use internal filters
+      const apiParams = externalFilters ? {
+        salespersonId: externalFilters.salespersonId === 'all' ? undefined : externalFilters.salespersonId,
+        year: externalFilters.year,
+        month: externalFilters.month,
+        startDate: externalFilters.startDate,
+        endDate: externalFilters.endDate
+      } : {
+        salespersonId: filters.salespersonId === 'all' ? undefined : filters.salespersonId,
+        year: filters.year,
+        startMonth: filters.startMonth,
+        endMonth: filters.endMonth
+      };
+
       const response = await axios.get<ShipmentChartResponse>('/manager/dashboard/sale/shipment-chart', {
-        params: filters
+        params: apiParams
       });
 
       console.log('=== FRONTEND DEBUG ===');
@@ -134,7 +158,7 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
   // Initial data fetch
   useEffect(() => {
     fetchShipmentData();
-  }, [filters]);
+  }, [filters, externalFilters]);
 
   // Handle filter changes
   const handleFilterChange = (key: keyof FilterState, value: string | number) => {
@@ -177,8 +201,16 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
       const months = firstItem.data.map((item: any) => item.x);
       console.log('Months found:', months);
       
+      // Filter out datasets with no data (all zeros)
+      const validDatasets = apiData.filter((series: any) => {
+        const hasData = series.data.some((point: any) => (point.y || 0) > 0);
+        return hasData;
+      });
+      
+      console.log(`Filtered datasets: ${validDatasets.length} out of ${apiData.length} have data`);
+      
       // Convert Nivo format to Chart.js format
-      const datasets = apiData.map((series: any, index: number) => {
+      const datasets = validDatasets.map((series: any, index: number) => {
         const color = series.color || COLOR_PALETTE[index % COLOR_PALETTE.length];
         const data = series.data.map((point: any) => point.y || 0);
         
@@ -189,9 +221,30 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
           data,
           borderColor: color,
           backgroundColor: color + '20',
+          borderWidth: 3,
+          fill: false,
+          tension: 0.1,
+          pointBackgroundColor: color,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        };
+      });
+
+      // If no valid datasets, show all datasets anyway for debugging
+      const finalDatasets = datasets.length > 0 ? datasets : apiData.map((series: any, index: number) => {
+        const color = series.color || COLOR_PALETTE[index % COLOR_PALETTE.length];
+        const data = series.data.map((point: any) => point.y || 0);
+        
+        return {
+          label: series.id || 'ไม่ระบุ',
+          data,
+          borderColor: color,
+          backgroundColor: color + '20',
           borderWidth: 2,
           fill: false,
-          tension: 0.4,
+          tension: 0.1,
           pointBackgroundColor: color,
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
@@ -202,11 +255,12 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
 
       const result = {
         labels: months,
-        datasets
+        datasets: finalDatasets
       };
       
       console.log('Final processed chart data:', result);
-      console.log('Datasets count:', datasets.length);
+      console.log('Datasets count:', finalDatasets.length);
+      console.log('Labels:', result.labels);
       
       return result;
     } else {
@@ -219,6 +273,10 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
     plugins: {
       title: {
         display: true,
@@ -270,7 +328,8 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
           }
         },
         grid: {
-          display: false
+          display: true,
+          color: 'rgba(0, 0, 0, 0.1)'
         }
       },
       y: {
@@ -285,13 +344,13 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
         },
         beginAtZero: true,
         grid: {
+          display: true,
           color: 'rgba(0, 0, 0, 0.1)'
+        },
+        ticks: {
+          stepSize: 1
         }
       }
-    },
-    interaction: {
-      mode: 'index' as const,
-      intersect: false,
     },
     hover: {
       mode: 'index' as const,
@@ -326,73 +385,75 @@ const ShipmentLineChart: React.FC<ShipmentLineChartProps> = ({
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="p-6 border-b border-gray-200 bg-gray-50">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              เซลล์
-            </label>
-            <select
-              value={filters.salespersonId}
-              onChange={(e) => handleFilterChange('salespersonId', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">ทั้งหมด</option>
-              {availableSalespersons.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ปี
-            </label>
-            <select
-              value={filters.year}
-              onChange={(e) => handleFilterChange('year', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={2024}>2024</option>
-              <option value={2025}>2025</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              เดือนเริ่มต้น
-            </label>
-            <select
-              value={filters.startMonth}
-              onChange={(e) => handleFilterChange('startMonth', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              เดือนสิ้นสุด
-            </label>
-            <select
-              value={filters.endMonth}
-              onChange={(e) => handleFilterChange('endMonth', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>
+      {/* Filters - Only show if showFilters is true and no external filters */}
+      {showFilters && !externalFilters && (
+        <div className="p-6 border-b border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เซลล์
+              </label>
+              <select
+                value={filters.salespersonId}
+                onChange={(e) => handleFilterChange('salespersonId', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">ทั้งหมด</option>
+                {availableSalespersons.map((person) => (
+                  <option key={person.id} value={person.id}>
+                    {person.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ปี
+              </label>
+              <select
+                value={filters.year}
+                onChange={(e) => handleFilterChange('year', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={2024}>2024</option>
+                <option value={2025}>2025</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เดือนเริ่มต้น
+              </label>
+              <select
+                value={filters.startMonth}
+                onChange={(e) => handleFilterChange('startMonth', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เดือนสิ้นสุด
+              </label>
+              <select
+                value={filters.endMonth}
+                onChange={(e) => handleFilterChange('endMonth', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Summary */}
       {summary && (

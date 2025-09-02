@@ -431,18 +431,18 @@ const TransferTableComponent: React.FC = () => {
       
       for (const item of commissionData) {
         try {
-          const transfer = transfers.find(t => t.id === item.transferId);
+          const transfer = transfers.find(t => t.id === item?.transferId);
           let response;
           
-          console.log(`Processing transfer ${item.transferId}:`, {
+          console.log(`Processing transfer ${item?.transferId}:`, {
             hasCommission: !!transfer?.commission,
             commissionId: transfer?.commission?.id,
             currentAmount: transfer?.commission?.amount,
-            newAmount: item.commission
+            newAmount: item?.commission
           });
           
           // ใช้ POST method เหมือนใน CommissionModal (API จะจัดการ upsert เอง)
-          console.log(`Processing commission for transfer ${item.transferId} with amount ${item.commission}`);
+          console.log(`Processing commission for transfer ${item?.transferId} with amount ${item?.commission}`);
           response = await axios.post(`${process.env.NEXT_PUBLIC_URL_API}/hr/transfer/commission`, item);
           console.log('API response:', response.data);
           
@@ -452,8 +452,8 @@ const TransferTableComponent: React.FC = () => {
             console.error('API returned success: false', response.data);
             failCount++;
           }
-        } catch (error) {
-          console.error(`Error processing commission for transfer ${item.transferId}:`, error);
+        } catch (error: any) {
+          console.error(`Error processing commission for transfer ${item?.transferId}:`, error);
           if (error.response) {
             console.error('Error response data:', error.response.data);
             console.error('Error response status:', error.response.status);

@@ -91,11 +91,11 @@ const SaleDashboardHeader: React.FC<SaleDashboardHeaderProps> = ({
             <button className="hover:text-blue-600 transition-colors">
               🏠 Home
             </button>
-            <span className="text-gray-400">></span>
+            <span className="text-gray-400">&gt;</span>
             <button className="hover:text-blue-600 transition-colors">
               📊 Dashboard
             </button>
-            <span className="text-gray-400">></span>
+            <span className="text-gray-400">&gt;</span>
             <span className="text-blue-600 font-medium">💼 Sale Dashboard</span>
           </nav>
         </div>
