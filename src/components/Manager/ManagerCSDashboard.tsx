@@ -653,66 +653,116 @@ const ManagerCSDashboard: React.FC<ManagerCSDashboardProps> = ({ dateFilter }) =
       {/* Product Types */}
    
 
-      {/* Status Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Container Status */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <Truck className="h-5 w-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">สถานะจองตู้</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">{(csData?.statusTracking as any)?.containerStatus?.label || 'สถานะจองตู้'}</span>
-              <span className="text-lg font-bold text-gray-900">{(csData?.statusTracking as any)?.containerStatus?.total || 0}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Document Status */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <FileCheck className="h-5 w-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">สถานะจัดทำเอกสาร</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">{(csData?.statusTracking as any)?.documentStatus?.label || 'สถานะจัดทำเอกสาร'}</span>
-              <span className="text-lg font-bold text-gray-900">{(csData?.statusTracking as any)?.documentStatus?.total || 0}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Status Tables Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Departure Status */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <Ship className="h-5 w-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">สถานะรออกเดินทาง</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">{(csData?.statusTracking as any)?.departureStatus?.label || 'สถานะรออกเดินทาง'}</span>
-              <span className="text-lg font-bold text-gray-900">{(csData?.statusTracking as any)?.departureStatus?.total || 0}</span>
-            </div>
+      {/* All CS Status Display */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">สถานะงาน CS ทั้งหมด</h3>
+        
+        {/* Container Status Group */}
+        <div className="mb-6">
+          <h4 className="text-md font-medium text-slate-800 mb-3 flex items-center">
+            <Box className="h-4 w-4 text-slate-600 mr-2" />
+            สถานะการจัดการตู้คอนเทนเนอร์
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(csData?.statusTracking as any)?.containerStatus?.map((status: any, index: number) => {
+              const colors = [
+                { bg: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-800' },
+                { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800' },
+                { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-800' }
+              ];
+              const color = colors[index] || colors[0];
+              return (
+                <div key={index} className={`flex justify-between items-center p-4 ${color.bg} rounded-lg border ${color.border} shadow-sm`}>
+                  <span className="text-sm font-semibold text-slate-700">{status.statusName}</span>
+                  <span className={`text-xl font-bold ${color.text}`}>{status.count}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Delivery Status */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <MapPin className="h-5 w-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">สถานะจัดส่งปลายทาง</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">{(csData?.statusTracking as any)?.deliveryStatus?.label || 'สถานะจัดส่งปลายทาง'}</span>
-              <span className="text-lg font-bold text-gray-900">{(csData?.statusTracking as any)?.deliveryStatus?.total || 0}</span>
-            </div>
+        {/* Document Status Group */}
+        <div className="mb-6">
+          <h4 className="text-md font-medium text-slate-800 mb-3 flex items-center">
+            <FileCheck className="h-4 w-4 text-slate-600 mr-2" />
+            สถานะการจัดทำเอกสาร
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(csData?.statusTracking as any)?.documentStatus?.map((status: any, index: number) => (
+              <div key={index} className="flex justify-between items-center p-4 bg-emerald-50 rounded-lg border border-emerald-200 shadow-sm">
+                <span className="text-sm font-semibold text-slate-700">{status.statusName}</span>
+                <span className="text-xl font-bold text-emerald-800">{status.count}</span>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Departure Status Group */}
+        <div className="mb-6">
+          <h4 className="text-md font-medium text-slate-800 mb-3 flex items-center">
+            <Ship className="h-4 w-4 text-slate-600 mr-2" />
+            สถานะการออกเดินทาง
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(csData?.statusTracking as any)?.departureStatus?.map((status: any, index: number) => {
+              const colors = [
+                { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800' },
+                { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-800' }
+              ];
+              const color = colors[index] || colors[0];
+              return (
+                <div key={index} className={`flex justify-between items-center p-4 ${color.bg} rounded-lg border ${color.border} shadow-sm`}>
+                  <span className="text-sm font-semibold text-slate-700">{status.statusName}</span>
+                  <span className={`text-xl font-bold ${color.text}`}>{status.count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Delivery Status Group */}
+        <div className="mb-6">
+          <h4 className="text-md font-medium text-slate-800 mb-3 flex items-center">
+            <MapPin className="h-4 w-4 text-slate-600 mr-2" />
+            สถานะการจัดส่งและตรวจปล่อย
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {(csData?.statusTracking as any)?.deliveryStatus?.map((status: any, index: number) => {
+              const colors = [
+                { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-800' },
+                { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-800' },
+                { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800' },
+                { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-800' }
+              ];
+              const color = colors[index] || colors[0];
+              return (
+                <div key={index} className={`flex justify-between items-center p-4 ${color.bg} rounded-lg border ${color.border} shadow-sm`}>
+                  <span className="text-sm font-semibold text-slate-700">{status.statusName}</span>
+                  <span className={`text-xl font-bold ${color.text}`}>{status.count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Other Status Group */}
+        {(csData?.statusTracking as any)?.otherStatus && (csData?.statusTracking as any)?.otherStatus.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-md font-medium text-slate-800 mb-3 flex items-center">
+              <Truck className="h-4 w-4 text-slate-600 mr-2" />
+              สถานะอื่นๆ
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(csData?.statusTracking as any)?.otherStatus?.map((status: any, index: number) => (
+                <div key={index} className="flex justify-between items-center p-4 bg-slate-50 rounded-lg border border-slate-200 shadow-sm">
+                  <span className="text-sm font-semibold text-slate-700">{status.statusName}</span>
+                  <span className="text-xl font-bold text-slate-800">{status.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

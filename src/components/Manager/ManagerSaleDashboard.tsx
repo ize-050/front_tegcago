@@ -431,7 +431,7 @@ const ManagerSaleDashboard: React.FC<ManagerSaleDashboardProps> = ({ dateFilter:
       {/* Shipment by Sales Chart */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <ShipmentBySalesChart 
-          selectedYear={selectedYear}
+          selectedYear={parseInt(selectedYear)}
           selectedMonth={selectedMonth === 'all' ? 'all' : parseInt(selectedMonth)}
           selectedSalesperson={selectedSalesperson?.salespersonId || 'all'}
         />
