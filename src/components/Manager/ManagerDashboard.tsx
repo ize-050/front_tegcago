@@ -84,27 +84,7 @@ const ManagerDashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats Overview */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">สรุปภาพรวม</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">156</div>
-            <div className="text-sm text-gray-500">ลูกค้าติดต่อรวม</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">45</div>
-            <div className="text-sm text-gray-500">คำขอใหม่</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">฿3.2M</div>
-            <div className="text-sm text-gray-500">รายได้รวม</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">฿450K</div>
-            <div className="text-sm text-gray-500">ค่าคอมมิชชั่น</div>
-          </div>
-        </div>
-      </div>
+ 
     </div>
   );
 };
