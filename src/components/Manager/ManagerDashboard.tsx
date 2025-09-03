@@ -73,14 +73,7 @@ const ManagerDashboard: React.FC = () => {
                   </div>
                   
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mt-4">
-                    {Object.entries(card.stats).map(([key, value], statIndex) => (
-                      <div key={statIndex} className="text-center">
-                        <div className="text-xl font-bold text-gray-900">{value}</div>
-                        <div className="text-xs text-gray-500 capitalize">{key}</div>
-                      </div>
-                    ))}
-                  </div>
+               
                 </div>
                 
                 <ArrowRight className="h-5 w-5 text-gray-400" />
