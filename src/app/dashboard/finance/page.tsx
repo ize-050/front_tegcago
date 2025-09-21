@@ -1,18 +1,19 @@
 'use client';
 
 import React from 'react';
-import ManagerAccountDashboard from '../../../components/Manager/ManagerAccountDashboard';
+import ManagerFinanceDashboard from '@/components/Manager/ManagerAccountDashboard';
 
-export default function FinanceDashboardPage() {
-  const dateFilter = {
-    startDate: '',
-    endDate: '',
-    period: 'month' as const
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <ManagerAccountDashboard dateFilter={dateFilter} />
-    </div>
-  );
+/**
+ * Finance Dashboard Main Page
+ * 
+ * Features:
+ * - Financial KPIs and metrics
+ * - Revenue and expense tracking
+ * - Profit margin analysis
+ * - Cash flow monitoring
+ */
+const FinanceDashboardPage: React.FC = () => {
+  return <ManagerFinanceDashboard />;
 };
+
+export default FinanceDashboardPage;

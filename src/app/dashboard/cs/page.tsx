@@ -1,16 +1,16 @@
 'use client';
 
-import React from 'react';
-import ManagerCSDashboard from '@/components/Manager/ManagerCSDashboard';
+import React, { useState } from 'react';
+import ManagerCSDashboard from '../../../components/Manager/ManagerCSDashboard';
 
-const CSDashboardPage: React.FC = () => {
-  const dateFilter = {
-    startDate: '2025-01-01',
-    endDate: '2025-12-31',
-    period: 'year' as const
-  };
+const ManagerCSPage: React.FC = () => {
+  const [dateFilter, setDateFilter] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    period: 'day' as 'day' | 'month' | 'year'
+  });
 
   return <ManagerCSDashboard dateFilter={dateFilter} />;
 };
 
-export default CSDashboardPage;
+export default ManagerCSPage;

@@ -18,6 +18,7 @@ import Button from "../../components/Base/Button";
 import Table from "../../components/Base/Table";
 
 import _ from "lodash";
+import Swal from "sweetalert2";
 
 
 //services
@@ -29,6 +30,7 @@ import {
   setCustomerData as setCustomer,
   setFormAddCustomer,
   updateCustomerStatus,
+  removeCustomer,
   customerData,
   resetStore
 
@@ -95,6 +97,78 @@ function Main() {
   }
   const AddFormCustomer = async () => {
     dispatch(setFormAddCustomer(true))
+  }
+
+  // ฟังก์ชันลบลูกค้า
+  const handleDeleteCustomer = async (customerId: string, customerName: string) => {
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบข้อมูล',
+      text: `คุณต้องการลบข้อมูลลูกค้า  ใช่หรือไม่?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ลบข้อมูล',
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
+      try {
+        console.log("Attempting to delete customer:", customerId);
+        const deleteResult = await dispatch(removeCustomer(customerId));
+        console.log("Delete result:", deleteResult);
+        
+        // ตรวจสอบว่า action สำเร็จหรือไม่
+        if (removeCustomer.fulfilled.match(deleteResult)) {
+          // รีเฟรชข้อมูลหลังจากลบเสร็จ
+          await Getcustomer();
+          
+          // แสดงข้อความสำเร็จ
+          await Swal.fire({
+            title: 'ลบข้อมูลสำเร็จ!',
+            text: `ลบข้อมูลลูกค้า เรียบร้อยแล้ว`,
+            icon: 'success',
+            confirmButtonText: 'ตกลง'
+          });
+        } else if (removeCustomer.rejected.match(deleteResult)) {
+          // ถ้า action ถูก reject
+          let errorMessage = "เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า";
+          
+          console.log("Delete rejected with payload:", deleteResult.payload);
+          
+          // ตรวจสอบ error จาก rejectWithValue
+          if (deleteResult.payload) {
+            if (typeof deleteResult.payload === 'string') {
+              errorMessage = deleteResult.payload;
+            } else if (deleteResult.payload && typeof deleteResult.payload === 'object') {
+              const payload = deleteResult.payload as any;
+              if (payload.response && payload.response.data && payload.response.data.message) {
+                errorMessage = payload.response.data.message;
+              } else if (payload.message) {
+                errorMessage = payload.message;
+              }
+            }
+          }
+          
+          await Swal.fire({
+            title: 'ไม่สามารถลบข้อมูลได้!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'ตกลง'
+          });
+        }
+      } catch (error: any) {
+        console.error("Unexpected error:", error);
+        
+        await Swal.fire({
+          title: 'เกิดข้อผิดพลาด!',
+          text: "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
+          icon: 'error',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    }
   }
 
 
@@ -435,7 +509,10 @@ function Main() {
                                           className="inset-y-0 bg-secondary-400   justify-center m-auto   w-5 h-5  text-slate-500"
                                         ></Lucide>
                                       </button>
-                                      <button className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg">
+                                      <button 
+                                        onClick={() => handleDeleteCustomer(data?.id, data?.cus_name)}
+                                        className="bg-red-300 hover:bg-red-700 w-8 h-8 rounded-lg"
+                                      >
                                         <Lucide
                                           color="#FF5C5C"
                                           icon="Trash"

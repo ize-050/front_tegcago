@@ -161,4 +161,23 @@ export const getCustomerGroup =async()=>{
     })
 }
 
+// ลบลูกค้า
+export const deleteCustomer = async(customerId: string) => {
+    return new Promise(async(resolve, reject) => {
+        const url = `${process.env.NEXT_PUBLIC_URL_API}/sale/deleteCustomer/${customerId}`;
+        
+        await axios.delete(url, {
+            headers: {
+                Accept: 'application/json',
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                resolve(res.data)
+            }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
 

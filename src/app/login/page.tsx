@@ -17,9 +17,7 @@ const Login = () => {
 
     useEffect(() => {
         if (session.status === "authenticated") {
-            const userRole = session.data?.user?.role || session.data?.role;
-            console.log('Session data:', session.data);
-            console.log('User role from session:', userRole);
+            const userRole = session.data?.role;
             
             switch(userRole) {
                 case 'Manager':
@@ -41,7 +39,6 @@ const Login = () => {
                     router.push("/dashboard/finance");
                     break;
                 default:
-                    console.log('Unknown role or no role found, redirecting to home');
                     router.push("/");
                     break;
             }
@@ -75,9 +72,8 @@ const Login = () => {
               // Wait for session to be updated, then redirect based on role
               setTimeout(async () => {
                 const userSession = await fetch('/api/auth/session').then(res => res.json());
-                const userRole = userSession?.user?.role || userSession?.role;
+                const userRole = userSession?.role;
                 
-                console.log('User session after login:', userSession);
                 console.log('User role after login:', userRole);
                 
                 switch(userRole) {
@@ -100,7 +96,6 @@ const Login = () => {
                     router.push("/dashboard/finance");
                     break;
                   default:
-                    console.log('Unknown role in onSubmit, redirecting to home');
                     router.push("/");
                     break;
                 }

@@ -53,11 +53,40 @@ const ApproveComponent = () => {
 
   const submit = async (data: any) => {
     try {
+      console.log("=== DEBUG: Form data before submit ===");
+      console.log("Form data:", data);
+      console.log("Form data keys:", Object.keys(data));
+      console.log("data.type:", data.type);
+      console.log("data.type length:", data.type ? data.type.length : 'undefined');
+      
+      // ตรวจสอบแต่ละรายการใน type array
+      if (data.type && Array.isArray(data.type)) {
+        data.type.forEach((item: any, index: number) => {
+          console.log(`Type[${index}]:`, item);
+        });
+      }
+      
+      // กรองเฉพาะรายการที่มีข้อมูลจริง
+      let filteredTypes = [];
+      if (data.type && Array.isArray(data.type)) {
+        filteredTypes = data.type.filter((item: any) => 
+          item && (
+            (item.type_payment && item.type_payment.trim() !== "") ||
+            (item.price && item.price.trim() !== "") ||
+            (item.currency && item.currency.trim() !== "")
+          )
+        );
+      }
+      
+      console.log("Filtered types:", filteredTypes);
+      
       let RequestData = {
         ...data,
+        type: filteredTypes, // ใช้ข้อมูลที่กรองแล้ว
         d_purchase_id: purchase.id,
       };
 
+      console.log("RequestData being sent:", RequestData);
       const submitpayment: any = await Submitpayment(RequestData);
       if (submitpayment.status === 200) {
         console.log("submitpayment", submitpayment);
@@ -67,9 +96,9 @@ const ApproveComponent = () => {
             message: "บันทึกข้อมูลสำเร็จ",
           })
         );
-        await setTimeout(() => {
-          location.reload();
-        }, 2000);
+        // await setTimeout(() => {
+        //   location.reload();
+        // }, 2000);
         // router.push('/purchase')
       }
     } catch (e: any) {

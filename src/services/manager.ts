@@ -82,7 +82,6 @@ export const getSaleDashboardData = async (filters: DateFilter): Promise<ApiResp
     if (filters.startDate) params.append('startDate', filters.startDate);
     if (filters.endDate) params.append('endDate', filters.endDate);
     if (filters.period) params.append('period', filters.period);
-    if (filters.salespersonId) params.append('salespersonId', filters.salespersonId);
 
     const response = await axios.get(`${API_BASE_URL}/manager/dashboard/sale?${params.toString()}`, {
       headers: {

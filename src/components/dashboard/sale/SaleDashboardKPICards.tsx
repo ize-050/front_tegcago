@@ -1,18 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar, Phone, Clock, BarChart3 } from 'lucide-react';
-import axios from 'axios';
-
-interface KPIData {
-  totalRevenue: number;
-  totalShipments: number;
-  totalCustomers: number;
-  monthlyGrowth: number;
-  revenueGrowth: number;
-  shipmentsGrowth: number;
-  customersGrowth: number;
-}
+import React from 'react';
+import { Phone, Clock, DollarSign, Package, TrendingUp, TrendingDown, BarChart3, List } from 'lucide-react';
 
 interface KPICardData {
   id: string;
@@ -54,102 +43,7 @@ const SaleDashboardKPICards: React.FC<SaleDashboardKPICardsProps> = ({
   data,
   loading = false
 }) => {
-  const [kpiData, setKpiData] = useState<KPICardData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchSaleKPIs();
-  }, []);
-
-  const fetchSaleKPIs = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_URL_API}/dashboard/sale/kpis`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      if (response.data.success) {
-        const apiData = response.data.data;
-        setKpiData([
-          {
-            id: 'contacts',
-            title: 'Total Contacts',
-            value: apiData.totalContacts || 0,
-            icon: <Phone className="w-6 h-6" />,
-            trend: {
-              value: apiData.contactsTrend || 0,
-              isPositive: (apiData.contactsTrend || 0) >= 0,
-              period: 'vs last month'
-            },
-            color: {
-              bg: 'bg-blue-50',
-              icon: 'text-blue-600',
-              trend: (apiData.contactsTrend || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }
-          },
-          {
-            id: 'pending',
-            title: 'Pending Deals',
-            value: apiData.pendingDeals || 0,
-            icon: <Clock className="w-6 h-6" />,
-            trend: {
-              value: apiData.pendingTrend || 0,
-              isPositive: (apiData.pendingTrend || 0) >= 0,
-              period: 'vs last month'
-            },
-            color: {
-              bg: 'bg-orange-50',
-              icon: 'text-orange-600',
-              trend: (apiData.pendingTrend || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }
-          },
-          {
-            id: 'revenue',
-            title: 'Total Revenue',
-            value: `฿${(apiData.totalRevenue || 0).toLocaleString()}`,
-            icon: <DollarSign className="w-6 h-6" />,
-            trend: {
-              value: apiData.revenueTrend || 0,
-              isPositive: (apiData.revenueTrend || 0) >= 0,
-              period: 'vs last month'
-            },
-            color: {
-              bg: 'bg-green-50',
-              icon: 'text-green-600',
-              trend: (apiData.revenueTrend || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }
-          },
-          {
-            id: 'shipments',
-            title: 'Total Shipments',
-            value: apiData.totalShipments || 0,
-            icon: <Package className="w-6 h-6" />,
-            trend: {
-              value: apiData.shipmentsTrend || 0,
-              isPositive: (apiData.shipmentsTrend || 0) >= 0,
-              period: 'vs last month'
-            },
-            color: {
-              bg: 'bg-purple-50',
-              icon: 'text-purple-600',
-              trend: (apiData.shipmentsTrend || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }
-          }
-        ]);
-      }
-    } catch (error) {
-      console.error('Error fetching sale KPIs:', error);
-      // Fallback to default data
-      setKpiData(defaultData);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Mock data - fallback when API fails
+  // Mock data - จะเชื่อมต่อกับ API จริงในภายหลัง
   const defaultData: KPICardData[] = [
     {
       id: 'contacts',
@@ -233,9 +127,9 @@ const SaleDashboardKPICards: React.FC<SaleDashboardKPICardsProps> = ({
     }
   ];
 
-  const displayData = data || kpiData;
+  const kpiData = data || defaultData;
 
-  if (loading || isLoading) {
+  if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((index) => (
@@ -257,7 +151,7 @@ const SaleDashboardKPICards: React.FC<SaleDashboardKPICardsProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {displayData.map((card) => (
+      {kpiData.map((card) => (
         <div
           key={card.id}
           className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"

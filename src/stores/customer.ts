@@ -5,6 +5,7 @@ import {
   changeStatusToid,
   submitAddcustomer,
   ChangeUpdateCustomer,
+  deleteCustomer,
 } from "@/services/customer";
 import { setOpenToast } from "@/stores/util";
 import { useAppDispatch } from "./hooks";
@@ -127,6 +128,25 @@ export const submitFormAddcustomer = createAsyncThunk(
       );
 
       await dispatch(setFormAddCustomer(false));
+    }
+  }
+);
+
+// ลบลูกค้า
+export const removeCustomer = createAsyncThunk(
+  "customer/removeCustomer",
+  async (customerId: string, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const response: any = await deleteCustomer(customerId);
+      if (response.data && response.data.statusCode === 200) {
+        return customerId; // ส่งกลับ customerId เพื่อใช้ใน reducer
+      } else {
+        // ถ้า response ไม่ใช่ 200 ให้ throw error
+        return rejectWithValue(response.data?.message || "เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า");
+      }
+    } catch (error: any) {
+      // ส่ง error กลับผ่าน rejectWithValue เพื่อให้ component จัดการได้
+      return rejectWithValue(error);
     }
   }
 );

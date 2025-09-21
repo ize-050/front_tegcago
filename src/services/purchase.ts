@@ -496,11 +496,22 @@ export const Submitpayment = async (data: any) => {
         const formData = new FormData();
 
 
-        console.log("data.type", data.type)
-        if(data.type.length > 0){
-            data.type.forEach((item: any, index: number) => {
+        console.log("=== DEBUG: Payment data being sent ===");
+        console.log("data.type", data.type);
+        console.log("data.type.length", data.type.length);
+        
+        if(data.type && data.type.length > 0){
+            // กรองเฉพาะรายการที่มีข้อมูลจริง
+            const validTypes = data.type.filter((item: any) => 
+                item && (item.type_payment || item.price || item.currency)
+            );
+            
+            console.log("Valid types after filtering:", validTypes);
+            
+            validTypes.forEach((item: any, index: number) => {
                 const typeData = { ...item };
                 delete typeData.image;
+                console.log(`Appending type[${index}]:`, typeData);
                 formData.append(`type[${index}]`, JSON.stringify(typeData));
 
                 // จัดการกับ image ตามสถานะ

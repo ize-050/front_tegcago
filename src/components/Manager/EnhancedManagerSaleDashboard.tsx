@@ -191,7 +191,7 @@ const EnhancedManagerSaleDashboard: React.FC<EnhancedManagerSaleDashboardProps> 
               <div>
                 <p className="text-sm font-medium text-gray-500">ยอดขายรวม</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  ฿{(dashboardData.kpis.totalSales || 0).toLocaleString()}
+                  ฿{(dashboardData.kpis.totalSales / 1000000).toFixed(1)}M
                 </p>
                 <p className="text-xs text-green-600">
                   

@@ -33,9 +33,9 @@ const ManagerCSDashboard: React.FC<ManagerCSDashboardProps> = ({ dateFilter }) =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Date filter states - เริ่มต้นด้วยเดือนกุมภาพันธ์ 2025 ที่มีข้อมูล
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
-  const [selectedMonth, setSelectedMonth] = useState<number>(2);
+  // Date filter states - เริ่มต้นด้วยเดือนปัจจุบัน
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [filterType, setFilterType] = useState<'month' | 'year'>('month');
 
   useEffect(() => {

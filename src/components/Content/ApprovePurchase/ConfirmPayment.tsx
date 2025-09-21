@@ -9,6 +9,7 @@ import Button from "@/components/Base/Button";
 import { Controller } from "react-hook-form";
 import { Upload } from "lucide-react";
 import UploadImageComponent from "@/components/Uploadimage/UpdateImageComponent";
+import Swal from "sweetalert2";
 
 //store
 import { useAppSelector } from "@/stores/hooks";
@@ -130,30 +131,26 @@ const ConfirmPayment = ({
         [field]: value,
         change: true // Mark as changed when any field is modified
       };
+      console.log(`=== DEBUG: Field changed ===`);
+      console.log(`Index: ${index}, Field: ${field}, Value: ${value}`);
+      console.log(`Updated PaymentData:`, newData);
       return newData;
     });
 
     setValue(`type[${index}].${field}`, value);
     setValue(`type[${index}].change`, true);
+    console.log(`Form value set: type[${index}].${field} = ${value}`);
   };
 
   const OpenRow = () => {
-    setPaymentData([
-      ...PaymentData,
-      {
-        type_payment: "",
-        price: null,
-        currency: "THB",
-        change: true,
-        image: null,
-      },
-    ]);
-
     const newIndex = PaymentData.length;
-    setValue(`type[${newIndex}].type_payment`, "");
-    setValue(`type[${newIndex}].price`, null);
-    setValue(`type[${newIndex}].currency`, "THB");
+    const newItem = { 
+      id: Date.now() + Math.random(), // unique ID
+      index: newIndex 
+    };
+    setPaymentData([...PaymentData, newItem]);
     setValue(`type[${newIndex}].change`, true);
+    setValue(`type[${newIndex}].currency`, "THB");
   };
 
   const [previewUrls, setPreviewUrls] = useState<any>({});
@@ -177,6 +174,76 @@ const ConfirmPayment = ({
       return newUrls;
     });
     setValue(`type[${index}].image`, null);
+  };
+
+  // Add this function to handle row deletion
+  const handleDeleteRow = async (index: number) => {
+    if (PaymentData.length <= 1) {
+      await Swal.fire({
+        title: 'ไม่สามารถลบได้!',
+        text: 'ต้องมีรายการอย่างน้อย 1 รายการ',
+        icon: 'warning',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบรายการ',
+      text: 'คุณต้องการลบรายการชำระเงินนี้ใช่หรือไม่?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ลบรายการ',
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
+      // สร้าง array ใหม่โดยลบรายการที่ต้องการ
+      const newPaymentData = PaymentData.filter((_: any, i: number) => i !== index);
+      
+      // สร้าง previewUrls ใหม่โดย reindex ทั้งหมด
+      const newPreviewUrls: any = {};
+      Object.keys(previewUrls).forEach((key) => {
+        const oldIndex = parseInt(key);
+        if (oldIndex < index) {
+          // รายการก่อนหน้า index ที่ลบ - ใช้ index เดิม
+          newPreviewUrls[oldIndex] = previewUrls[oldIndex];
+        } else if (oldIndex > index) {
+          // รายการหลัง index ที่ลบ - เลื่อน index ลงมา 1
+          newPreviewUrls[oldIndex - 1] = previewUrls[oldIndex];
+        }
+        // ไม่ต้องทำอะไรกับ index ที่ลบ (จะหายไป)
+      });
+
+      // อัปเดต state
+      setPaymentData(newPaymentData);
+      setPreviewUrls(newPreviewUrls);
+
+      // ล้าง form values ทั้งหมดแล้วตั้งค่าใหม่ตาม newPaymentData
+      // ล้าง form values เก่าทั้งหมด
+      for (let i = 0; i < PaymentData.length; i++) {
+        setValue(`type[${i}].type_payment`, "");
+        setValue(`type[${i}].price`, "");
+        setValue(`type[${i}].currency`, "");
+        setValue(`type[${i}].evidence`, "");
+        setValue(`type[${i}].image`, null);
+        setValue(`type[${i}].id`, "");
+      }
+
+      // ตั้งค่าใหม่ตาม newPaymentData
+      newPaymentData.forEach((item: any, newIndex: number) => {
+        setValue(`type[${newIndex}].type_payment`, item.type_payment || "");
+        setValue(`type[${newIndex}].price`, item.price || "");
+        setValue(`type[${newIndex}].currency`, item.currency || "");
+        setValue(`type[${newIndex}].evidence`, item.evidence || "");
+        setValue(`type[${newIndex}].id`, item.id || "");
+        setValue(`type[${newIndex}].change`, true);
+      });
+
+    }
   };
 
   return (
@@ -228,6 +295,10 @@ const ConfirmPayment = ({
 
               <Table.Td className="py-4  truncate font-medium text-center border-t   border-slate-200/60 text-black">
                 รูปภาพ
+              </Table.Td>
+              
+              <Table.Td className="py-4  truncate font-medium text-center border-t   border-slate-200/60 text-black">
+                จัดการ
               </Table.Td>
             </Table.Tr>
           </Table.Thead>
@@ -364,6 +435,16 @@ const ConfirmPayment = ({
                         </button>
                       </div>
                     )}
+                  </Table.Td>
+                  
+                  <Table.Td className="text-center">
+                    <button
+                      onClick={() => handleDeleteRow(index)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm"
+                      type="button"
+                    >
+                      ลบ
+                    </button>
                   </Table.Td>
                 </Table.Tr>
               </Fragment>
