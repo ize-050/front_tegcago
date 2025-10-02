@@ -16,15 +16,15 @@ const AdditionalThaiExpenseForm: React.FC<ExpenseFormProps> = ({ control, errors
     ]);
 
     const calculateTotalThaiExpense = () => {
-        // ตรวจสอบว่ามีค่าใดค่าหนึ่งก่อนคำนวณ
-        const hasValues = watch('th_port_fee') || watch('th_lift_on_off') || watch('th_ground_fee') || watch('th_port_other_fee');
+        // ตรวจสอบว่ามีค่าใดค่าหนึ่งก่อนคำนวณ (ไม่รวมค่ายิงใบขน)
+        const hasValues = watch('th_lift_on_off') || watch('th_ground_fee') || watch('th_port_other_fee');
         
         if (hasValues) {
+            // คำนวณผลรวม "รวมเคลียร์ Shipping" โดยไม่รวมค่ายิงใบขน (th_port_fee)
             const total = 
-                Number(watch('th_port_fee') || 0) +
-                Number(watch('th_lift_on_off') || 0) +
-                Number(watch('th_ground_fee') || 0) +
-                Number(watch('th_port_other_fee') || 0);
+                Number(watch('th_lift_on_off') || 0) +   // ค่ายก on/off
+                Number(watch('th_ground_fee') || 0) +     // ค่า ground
+                Number(watch('th_port_other_fee') || 0);  // ค่าอื่นๆ
             
             setValue('th_total_port_fee', total.toFixed(2));
         } else {
