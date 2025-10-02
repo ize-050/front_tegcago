@@ -131,7 +131,7 @@ const FormfinanceComponent = ({ BookingId }: any) => {
         watch('th_overtime'),
         watch('price_deposit'),
         watch('amount_payment_do'),
-        watch('th_hairy'),
+        // watch('th_hairy'),
         watch('th_price_head_tractor'),
         watch('th_head_tractor'),
         watch('th_other_fee'),
