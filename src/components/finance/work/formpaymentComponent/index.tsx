@@ -238,7 +238,7 @@ const FormPaymentComponent = ({ BookingId }: any) => {
             Number(watch('th_employee') || 0) +
             Number(watch('th_warehouse') || 0) +
             Number(watch('th_gasoline') || 0) +
-            Number(watch('th_hairy') || 0) +
+            // Number(watch('th_hairy') || 0) +
             Number(watch('th_overtime') || 0) +
             Number(watch('th_check_fee') || 0) +
             Number(watch('th_product_account') || 0) +
