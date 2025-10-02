@@ -114,7 +114,7 @@ const FormfinanceComponent = ({ BookingId }: any) => {
             Number(total) +
             (Number(watch('price_deposit')) || 0) +
             (Number(watch('amount_payment_do')) || 0) +
-            Number(watch('th_hairy')) +
+            // Number(watch('th_hairy')) +
             Number(watch('th_price_head_tractor')) +
             Number(watch('th_head_tractor')) +
             Number(watch('th_other_fee'))
